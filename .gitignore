@@ -1,0 +1,7 @@
+*.py~
+*.md~
+*.txt~
+*.log
+*.log~
+__pycache__/
+pylinear.egg-info/
