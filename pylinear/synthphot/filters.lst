@@ -1,0 +1,14 @@
+# 1: Filter name
+# 2: Filter curve file
+# 3: AB Zeropoint
+
+F435W    hst_acs_f435w.filt    25.669
+F606W    hst_acs_f606w.filt    26.502
+F775W    hst_acs_f775w.filt    25.671
+F814W    hst_acs_f814w.filt    25.949
+F850LP   hst_acs_f850lp.filt   24.862
+F105W    hst_wfc3_f105w.filt   26.2687
+F110W    hst_wfc3_f110w.filt   26.8223
+F125W    hst_wfc3_f125w.filt   26.2303
+F140W    hst_wfc3_f140w.filt   26.4524
+F160W    hst_wfc3_f160w.filt   25.9463
