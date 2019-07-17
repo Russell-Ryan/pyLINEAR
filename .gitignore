@@ -3,6 +3,8 @@
 *.txt~
 *.log
 *.log~
+*.yml~
+.DS_Store
 .gitignore~
 __pycache__/
 dist/
