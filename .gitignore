@@ -3,5 +3,8 @@
 *.txt~
 *.log
 *.log~
+.gitignore~
 __pycache__/
+dist/
+build/
 pylinear.egg-info/
