@@ -102,6 +102,7 @@ def linearPipeline(conf):
 
     # load sources (includes spectra)
     sources=source.Data(conf['sources'])
+
     
     # call the modules
     modconf=conf['modules']

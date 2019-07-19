@@ -181,7 +181,6 @@ def writeFITS(conf,result,mat,sources,method):
 def extract(conf,sources):
     if not conf['perform']:
         return
-
     
     # just some stuff for short-hand
     calconf=conf['calib']
@@ -190,21 +189,20 @@ def extract(conf,sources):
     # read grism images
     grisms=grism.Data(conf['imglst'],'img',conffile)
 
+    
     # get the grism config data
     extconf=h5axeconfig.Camera(conffile,grisms.grism,beams=conf['beam'])
     mskconf=h5axeconfig.Camera(conffile,grisms.grism,beams=conf['mask'])
     grismFF=h5axeconfig.FlatField(calconf['h5flat'])
 
+    
     # make the tables if need-be
-    #tabulate(conf['tables'],grisms,sources,extconf,'odt')
-    tabulate(conf['tables'],grisms,sources,mskconf,'omt')
+    tabulate(conf['tables'],grisms,sources,extconf,'odt')
+    #tabulate(conf['tables'],grisms,sources,mskconf,'omt')
 
 
     # set extraction values for each source
-    print('move extraction parametres out of matrix.py to here')
-
-
-
+    print('move extraction parameters out of matrix.py to here')
 
     
     # build the matrix and guesses

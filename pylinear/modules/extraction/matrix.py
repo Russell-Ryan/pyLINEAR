@@ -2,7 +2,7 @@ import numpy as np
 import timeit
 import scipy.sparse.linalg as ssl
 from scipy.sparse import coo_matrix
-
+import pdb
 
 from . import lcurve,lsqrresult
 from pylinear import h5table
@@ -75,11 +75,12 @@ class Matrix(object):
         ic,iu=indices.compress(i)
         jc,ju=indices.compress(j)
         dim=np.array([len(iu),len(ju)])
+        self.npar=np.amax(jc)
         del i,j
         
         # compute some things for ragged arrays
         if len(sources)==1:
-            srcind=np.zeros(self.npar,dtype=int)
+            srcind=np.zeros(self.npar+1,dtype=int)
         else:
             srcind=np.digitize(ju,self.cwav)-1
         lam=ju-self.cwav[srcind]
@@ -261,6 +262,9 @@ class Matrix(object):
                         ij=jjj+self.npar*iii
                         ij=ij.astype(np.uint64)
                         del iii,jjj
+
+
+
                         
                         # decimate over repeated indices
                         aiju,iju=indices.decimate(ij,val)

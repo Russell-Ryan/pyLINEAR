@@ -2,6 +2,7 @@ import numpy as np
 import multiprocessing as mp
 import os
 
+
 from pylinear import h5table
 from pylinear.utilities import indices,pool
 
@@ -60,7 +61,7 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
                 # seem to be a problem just yet
                 wav=beamconf.wavelengths(xc,yc,nsub)  
                 dwav=wav[1]-wav[0]
-            
+
                 for segid,src in sources:
                     if src.name not in sourcesDone:  # only process new sources
                         

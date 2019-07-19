@@ -48,9 +48,9 @@ modules:
     imglst: flt.lst
     beam: A
     mask: null
-    lamb0: 7500.
-    lamb1: 12500.
-    dlamb: 25.
+    lamb0: 9000.
+    lamb1: 18000.
+    dlamb: 100.
     lsqr:
       atol: 1e-10
       btol: 1e-10

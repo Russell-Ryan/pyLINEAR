@@ -3,12 +3,9 @@ import numpy as np
 import os
 
 
-
-
-
 class H5Table(object):
     def __init__(self,dataset,path=None,suffix='odt'):
-
+        
         # sort out some things w.r.t. the path
         if path is None:
             path=os.getcwd()

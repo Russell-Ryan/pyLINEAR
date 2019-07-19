@@ -5,13 +5,16 @@ from astropy.io import fits
 
 class GrismImage(object):
     def __init__(self,name,filename=False):
+
         if filename:
             self.path,name=os.path.split(name)
-            self.dataset=os.path.basename(name).split('_flt.fits')[0]
+            self.dataset,self.datatype=os.path.basename(name).split('_')
+            #self.dataset=os.path.basename(name).split('_flt.fits')[0]
         else:
             self.path=''
             self.dataset=name
-
+            self.datatype='flt.fits'
+            
         self.gzip=os.path.splitext(name)[1]=='.gz'
         self.phdu=fits.Header()
         self.detectors=OrderedDict()
@@ -32,7 +35,7 @@ class GrismImage(object):
     @property
     def filename(self):
         suf='.gz' if self.gzip else ''
-        filename='{}_flt.fits{}'.format(self.dataset,suf)
+        filename='{}_{}{}'.format(self.dataset,self.datatype,suf)
         return os.path.join(self.path,filename)
 
     def keyword(self,key):
