@@ -34,18 +34,31 @@ class ODT(H5Utils):
 
 
     def writeH5(self,grp):
+        # original code
+        #dset=self.writeData(grp,self.xyg,self.lam,self.val,\
+        #                    wavelengths=self.wav,pixels=self.pix,\
+        #                    count=self.count)
+
+        # hack to work for Nor's big galaxies (explicitly typing the
+        # internal variables with numpy dtypes to avoid the 64 kb limit
+        # that is claimed to be present in HDF5)
+        # https://stackoverflow.com/questions/16639503/unable-to-save-dataframe-to-hdf5-object-header-message-is-too-large
+
+        
         dset=self.writeData(grp,self.xyg,self.lam,self.val,\
-                            wavelengths=self.wav,pixels=self.pix,\
-                            count=self.count)
+                            wavelengths=np.array(self.wav,dtype=np.float32),\
+                            pixels=np.array(self.pix,dtype=np.uint16),\
+                            count=np.array(self.count,dtype=np.uint32))
         return dset
         
     def readH5(self,grp):
         try:
-            data,pix,wav,cnt=self.loadData(grp,attrs=['pixels','wavelengths','count'])
+            attrs=['pixels','wavelengths','count']
+            data,pix,wav,cnt=self.loadData(grp,attrs=attrs)
             self.pix=[tuple(p) for p in pix]
             del pix
 
-            self.count=cnt
+            self.count=list(cnt)
             del cnt
             
             self.wav=columns.WAV(wav)
@@ -84,9 +97,6 @@ class ODT(H5Utils):
             xylc=np.digitize(xyl,xylu)-1
             del xyl                # just save on memory usage
 
-
-            
-                        
             # sum over repeated indices
             vald=np.bincount(xylc,weights=self.val.to_numpy)
             del xylc               # just save on memory usage

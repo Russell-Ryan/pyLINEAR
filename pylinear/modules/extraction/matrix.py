@@ -69,7 +69,9 @@ class Matrix(object):
             j.extend(data[1])
             aij.extend(data[2])
 
-
+        if len(i)==0:
+            raise RuntimeError("matrix had no elements")
+        
         # loaded everything
         print("Compressing the indices.")
         ic,iu=indices.compress(i)
@@ -262,7 +264,6 @@ class Matrix(object):
                         ij=jjj+self.npar*iii
                         ij=ij.astype(np.uint64)
                         del iii,jjj
-
 
 
                         
