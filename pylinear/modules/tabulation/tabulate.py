@@ -3,14 +3,25 @@ import multiprocessing as mp
 import os
 
 
+#from pylinear import h5table,h5utils
+#from pylinear.h5table import h5table,h5utils
 from pylinear import h5table
+from pylinear.h5table import h5utils
 from pylinear.utilities import indices,pool
+
+
+def detGroup(h5,det,detconf):
+    if det in h5:
+        detgrp=h5[det]
+    else:
+        detgrp=h5.create_group(det)
+    return detgrp
 
 
 def makeODTs(grism,sources,grismconf,path,remake,nsub):
     
     # create the table
-    tab=h5table.H5Table(grism.dataset,path=path,suffix='odt')
+    tab=h5table.H5Table(grism.dataset,'ddt',path=path)
 
     # remake the table?
     if remake and os.path.isfile(tab.filename):
@@ -24,10 +35,13 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
 
     with tab as h5:        
         for det,detconf in grismconf:
-            if det in h5:
-                detgrp=h5[det]
-            else:
-                detgrp=h5.create_group(det)
+
+            detgrp=detGroup(h5,det,detconf)
+            
+            #if det in h5:
+            #    detgrp=h5[det]
+            #else:
+            #    detgrp=h5.create_group(det)
 
             
             # get the center of the detector
@@ -98,15 +112,20 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
 
                         # if ODT is valid, then write it!
                         if len(odt)!=0:
-                            odt.writeH5(beamgrp)
-    
+                            ddt=odt.decimate()
+                            
+                            ddt.writeH5(beamgrp,RA=src.adc[0],Dec=src.adc[1],\
+                                        xc=src.xyc[0],yc=src.xyc[1],\
+                                        mag=src.mag,area=src.area,npix=src.npix)
+                                        
+                            
     return tab.filename
 
 
 def makeOMTs(flt,sources,grismconf,path,remake,nsub):
     print("making the OMTs")
     # create the table
-    tab=h5table.H5Table(flt.dataset,path=path,suffix='omt')
+    tab=h5table.H5Table(flt.dataset,'omt',path=path)
 
     # remake the table?
     if remake and os.path.isfile(tab.filename):

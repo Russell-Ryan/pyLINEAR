@@ -1,39 +1,46 @@
 import numpy as np
 import h5py
 
-
-from .h5utils import H5Utils
+from .base import Base
 from .pdt import PDT
 from .ddt import DDT
 from . import columns
+from . import h5utils
 
-
-class ODT(H5Utils):
+class ODT(Base):
     DTYPE=np.uint64         # for internal integer arithmetic
 
     
     def __init__(self,segid,wav=[]):
         self.segid=segid
 
+        
         self.wav=columns.WAV(wav)
         self.xyg=columns.XYG()
         self.lam=columns.LAM()
         self.val=columns.VAL()
-        
-        self.pix=[]
-        self.count=[0]
 
+        self.pix=[]          # FIX
+        #self.count=[0]       # FIX
+
+        self.x=columns.X()
+        self.y=columns.Y()
+        self.count=columns.Count([0])
+        
     
     def extend(self,pdt):
         assert isinstance(pdt,PDT),'Wrong data type'
+        
         self.pix.append(pdt.pixel)
+        self.x.append(pdt.pixel[0])
+        self.y.append(pdt.pixel[1])
         self.count.append(self.count[-1]+len(pdt))
         self.xyg.extend(pdt.xyg)
         self.lam.extend(pdt.lam)
         self.val.extend(pdt.val)
 
 
-    def writeH5(self,grp):
+    def writeH5(self,grp,**kwargs):
         # original code
         #dset=self.writeData(grp,self.xyg,self.lam,self.val,\
         #                    wavelengths=self.wav,pixels=self.pix,\
@@ -44,38 +51,59 @@ class ODT(H5Utils):
         # that is claimed to be present in HDF5)
         # https://stackoverflow.com/questions/16639503/unable-to-save-dataframe-to-hdf5-object-header-message-is-too-large
 
-        
-        dset=self.writeData(grp,self.xyg,self.lam,self.val,\
-                            wavelengths=np.array(self.wav,dtype=np.float32),\
-                            pixels=np.array(self.pix,dtype=np.uint16),\
-                            count=np.array(self.count,dtype=np.uint32))
-        return dset
-        
-    def readH5(self,grp):
-        try:
-            attrs=['pixels','wavelengths','count']
-            data,pix,wav,cnt=self.loadData(grp,attrs=attrs)
-            self.pix=[tuple(p) for p in pix]
-            del pix
+        # this hack didn't really work either, because the biggest of
+        # sources overflow the 64kb limit using uint32.  the biggest
+        # sources require uint8, but then their content would overflow
+        # the numeric range of uint8        
+        #dset=self.writeData(grp,self.xyg,self.lam,self.val,\
+        #                    wavelengths=np.array(self.wav,dtype=np.float32),\
+        #                    pixels=np.array(self.pix,dtype=np.uint16),\
+        #                    count=np.array(self.count,dtype=np.uint32))
 
-            self.count=list(cnt)
-            del cnt
-            
-            self.wav=columns.WAV(wav)
-            del wav
-            
+        # new attempt... create groups and write data to that -_-
+        new=grp.create_group(self.name)
+        for k,v in kwargs.items():
+            h5utils.writeAttr(new,k,v)
+
+
+        data=h5utils.writeData(new,self.ttype,self.xyg,self.lam,self.val)
+        pixels=h5utils.writeData(new,'pix',self.x,self.y,\
+                                 columns.Count(self.count[1:]))
+        wave=h5utils.writeData(new,'wav',self.wav)
+
+
+        
+        return new
+
+
+    
+    def readH5(self,grp):
+        if self.name in grp:
+            new=grp[self.name]
+            data=h5utils.loadData(new,self.ttype)
             self.xyg=columns.XYG(data['xyg'])
             self.lam=columns.LAM(data['lam'])
             self.val=columns.VAL(data['val'])
-
-        except:
-            print("{} ODT not found".format(self.name))
+            
+            pixels=h5utils.loadData(new,'pix')
+            self.x=columns.X(pixels['x'])
+            self.y=columns.Y(pixels['y'])
+            self.pix=list(zip(self.x,self.y))
+            self.count=columns.Count([0])
+            self.count.extend(pixels['count'])
+            self.wav=columns.WAV(h5utils.loadData(new,'wav'))
+        else:
+            print("{} for {} not found.".format(self.ttype,self.name))
         
 
+    def set(self):
+        return set(self.xyg)
+
+            
     @property
     def npix(self):
         return len(self.pix)
-    
+            
     @property
     def nwav(self):
         return len(self.wav)
@@ -84,9 +112,8 @@ class ODT(H5Utils):
     def decimate(self):
         ddt=DDT(self.segid)     # create empy DDT for output
         if len(self) != 0:
+            ddt.pix=self.pix
 
-        
-            
             # make a one-d index
             #xyl=self.xyg.astype(dtype)+self.npix*self.lam.astype(dtype)
             xyl=self.DTYPE(self.nwav)*self.xyg.astype(self.DTYPE)+\
@@ -115,12 +142,13 @@ class ODT(H5Utils):
 
         return ddt
 
-    def __str__(self):
-        return 'ODT for {}\n{} pixels and {} wavelengths'.format(self.name,self.npix,self.nwav)
+    #def __str__(self):
+    #    return '{} for {}\n{} pixels and {} wavelengths'.format(self.ttype,self.segid,self.npix,self.nwav)
         
     def __getitem__(self,pix):
         if pix in self:
             i=self.pix.index(pix)
+
             i0,i1=self.count[i],self.count[i+1]
 
             pdt=PDT(x=pix[0],y=pix[1])

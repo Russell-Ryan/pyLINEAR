@@ -1,12 +1,12 @@
 import numpy as np
 
-from .h5utils import H5Utils
 
+from .base import Base
 from . import columns
+from . import h5utils
 
 
-
-class PDT(H5Utils):
+class PDT(Base):
     def __init__(self,xy):
         assert(len(xy)==2),'must specify an xy pair'
         self.pixel=xy
@@ -34,7 +34,7 @@ class PDT(H5Utils):
         return self
     
     def __str__(self):
-        return 'PDT for {}'.format(self.name)
+        return '{} for {}'.format(self.ttype,self.name)
         
     def __len__(self):
         return len(self.xyg)
@@ -43,15 +43,30 @@ class PDT(H5Utils):
         for x,l,v in zip(self.xyg,self.lam,self.val):
             yield x,l,v
 
-    def writeH5(self,grp):
-        dset=self.writeData(grp,self.xyg,self.lam,self.val)
-        return dset
-
+    def writeH5(self,grp,**kwargs):
+        new=grp.create_group(self.name)
+        for k,v in kwargs.items():
+            h5utils.writeAttr(new,k,v)
+        data=h5utils.writeData(new,self.ttype,self.xyg,self.lam,self.val)
+        #dset=h5utils.writeData(grp,self.xyg,self.lam,self.val)
+        #return dset
+        return data
+        
     def readH5(self,grp):
-        data=self.loadData(grp)
-        self.xyg=columns.XYG(data['xyg'])
-        self.lam=columns.LAM(data['lam'])
-        self.val=columns.VAL(data['val'])
+        if self.name in grp:
+            new=grp[self.new]
+            data=h5utils.loadData(new,self.__class__.__name__)
+            self.xyg=columns.XYG(data['xyg'])
+            self.lam=columns.XYG(data['lam'])
+            self.val=columns.XYG(data['val'])
+        else:
+            print("{} for {} not found.".format(self.ttype,self.name))
+
+            
+        #data=h5utils.loadData(grp)
+        #self.xyg=columns.XYG(data['xyg'])
+        #self.lam=columns.LAM(data['lam'])
+        #self.val=columns.VAL(data['val'])
 
 
     @property

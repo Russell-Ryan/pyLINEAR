@@ -33,16 +33,32 @@ class H5Column(object):
     def astype(self,dtype):
         return np.array(self,dtype=dtype)
 
-
-
-
     
+class X(list,H5Column):
+    def __init__(self,*args,description='x coordinate',dtype=np.uint16):
+        H5Column.__init__(self,description,dtype)
+        if len(args)==1:
+            super(X,self).__init__(args[0])
+
+class Y(list,H5Column):
+    def __init__(self,*args,description='y coordinate',dtype=np.uint16):
+        H5Column.__init__(self,description,dtype)
+        if len(args)==1:
+            super(Y,self).__init__(args[0])
+            
+class Count(list,H5Column):
+    def __init__(self,*args,description='wavelength count',dtype=np.uint32):
+        H5Column.__init__(self,description,dtype)
+        if len(args)==1:
+            super(Count,self).__init__(args[0])
+
+            
 class XYG(list,H5Column):
     def __init__(self,*args,description='1d grism coordinates',dtype=np.uint32):
         H5Column.__init__(self,description,dtype)
         if len(args)==1:
             super(XYG,self).__init__(args[0])
-
+            
 class LAM(list,H5Column):
     def __init__(self,*args,description='wavelength indices',dtype=np.uint16):
         H5Column.__init__(self,description,dtype)
@@ -74,8 +90,15 @@ class PIX(list):
         
 if __name__=='__main__':
     
-    xyg=XYG()
-    q=[i for i in range(100)]
+    #xyg=XYG()
+    #q=[i for i in range(100)]
+    pix=PIX()
+    pix.append((1,2))
+    pix.append((2,3))
+    pix.append((3,4))
+    print(pix[-1][-1])
+    print(pix.dtype)
+
     
 
 #    xyg.extend(q)

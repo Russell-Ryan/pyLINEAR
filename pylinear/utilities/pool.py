@@ -6,6 +6,10 @@ import psutil as ps
 
 def pool(func,iterator,*args,ncpu=None):
 
+    
+    # this uses multiprocessing, but Clare S. recommended using
+    # DASK, that it is easier to facilitate https://dask.org
+    
     # get some settings for the processing
     ncpus=ps.cpu_count(logical=False)
     ncores=ps.cpu_count(logical=True)

@@ -1,12 +1,12 @@
 import numpy as np
 import h5py
 
-from .h5utils import H5Utils
+from .base import Base
 from pylinear.utilities import indices
 from . import columns
+from . import h5utils
 
-
-class OMT(H5Utils):
+class OMT(Base):
     def __init__(self,segid):
         self.segid=segid
         self.xyg=columns.XYG()
@@ -20,17 +20,21 @@ class OMT(H5Utils):
         xyg=indices.unique(self.xyg)
         self.xyg=columns.XYG(xyg)
                 
-    def writeH5(self,grp):
-        dset=self.writeData(grp,self.xyg)
-        return dset
+    def writeH5(self,grp,**kwargs):
+        new=grp.create_group(self.name)
+        for k,v in kwargs.items():
+            h5utils.writeAttr(new,k,v)
+        data=h5utils.writeData(new,self.ttype,self.xyg)
+        return new
 
 
     def readH5(self,grp):
-        try:
-            data=self.loadData(grp)
+        if self.name in grp:
+            new=grp[self.name]
+            data=h5utils.loadData(new,self.ttype)
             self.xyg=columns.XYG(data['xyg'])
-        except:
-            print("{} OMT not found.".format(self.name))
+        else:
+            print("{} for {} not found.".format(self.ttype,self.name))
 
     def __len__(self):
         return len(self.xyg)

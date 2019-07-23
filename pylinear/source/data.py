@@ -10,8 +10,10 @@ from pylinear.utilities import indices
 
 
 class Data(object):
+    SEGTYPE=np.uint32           # force SEGIDs to have this type
+    
     def __init__(self,conf):
-
+        
         # load the obs data
         self.obsdata=ObsLST(conf)
 
@@ -128,7 +130,7 @@ class Data(object):
 
 
         # get the reverse indices (is potentially slow)
-        revind=indices.reverse(seg.data)
+        revind=indices.reverse(seg.data.astype(self.SEGTYPE))
         if revind[0][0]==0:
             del revind[0]     # remove the sky index from the segmentation
 
@@ -180,7 +182,7 @@ class Data(object):
                        lamb1=keyword('LAMB1'),\
                        dlamb=keyword('DLAMB'))
 
-            segid=src['SEGID']
+            segid=self.SEGTYPE(src['SEGID'])
             if (segid not in self.sources) & (src.npix>0) & (src.total>0):
                 self.sources[segid]=src
             else:

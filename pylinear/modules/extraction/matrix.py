@@ -10,6 +10,11 @@ from pylinear.utilities import progressbar,indices
 from .fluxunit import FLUXUNIT
 
 class Matrix(object):
+
+    
+    TTYPE='ddt'
+
+    
     def __init__(self,conf,grisms,sources,extconf,mskconf,grismFF):
         print("building the matrix")
 
@@ -125,13 +130,12 @@ class Matrix(object):
 
         # output stuff
         i,j,aij=[],[],[]
-
-
+        
         # make mask for this FLT
         masks=self.maskBeams(flt,mskconf,path)
         
         # open the H5Table
-        with h5table.H5Table(flt.dataset,path=path,suffix='odt') as h5:
+        with h5table.H5Table(flt.dataset,self.TTYPE,path=path) as h5:
 
             # loop over detectors
             for detname,detimg in flt:
@@ -217,12 +221,21 @@ class Matrix(object):
             
             # loop over the sources
             for srcindex,(segid,src) in enumerate(sources):
-                
-                odt=h5table.ODT(src.segid)
-                odt.readH5(h5beam)
-                ddt=odt.decimate()
-                del(odt)
-                
+
+
+                if self.TTYPE=='odt':                
+                    # Read the ODT
+                    odt=h5table.ODT(src.segid)
+                    odt.readH5(h5beam)
+                    ddt=odt.decimate()
+                    del(odt)
+                elif self.TTYPE=='ddt':
+                    # Read the DDT
+                    ddt=h5table.DDT(src.segid)
+                    ddt.readH5(h5beam)
+                else:
+                    raise NotImplementedError("Invalid Table Type: {}".format(self.TTYPE))
+                    
                 if len(ddt)!=0:
                     
                     # get limits 
