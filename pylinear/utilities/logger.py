@@ -1,19 +1,29 @@
 import sys
 import datetime
+import re
 
 class Logger(object):
     ''' class to perform custom logging by overriding print command '''
    
 
-    def __init__(self,name,logfile='linear.log'):
+    def __init__(self,name,logfile=None):
         ''' create a log file that contains the same content as print '''
-        self.terminal=sys.stdout
+
+        if logfile is None:
+            logfile=name.lower()+'.log'
+        
+        # define the regex search tool
+        #self.regex=re.compile('\<(.*?)\>')
+        self.regex=re.compile('\[[A-Za-z]+\]')
+
+        
+        self.stdout=sys.stdout
         try:
             self.logfile=open(logfile,'w')
             self.logging=True
         except:
             msg="Unable to write the logfile: {}.\n".format(logfile)
-            self.terminal.write(msg)
+            self.stdout.write(msg)
             self.logging=False
 
         if self.logging:
@@ -22,7 +32,7 @@ class Logger(object):
             now=now.strftime("   %I:%M:%S %p")
 
             label='started from module: {}:'.format(name)
-            self.num=74
+            self.num=74    # so that it fits in default windows
 
             self.logfile.write(' +-'+self.num*'-'+'-+\n')
             self.logfile.write(' | '+self.num*' '+' |\n')
@@ -37,20 +47,43 @@ class Logger(object):
     def write(self,text):
         ''' override the print functionality '''
 
+
+        #https://www.geeksforgeeks.org/print-colors-python-terminal/
+        #self.stdout.write("\033[91m{}\033[00m".format(text)) 
+
+        match=self.regex.match(text)
+        if match:
+            ttype=match.group(0)
+            if ttype=='[info]': f="\033[32;1mInfo>\033[00m\033[32m {}\033[00m"
+            elif ttype=='[warn]':f="\033[33;1mWarning>\033[0m\033[33m {}\033[0m"
+            elif ttype=='[alarm]': f="\033[31;1mAlarm> \033[5m{}\033[00m"
+            elif ttype=='[debug]': f="\033[36;3mDebug> {}\033[00m"
+            elif ttype=='[title]': f="\033[30;1m{}\033[00m"
+            else: f='{}'
+            self.stdout.write(f.format(text[match.end(0):]))
+        else:
+            self.stdout.write(text)
         
-        self.terminal.write(text)
+        
+        # always print that
         if self.logging:
             self.logfile.write(text)
+                    
+        
+
+        # original printing
+        #self.stdout.write(text)
+        #if self.logging:
+        #    self.logfile.write(text)
             
     def flush(self):
         ''' obligatory method '''
-
         pass
 
     def __del__(self):
         ''' magic method to ensure files are closed safely, append outro '''
         
-        sys.stdout=self.terminal
+        sys.stdout=self.stdout    # reset the stdout
         if self.logging:
 
             now=datetime.datetime.now()
@@ -71,7 +104,15 @@ class Logger(object):
 
 if __name__=='__main__':
     print('testing the logging utility')
-        
+
+    import numpy as np
+    
     sys.stdout=Logger('Test',logfile='test.log')
-
-
+    
+    print('[info]This is informational')
+    print('[warn]This is slightly more worrisome')
+    print('[alarm]This is alarming')
+    print('[debug]a debugging message')
+    print('[title]A title message')
+    print('this is a standard')
+    print('[warn]',[1,2,34])

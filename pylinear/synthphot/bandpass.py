@@ -67,7 +67,7 @@ class Bandpass(object):
         ex=(sed.minmax[0] > self.minmax[0]) or (sed.minmax[1] < self.minmax[1])
 
         if ex:
-            print("Extrapolation warning.")
+            print("[warn]Extrapolation warning.")
             
         fnu=np.interp(self.lamb,sed.lamb,sed.fnu,left=0.,right=0.)
         ave=np.trapz(fnu*self.tran,x=self.freq)

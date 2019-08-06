@@ -60,7 +60,7 @@ class PDT(Base):
             self.lam=columns.XYG(data['lam'])
             self.val=columns.XYG(data['val'])
         else:
-            print("{} for {} not found.".format(self.ttype,self.name))
+            self.notFound()
 
             
         #data=h5utils.loadData(grp)

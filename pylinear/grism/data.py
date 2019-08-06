@@ -51,10 +51,11 @@ class Data(object):
         
         
     def loadObserved(self,filename,conffile):
-        print('loading observed grism images')
+        print('[info]Loading observed grism images')
 
         
         exts=h5utils.detectorData(conffile,'science_ext','extver')
+
         
         # read the data
         table=asciitable.AsciiTable(['filename'],filename=filename)
@@ -73,7 +74,7 @@ class Data(object):
             
     def loadSimulated(self,filename,siaffile):
         
-        print('loading simulated grism images')
+        print('[info]Loading simulated grism images')
 
         columns=['dataset','crval1','crval2','orientat']
         table=asciitable.AsciiTable(columns,filename=filename)

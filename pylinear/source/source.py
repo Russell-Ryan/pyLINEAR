@@ -20,7 +20,7 @@ class Source(WCS,ExtractionParameters):
         g=np.where(seg.data == self.segid)
         self.npix=len(g[0])
         if self.npix==0:
-            print("Ignoring {}. No valid pixels.".format(self.npix))
+            print("[warn]No valid pixels for source={}".format(self.npix))
 
             
         # check that the img/seg astrometry matches

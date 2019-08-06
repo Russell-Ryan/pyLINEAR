@@ -25,7 +25,6 @@ class ObsLST(object):
         for data in self.data:
             yield (*data,data[1].zeropoint)
 
-        
     @property
     def detImage(self):
         return self.data['imgfile'][self.detindex]
@@ -33,6 +32,10 @@ class ObsLST(object):
     @property
     def detBandpass(self):
         return self.data['bandpass'][self.detindex]
+
+    @property
+    def detName(self):
+        return self.data['bandpass'][self.detindex].name
 
     @property
     def detZeropoint(self):

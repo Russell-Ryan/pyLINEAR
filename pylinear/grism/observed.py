@@ -14,8 +14,6 @@ class ObservedGrism(GrismImage):
     # must pass extensions into this
     def __init__(self,fileName,exts):
         GrismImage.__init__(self,fileName,filename=True)
-
-        
         
         # read the PHDU
         with fits.open(self.filename) as hdul:

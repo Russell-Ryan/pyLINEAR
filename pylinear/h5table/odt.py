@@ -93,7 +93,7 @@ class ODT(Base):
             self.count.extend(pixels['count'])
             self.wav=columns.WAV(h5utils.loadData(new,'wav'))
         else:
-            print("{} for {} not found.".format(self.ttype,self.name))
+            self.notFound()
         
 
     def set(self):

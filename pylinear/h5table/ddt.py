@@ -94,7 +94,7 @@ class DDT(Base):
             pix=h5utils.loadData(new,'pix')
             self.pix=list(zip(list(pix['x']),list(pix['y'])))
         else:
-            print("{} for {} not found.".format(self.ttype,self.name))
+            self.notFound()
         
         #data=h5utils.loadData(grp)
         #self.xyg=columns.XYG(data['xyg'])

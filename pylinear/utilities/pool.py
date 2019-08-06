@@ -25,10 +25,10 @@ def pool(func,iterator,*args,ncpu=None):
         
     # start the processing
     if ncpu==1:
-        print('Serial processing')
+        print('[info]Serial processing')
         out=[func(it,*args) for it in iterator]
     else:
-        print('Parallel processing')
+        print('[info]Parallel processing')
         pool=mp.Pool(processes=ncpu)
 
         results=[pool.apply_async(func,(it,*args)) for it in iterator]

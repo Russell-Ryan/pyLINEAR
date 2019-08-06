@@ -17,7 +17,7 @@ class H5Table(object):
 
         # save some things
         self.dataset=dataset
-        self.suffix=suffix
+        self.suffix=suffix.lower()
 
         # just a place holder
         self.h5=None

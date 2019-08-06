@@ -1,4 +1,4 @@
-import argparse
+import argparse as ap
 import os
 import shutil
 import sys
@@ -6,7 +6,8 @@ import timeit
 import numpy as np
 
 
-from .__init__ import __description__,__author__,__cite__,__version__,__email__
+from .__init__ import __code__,__description__,__author__,\
+    __cite__,__version__,__email__
 from . import config
 from . import source
 from . import modules
@@ -14,6 +15,7 @@ from .utilities import Logger
 
 
 def splashMessage(conf):
+    ''' display a splash message when the pipeline is called '''
     txt=['','', \
          '    '+__description__,\
          '', \
@@ -27,54 +29,77 @@ def splashMessage(conf):
         print(t)
     print(conf)
 
-def applyDefaults(user,defs):
-    for k in defs:
-        if isinstance(defs[k], dict): # if the current item is a dict,
-            applydefaults(user.setdefault(k, {}), defs[k])
+
+
+#def applyUser(defs,user):
+#    for k,v in defs.items():
+#        if isinstance(v,dict):
+#            defs[k]=applyUser(v,user[k])
+#        else: #if isinstance(v,(int,bool,str,float)) or (v is None):
+#            if (k in user) and (defs[k]!=user[k]):
+#                defs[k]=user[k]
+#            
+#    return defs#
+
+#def applydefaults(user,defs):
+#    for k in defs:
+#        if isinstance(defs[k], dict): # if the current item is a dict,
+#            applydefaults(user.setdefault(k, {}), defs[k])
+#        else:
+#            user.setdefault(k, defs[k])
+#    return user
+
+
+def updateDefaults(defs,user):
+    out=defs.copy()
+    for k,v in defs.items():
+        if isinstance(v,dict):
+            out[k]=updateDefaults(v,user[k])
         else:
-            user.setdefault(k, defs[k])
+            if k in user:
+                out[k]=user[k]
+                
+    return out
+    
+
+
+
+def applyUser(user,defs):
+    for k,v in defs.items():
+        if isinstance(v,dict):
+            user=applyUser(user[k],v)
+        else:
+            if k not in user:
+                user[k]=defs[k]
     return user
-    
 
-    
-def getConfig():
 
-    # get the default configuration
+
+def defaultConfig():
+    ''' get the name of the default configuration file '''
     path=os.path.dirname(os.path.realpath(__file__))
     defsfile=os.path.join(path,'config','defaults.yml')
-    defs=config.Config(conffile=defsfile)
+
+    return defsfile
+
     
-
-    # parse the inputs    
-    p=argparse.ArgumentParser(description='LINEAR')
-    p.add_argument('config',help='YAML configuration file',nargs='?',\
-                   default='linear.yml')
-    p.add_argument('-c','--copy',help='copy the default configuration to cwd',\
-                   nargs='?')
-    args=p.parse_args()
-
-    # do we copy the default to a local directory
-    if args.copy is not None:
-        base,ext=os.path.splitext(args.copy)
-        if ext not in ['.yml','yaml']:
-            print('Warning, copying to a non-YAML type: {}'.format(args.copy))
-        shutil.copyfile(defsfile,args.copy)
-
-        return None
-
-
+def loadConfig(userfile,defs):
+    ''' copy the default configuration file to the CWD '''
+    
+    # get the default configuration
+    #defs=config.Config(conffile=defaultConfig())    # defaults
+    
     # look to see if a config file was specified
-    if args.config is not None and os.path.isfile(args.config):
-        conf=config.Config(conffile=args.config)
-        conf=applyDefaults(conf,defs)
-    else:
-        conf=defs
+    if userfile is not None and os.path.isfile(userfile):
+        user=config.Config(conffile=userfile)
+        defs.conf=updateDefaults(defs.conf,user.conf)
+        
+    return defs    
 
-
-    return conf
+def runTime(t0,days=True,hours=True,minutes=True,seconds=True,lost=False):
+    ''' compute the run time in a special string format '''
+    t1=timeit.default_timer()
     
-
-def runTime(t0,t1,days=True,hours=True,minutes=True,seconds=True,lost=False):
     nday,rem=divmod(t1-t0,24*60*60)
     nhour,rem=divmod(rem,60*60)
     nminute,seconds=divmod(rem,60)
@@ -103,7 +128,6 @@ def linearPipeline(conf):
     # load sources (includes spectra)
     sources=source.Data(conf['sources'])
 
-    
     # call the modules
     modconf=conf['modules']
     
@@ -114,14 +138,45 @@ def linearPipeline(conf):
 
 
 def main():
+    ''' primary entry point to the code '''
+
     # get an initial time
     t0=timeit.default_timer()
 
-    # open my custom logging utilities
-    sys.stdout=Logger('LINEAR',logfile='linear.log')
+    # read the defaults
+    defs=config.Config(conffile=defaultConfig())
+    #flat=defs.flatten()
+    
+    # parse the input     
+    p=ap.ArgumentParser(description=__code__+': '+__description__,\
+                        formatter_class=ap.ArgumentDefaultsHelpFormatter)
+    p.add_argument('config',help='YAML configuration file',nargs='?',\
+                   default='linear.yml')
+    p.add_argument('--logfile',help='output log file',nargs='?',\
+                   default='linear.log')    #)#,metavar='linear.log')
+    p.add_argument('-d','--dump',help='dump the default configuration',\
+                   action='store_true')    
 
-    # get the configuration
-    conf=getConfig()
+    #for f in flat:
+    #    p.add_argument('--'+f[0],default=f[1],help=f[2],metavar='')
+    args=p.parse_args()
+
+    # must put in command-line arguments here
+
+
+    
+    # dump the configuration
+    if args.dump:
+        print(defs)
+        return
+
+    # open my custom logging utilities
+    sys.stdout=Logger(__code__,logfile=args.logfile)
+    
+    # load the configuration with defaults
+    conf=loadConfig(args.config,defs)
+    
+    # if we have a valid config:
     if conf is not None:
         # print a message
         splashMessage(conf)
@@ -129,15 +184,14 @@ def main():
         # call linear!
         linearPipeline(conf)
 
-    # get final time
-    t1=timeit.default_timer()
-    
 
     # print an outro message
-    print(runTime(t0,t1))
+    print('[info]'+runTime(t0))
     
 
 if __name__=='__main__':
+    ''' a back-up entry point '''
+
     main()
 
 

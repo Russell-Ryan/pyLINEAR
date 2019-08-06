@@ -9,6 +9,8 @@ class GrismImage(object):
         if filename:
             self.path,name=os.path.split(name)
             self.dataset,self.datatype=os.path.basename(name).split('_')
+            if self.datatype[-3:]=='.gz':
+                self.datatype=self.datatype[:-3]
             #self.dataset=os.path.basename(name).split('_flt.fits')[0]
         else:
             self.path=''

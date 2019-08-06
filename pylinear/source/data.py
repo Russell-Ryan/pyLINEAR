@@ -2,6 +2,7 @@ import os
 import numpy as np
 from astropy.io import fits
 from collections import OrderedDict
+import copy
 
 from .source import Source
 from .obslst import ObsLST
@@ -41,8 +42,9 @@ class Data(object):
 
 
         # rmeove sources below the magnitude limit
+        self.maglimit=conf['maglim']
         try:
-            self.applyMagLimit(conf['maglim'])
+            self.applyMagLimit(self.maglimit)
         except:
             pass
 
@@ -78,11 +80,17 @@ class Data(object):
 
     def values(self):
         return list(self.sources.values())
+
+    def select(self,segids):
+        new=copy.deepcopy(self)
+        new.sources={segid: self.sources[segid] for segid in segids}
+        return new
+
     
 
     def loadPhotometry(self):
         ''' load photometry for each source as a crude SED '''
-        print('loading broadband phototmetry')
+        print('[info]Loading broadband phototmetry')
 
 
         fluxunit=1.    # the old way... will deprecate in time.
@@ -186,7 +194,7 @@ class Data(object):
             if (segid not in self.sources) & (src.npix>0) & (src.total>0):
                 self.sources[segid]=src
             else:
-                print("Warning.  Duplicate SEGIDs are ignored.")
+                print("[warn]Duplicate SEGIDs are ignored.")
                 
                 
 

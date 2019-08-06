@@ -34,7 +34,7 @@ class OMT(Base):
             data=h5utils.loadData(new,self.ttype)
             self.xyg=columns.XYG(data['xyg'])
         else:
-            print("{} for {} not found.".format(self.ttype,self.name))
+            self.notFound()
 
     def __len__(self):
         return len(self.xyg)
