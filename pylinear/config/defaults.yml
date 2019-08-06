@@ -11,7 +11,7 @@ calib: &CALIB
   
   
 tables: &TABLES
-  path: TABLES/                          # relative path for the tables
+  path: TABLES2/                          # relative path for the tables
   remake: true
   gzip: true                             # gzip the resulting data
   nsub: 5                                # number of intervals for TrapZ
@@ -25,11 +25,11 @@ sources:
 
 modules:
   simulation:
-    perform: false
-    beam: A
-    grism: G102
-    imgtype: wcs   # wcs or img
-    gzip: true
+    perform: false                        # flag to run the simulation
+    beam: A                              # beams to simulate
+    grism: G102                          # which grism to simulate
+    imgtype: wcs                         # where WCS comes from: wcs or img
+    gzip: true                           # gzip the outputs
     imglst: wcs.lst
     sedlst: sed.lst
     noise:
@@ -48,11 +48,11 @@ modules:
     imglst: flt.lst
     beam: A
     mask: null
-    lamb0: 9000.
-    lamb1: 18000.
-    dlamb: 100.
+    #lamb0: 9000.
+    #lamb1: 18000.
+    #dlamb: 100.
     lsqr:
-      atol: 1e-10
+      atol: 1e-10          # a tol
       btol: 1e-10
       conlim: 1e10
       maxiter: 1e5

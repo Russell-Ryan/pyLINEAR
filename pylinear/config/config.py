@@ -30,22 +30,60 @@ class Config(object):
         try:
             with open(conffile,'r') as f:
                 self.conf=self.yaml.load(f)
-
         except:
             raise FileNotFoundError("{} not found.".format(conffile))
             
         self.conffile=conffile
             
+        
+    def items(self):
+        return self.conf.items()
 
-    def applyDefaults(self,defs):
-        for k in defs:
-            print(k)
-            if isinstance(defs[k], dict): # if the current item is a dict,
-                self.applyDefaults(user.setdefault(k, {}), defs[k])
+
+    def _flatten(self,dic,old='',sep='-'):
+        out=[]
+        for k,v in dic.items():
+            if old == '':
+                new=k
             else:
-                user.setdefault(k,defs[k])
-        return user
+                new=old+sep+k
+            if isinstance(v,dict):
+                out.extend(self._flatten(v,old=new,sep=sep))
+            else:
+                if k in dic.ca.items:
+                    val=dic.ca.items[k][2]
+                    if val is not None:
+                        comment=val.value[2:].strip()
+                    else:
+                        comment=''
+                else:
+                    comment=''
+                    
+                out.append((new,v,comment))
+        return out
+                           
+    def flatten(self):
+        return self._flatten(self.conf)
+
     
+    #def gattr(self,keys):
+    #    data=self.conf
+    #    for key in keys:
+    #        try:
+    #            data=data[key]
+    #        except:
+    #            return None
+    #    return data
+    #
+    #def sattr(self,keys,value):
+    #    
+    #    data=self.conf
+    #
+    #    #self.conf['modules']['extraction']['lsqr']['atol']=value
+    #    f='self.conf["'+'"]["'.join(keys)+'"]='+str(value)
+    #    q=exec(f)
+                
+        
     def __iter__(self):
         self.yaml.dump(self.conf,self.stream)
         string=self.stream.getvalue()
@@ -58,6 +96,9 @@ class Config(object):
         self.yaml.dump(self.conf,self.stream)
         return self.stream.getvalue()
 
+    def __setitem__(self,k,v):
+        self.conf[k]=v
+
     
     def __getitem__(self,key):
         try:
@@ -67,6 +108,7 @@ class Config(object):
 
         if isinstance(value,dict):
             out=Config(value)
+            out.conffile=self.conffile
         else:
             out=value            
         return out        
@@ -79,7 +121,8 @@ class Config(object):
     
             
 if __name__=='__main__':
-    x=Config(userfile='user.yml',defsfile='defs.yml')
-    y=x['modules']
-    logdamp=y['extraction']['logdamp']
-    y.write('test.yml')
+    x=Config(conffile='defaults.yml')
+
+    #print(x.gattr(['modules','extraction','lsqr','atol']))
+    #x.sattr(['modules','extraction','lsqr','atol'],2)
+    #print(x.gattr(['modules','extraction','lsqr','atol']))
