@@ -9,7 +9,7 @@ setup(name='pylinear',\
       description=info.__description__,\
       license=info.__license__,\
       entry_points={'console_scripts':['pylinear=pylinear.linear:main']},
-      install_requires=['numpy','scipy','ruamel.yaml','emcee',\
+      install_requires=['numpy','scipy','ruamel.yaml','emcee','shapely',\
                         'polyclip','h5axeconfig','argparse','astropy'],\
       classifiers=['Development Status :: 1 Planning',\
                    'Intended Audience :: Science/Research',
