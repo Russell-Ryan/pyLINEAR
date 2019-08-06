@@ -9,6 +9,7 @@ from pylinear import h5table
 from pylinear.h5table import h5utils
 from pylinear.utilities import indices,pool
 
+TTYPE='DDT'
 
 def detGroup(h5,det,detconf):
     if det in h5:
@@ -19,9 +20,9 @@ def detGroup(h5,det,detconf):
 
 
 def makeODTs(grism,sources,grismconf,path,remake,nsub):
-    
+    print('[info]Making ODTs')
     # create the table
-    tab=h5table.H5Table(grism.dataset,'ddt',path=path)
+    tab=h5table.H5Table(grism.dataset,TTYPE,path=path)
 
     # remake the table?
     if remake and os.path.isfile(tab.filename):
@@ -33,16 +34,20 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
     dy=np.array([0,1,1,0])            # HARDCODE
     #-------------------------------------------
 
-    with tab as h5:        
+    with tab as h5:
+        # add some stuff to that header
+        h5utils.writeAttr(h5,'segmap',sources.segmap)
+        h5utils.writeAttr(h5,'nsource',np.uint16(len(sources)))
+        h5utils.writeAttr(h5,'detimage',sources.obsdata.detImage)
+        h5utils.writeAttr(h5,'detband',sources.obsdata.detName)
+        h5utils.writeAttr(h5,'maglimit',np.float32(sources.maglimit))
+        
+
+        
+        # process each detector
         for det,detconf in grismconf:
-
-            detgrp=detGroup(h5,det,detconf)
-            
-            #if det in h5:
-            #    detgrp=h5[det]
-            #else:
-            #    detgrp=h5.create_group(det)
-
+            #detgrp=detGroup(h5,det,detconf)
+            detgrp=h5.require_group(det)
             
             # get the center of the detector
             xc,yc=detconf.naxis/2.
@@ -54,12 +59,15 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
             detpixelarea=thisGrism.pixelarea
 
             for beam,beamconf in detconf:
-                if beam in detgrp:
-                    beamgrp=detgrp[beam]
-                    sourcesDone=list(beamgrp.keys())
-                else:
-                    beamgrp=detgrp.create_group(beam)
-                    sourcesDone=[]
+                beamgrp=detgrp.require_group(beam)
+                sourcesDone=list(beamgrp.keys())
+
+                #if beam in detgrp:
+                #    beamgrp=detgrp[beam]
+                #    sourcesDone=list(beamgrp.keys())
+                #else:
+                #    beamgrp=detgrp.create_group(beam)
+                #    sourcesDone=[]
 
                 # compute the set difference
                 #segids=[src.name for src in sources]
@@ -76,6 +84,12 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
                 wav=beamconf.wavelengths(xc,yc,nsub)  
                 dwav=wav[1]-wav[0]
 
+                # put some stuff in the table
+                h5utils.writeAttr(beamgrp,'wav0',np.float32(wav[0]))
+                h5utils.writeAttr(beamgrp,'wav1',np.float32(wav[-1]))
+                h5utils.writeAttr(beamgrp,'dwav',np.float32(dwav))
+
+                # process each source
                 for segid,src in sources:
                     if src.name not in sourcesDone:  # only process new sources
                         
@@ -85,7 +99,7 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
 
                         # make an ODT
                         odt=h5table.ODT(src.segid,wav=wav)
-                        
+
                         # process each pixel in the source
                         for xd,yd,wd in src:
                             # convert the corners of the direct image to the
@@ -112,18 +126,32 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
 
                         # if ODT is valid, then write it!
                         if len(odt)!=0:
-                            ddt=odt.decimate()
+                            xyc=np.float32(src.xyc-src.ltv)
                             
-                            ddt.writeH5(beamgrp,RA=src.adc[0],Dec=src.adc[1],\
-                                        xc=src.xyc[0],yc=src.xyc[1],\
-                                        mag=src.mag,area=src.area,npix=src.npix)
+                            if TTYPE=='ODT':
+                                odt.writeH5(beamgrp,RA=src.adc[0],\
+                                            Dec=src.adc[1],\
+                                            xc=xyc[0],yc=xyc[1],\
+                                            mag=np.float32(src.mag),\
+                                            area=np.float32(src.area),\
+                                            npix=np.uint32(src.npix))
+                            elif TTYPE=='DDT':
+                                ddt=odt.decimate()
+                                ddt.writeH5(beamgrp,RA=src.adc[0],\
+                                            Dec=src.adc[1],\
+                                            xc=xyc[0],yc=xyc[1],\
+                                            mag=np.float32(src.mag),\
+                                            area=np.float32(src.area),\
+                                            npix=np.uint32(src.npix))
+                            else:
+                                raise NotImplementedError("invalid table type")
                                         
                             
     return tab.filename
 
 
 def makeOMTs(flt,sources,grismconf,path,remake,nsub):
-    print("making the OMTs")
+    print("[info]Making the OMTs")
     # create the table
     tab=h5table.H5Table(flt.dataset,'omt',path=path)
 
@@ -132,6 +160,15 @@ def makeOMTs(flt,sources,grismconf,path,remake,nsub):
         os.remove(tab.filename)
 
     with tab as h5:
+
+        # add some stuff to that header
+        h5utils.writeAttr(h5,'segmap',sources.segmap)
+        h5utils.writeAttr(h5,'nsource',np.uint16(len(sources)))
+        h5utils.writeAttr(h5,'detimage',sources.obsdata.detImage)
+        h5utils.writeAttr(h5,'detband',sources.obsdata.detName)
+        h5utils.writeAttr(h5,'maglimit',np.float32(sources.maglimit))
+
+
         for det,detconf in grismconf:
             if det in h5:
                 detgrp=h5[det]
@@ -152,6 +189,12 @@ def makeOMTs(flt,sources,grismconf,path,remake,nsub):
                     
                 wav=beamconf.wavelengths(xc,yc,1)      # force nsub=1
 
+                # add some stuff to table
+                h5utils.writeAttr(beamgrp,'wav0',np.float32(wav[0]))
+                h5utils.writeAttr(beamgrp,'wav1',np.float32(wav[-1]))
+                h5utils.writeAttr(beamgrp,'dwav',np.float32(wav[1]-wav[0]))
+
+                # process each source
                 for segid,src in sources:
                     if src.name not in sourcesDone:
                         
@@ -162,14 +205,20 @@ def makeOMTs(flt,sources,grismconf,path,remake,nsub):
                             omt=h5table.OMT(segid)
                             xyg=indices.unique(np.array(xyg))
                             omt.extend(xyg)
-                            omt.writeH5(beamgrp)
+                            omt.writeH5(beamgrp,RA=src.adc[0],\
+                                        Dec=src.adc[1],\
+                                        xc=xyc[0],yc=xyc[1],\
+                                        mag=np.float32(src.mag),\
+                                        area=np.float32(src.area),\
+                                        npix=np.uint32(src.npix))
+                            #omt.writeH5(beamgrp)
     return tab.filename
 
 def tabulate(conf,grisms,sources,grismconf,ttype):
     
     # check the beams existing
     if len(grismconf.beams)==0:
-        print('no beams to tabulate.')
+        print('[warn]No beams to tabulate.')
         return
 
     

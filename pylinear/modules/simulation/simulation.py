@@ -16,11 +16,12 @@ from ..tabulation import tabulate
 SCITYPE=np.float64
 UNCTYPE=np.float32
 DQATYPE=np.int16
+TTYPE='ddt'
 
 
 def addNoise(conf,sci):
     if conf['perform']:
-        print("hardcoded dark and read for WFC3/IR")
+        print("[alarm]hardcoded dark and read for WFC3/IR")
         
         dark,read=0.046,12.
         
@@ -47,6 +48,7 @@ def addNoise(conf,sci):
 def simulateWorker(flt,conf,grismconf,grismflat,sources,overwrite=True):
     ''' helper function to facilitate multiprocessing '''
 
+    
     path=conf['tables']['path']
     
     # make the output fits file
@@ -113,11 +115,12 @@ def simulateWorker(flt,conf,grismconf,grismflat,sources,overwrite=True):
     hdul.append(fits.PrimaryHDU(header=hdr))
 
     # open the H5table
-    with h5table.H5Table(flt.dataset,path=path,suffix='odt') as h5:
-    
+    with h5table.H5Table(flt.dataset,path=path,suffix=TTYPE) as h5:
         # loop over detectors within an FLT
         for detname,det in flt:
+
             detgrp=h5[detname]
+
             detconf=grismconf[detname]
 
             # get the EXTVER, which describes which detector this is
@@ -131,12 +134,19 @@ def simulateWorker(flt,conf,grismconf,grismflat,sources,overwrite=True):
 
                 
                 for segid,src in sources:
-                    odt=h5table.ODT(segid)
-                    odt.readH5(beamgrp)
-                    
-                    if len(odt)!=0:
+                    if TTYPE=='odt':
+                        odt=h5table.ODT(segid)
+                        odt.readH5(beamgrp)
                         ddt=odt.decimate()
                         del odt
+                    elif TTYPE=='ddt':
+                        ddt=h5table.DDT(segid)
+                        ddt.readH5(beamgrp)
+                    else:
+                        raise NotImplementedError("Invalid TTYPE")
+                        
+                    if len(ddt)!=0:
+                        
 
                         # compute the (x,y) pair for each val in the DDT
                         xg,yg=indices.one2two(ddt.xyg,det.naxis)
@@ -202,13 +212,12 @@ def simulateWorker(flt,conf,grismconf,grismflat,sources,overwrite=True):
 def simulate(conf,sources):
     if not conf['perform']:
         return
-    fluxunit=1.
-
+    print("[info]Simulating FLTs")
 
     # get the grism config data
     grismconf=h5axeconfig.Camera(conf['calib']['h5conf'],conf['grism'],\
                                  beams=conf['beam'])
-    grismflat=h5axeconfig.FlatField(conf['calib']['h5flat'])
+    grismflat=h5axeconfig.FlatField(conf['calib']['h5flat'],conf['grism'])
     
     # read grisms
     grisms=grism.Data(conf['imglst'],conf['imgtype'],conf['calib']['h5siaf'])
@@ -231,7 +240,7 @@ def simulate(conf,sources):
             sed.redshift(z)
 
             # get expect flux from the detection image
-            modflam=sources[segid].total*(detband.photflam/fluxunit)
+            modflam=sources[segid].total*detband.photflam
 
             # compute the flux in the SED through the filter
             aveflam=detband.aveflux(sed,flam=True)
@@ -245,8 +254,5 @@ def simulate(conf,sources):
     # the things that do not change
     args=(conf,grismconf,grismflat,sources)
     
-    # just do sequential processing
-    #stuff=[simulateWorker(flt,*args) for name,flt in grisms]
-
     # use my version of pool to codify the use of this
     pool.pool(simulateWorker,grisms.values(),*args,ncpu=conf['cpu']['ncpu'])
