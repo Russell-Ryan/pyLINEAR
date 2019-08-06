@@ -1,4 +1,4 @@
-
+__code__='LINEAR'
 __author__='Russell Ryan'
 __email__='rryan@stsci.edu'
 __version__='1.0'
