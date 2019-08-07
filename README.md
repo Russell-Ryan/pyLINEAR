@@ -17,10 +17,11 @@ git clone https://github.com/Russell-Ryan/polyclip.git
 ```
 
     1.2 build polyclip
-    ```
-    cd polyclip
-    python setup.py install
-    ```
+    
+```
+cd polyclip
+python setup.py install
+```
 
 
 2. install h5axeconfig by R. Ryan: [github repo](https://github.com/Russell-Ryan/h5axeconfig). This requires ruamel: [pypi](https://pypi.org/project/ruamel.yaml/) and wget: [pypi](https://pypi.org/project/wget/).
