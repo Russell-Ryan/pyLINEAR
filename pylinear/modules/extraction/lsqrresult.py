@@ -5,7 +5,7 @@ class LSQRResult(object):
     def __init__(self,*args):
         self.x=args[0]
         self.istop=args[1]
-        self.iters=args[2]
+        self.itn=args[2]
         self.r1norm=args[3]
         self.r2norm=args[4]
         self.anorm=args[5]

@@ -1,20 +1,27 @@
 import datetime
 from astropy.io import fits
 import numpy as np
+from shapely.geometry import Polygon
+import h5py
+import os
+from matplotlib.backends.backend_pdf import PdfPages
 
 import h5axeconfig
+
+
 
 from pylinear import grism
 from pylinear.utilities import gzip
 from . import methods,residuals,mcmcunc
 from .matrix import Matrix
+from . import group
 from ..tabulation import tabulate
-from .fluxunit import FLUXUNIT
+from .fluxunit import FLUXUNIT,FLUXSCALE
 
 
 
 def getInitialGuess(mat,sources):
-    print('Getting initial guesses')
+    print('[info]Getting initial guesses')
 
     x0=np.zeros(mat.shape[1])
     segids=mat.segids
@@ -24,192 +31,25 @@ def getInitialGuess(mat,sources):
             index=segids.index(segid)
         except ValueError:
             index=None
-            print("{} will not be extracted.".format(segid))
-
+            print("[warn]{} will not be extracted.".format(segid))
             
         if index is not None:
             s,g1=mat.ri[index]
             if s ==segid:
                 g2=mat.lam[g1]
-                x0[g1]=src.sed.interpolate(src.waves[g2])/FLUXUNIT
+                x0[g1]=src.sed.interpolate(src.waves[g2])/FLUXSCALE
             else:
                 raise IndexError("error in building initial guess")
 
     return x0
     
+def extractSources(conf,sources,grisms,extconf,mskconf,grismFF,grpid,\
+                   h5g,h5s,pdf):
 
-
-
-
-def writeFITS(conf,result,mat,sources,method):
-    print("writing output fits file")
-    
-    # make a timestamp
-    now=datetime.datetime.now()
-  
-    # create the fits output
-    hdul=fits.HDUList()
-
-    # add primary extension
-    hdr=fits.Header()
-    hdr.append(('DATE',now.strftime("%Y-%m-%d"),\
-                'date this file was written (yyyy-mm-dd)'),end=True)
-    hdr.add_blank(value='',after='DATE')
-    hdr.add_blank(value='/ Input Properties')
-    hdr.add_blank(value='')
-    
-    hdr.append(('NSOURCES',mat.nsrc,'Number of sources'),end=True)
-    hdr.append(('NIMAGES',mat.nimg,'Number of grism images'),end=True)
-    hdr.append(('NPIXELS',mat.shape[0],\
-                'Number of knowns (extracted pixels'),end=True)               
-    hdr.append(('NLAMB',mat.shape[1],\
-                'Number of unknowns (inferred wavelengths'),end=True)
-    hdr.append(('FLUXUNIT',FLUXUNIT,'erg/s/cm2/A'),end=True)
-    hdr.append(('FROBNORM',mat.frob,'Frobenius norm of A'),end=True)
-    
-    hdr.add_blank(value='',after='FROBNORM')
-    hdr.add_blank(value='/ LSQR Settings')
-    hdr.add_blank(value='')
-    
-    hdr.append(('DAMPING',result.damp,'Unscaled damping parameter'),end=True)
-    hdr.append(('ISTOP',result.istop,'Stopping condition'),end=True)
-    hdr.append(('ITER',result.iters,'Number of iterations'),end=True)
-    hdr.append(('ATOL',mat.atol,'Stopping criterion'),end=True)
-    hdr.append(('BTOL',mat.btol,'Stopping criterion'),end=True)
-    hdr.append(('CONLIM',mat.conlim,'Stopping criterion'),end=True)
-    hdr.append(('R1NORM',result.r1norm,\
-                'norm(r) with r=b-Ax, like sqrt(chi2)'),end=True)
-    hdr.append(('R2NORM',result.r2norm,\
-                'sqrt(norm(r)^2+damp^2*norm(x)^2)'),end=True)
-    hdr.append(('ANORM',result.anorm,\
-                'Frobenius norm of A=[[A];[damp*I]]'),end=True)
-    hdr.append(('ACOND',result.acond,'Condition of A'),end=True)
-    hdr.append(('ARNORM',result.arnorm,'norm(A^T*r-damp^2*x)'),end=True)
-    hdr.append(('XNORM',result.xnorm,'norm(x)'),end=True)
-    hdr.append(('LSQRTIME',result.time,'Runtime for LSQR in sec'),end=True)
-    hdr.append(('METHOD',method,'Method for running'),end=True)
-    
-    hdr.add_blank(value='',after='METHOD')
-    hdr.add_blank(value='/ YAML Input')
-    hdr.add_blank(value='')
-    for value in conf:
-        hdr.add_comment(value=value)
-
-    hdul.append(fits.PrimaryHDU(header=hdr))
-    # ------------------------------------------------------------------------
-
-
-    # now create extensions for each source
-    dtype=np.float32           # output data type
-    segids=mat.segids
-    unit='{} erg/s/cm2/A'.format(FLUXUNIT)
-    for segid,src in sources:
-        # make output arrays
-        lam=src.waves.astype(dtype)
-        flm=np.full_like(lam,np.nan,dtype=dtype)
-        flo=np.full_like(lam,np.nan,dtype=dtype)
-        fhi=np.full_like(lam,np.nan,dtype=dtype)
-
-        # test if object was extracted
-        if segid in segids:
-            index=segids.index(segid)
-            s,g1=mat.ri[index]
-            if s==segid and len(g1)!=0:
-                g2=mat.lam[g1]
-
-                flm[g2]=result.x[g1]
-                flo[g2]=result.lo[g1]
-                fhi[g2]=result.hi[g1]
-
-        # create the columns
-        col1=fits.Column(name='lamb',format='E',array=lam,unit='A')
-        col2=fits.Column(name='flam',format='E',array=flm,unit=unit)
-        col3=fits.Column(name='lounc',format='E',array=flo,unit=unit)
-        col4=fits.Column(name='hiunc',format='E',array=fhi,unit=unit)
-        hdu=fits.BinTableHDU.from_columns([col1,col2,col3,col4])
-        
-        # add some data to the header
-        hdu.header.append(('EXTNAME',str(segid),'Extension name'),end=True)
-        #hdu.header.append(('EXTNAME','SED','Extension name'),end=True)
-        #hdu.header.append(('EXTVER',segid,'Extension version'),end=True)
-        hdu.header.add_blank(value='')
-        hdu.header.add_blank(value='/ Source Properties')
-        hdu.header.add_blank(value='')
-        hdu.header.append(('SEGID',segid,'Segmentation ID'),end=True)
-        hdu.header.append(('RA0',src.adc[0],'RA center of mass'),end=True)
-        hdu.header.append(('DEC0',src.adc[1],'Dec center of mass'),end=True)
-        hdu.header.append(('NPIX',src.npix,'Number of pixels'),end=True)
-        hdu.header.append(('AREA',src.area,'Area (sq. arcsec)'),end=True)
-        hdu.header.append(('FLUX',src.total,'Flux in direct image units'),\
-                          end=True)
-        hdu.header.append(('MAG',src.mag,'Magnitude of direct image'),\
-                          end=True)
-
-        hdu.header.add_blank(value='',after='MAG')
-        hdu.header.add_blank(value='/ Extraction Properties')
-        hdu.header.add_blank(value='')
-        hdu.header.append(('NLAMB',len(lam),'Number of wavelengths'),\
-                          end=True)
-        hdu.header.append(('LAMB0',src.lamb0,'Lower bound in A'),end=True)
-        hdu.header.append(('LAMB1',src.lamb1,'Upper bound in A'),end=True)
-        hdu.header.append(('DLAMB',src.dlamb,'Resolution in A'),end=True)
-        
-        hdu.header.add_blank(value='',after='DLAMB')
-        hdu.header.add_blank(value='/ MCMC Settings')
-        hdu.header.add_blank(value='')
-
-        mcmcconf=conf['mcmcunc']
-        hdu.header.append(('MCMCUNC',mcmcconf['perform'],\
-                           'MCMC Simulation for uncertainties'),end=True)
-        if mcmcconf['perform']:
-            hdu.header.append(('NWALKERS',mcmcconf['nwalkers'],\
-                               'Number of walkers'),end=True)
-            hdu.header.append(('NSTEP',mcmcconf['nstep'],\
-                               'Number of steps per walker'),end=True)
-            hdu.header.append(('BURN',mcmcconf['burn'],\
-                               'fraction of steps to burn'),end=True)
-
-        hdul.append(hdu)
-        
-
-    # write to disk
-    outfile='{}_spc.fits'.format(conf['outroot'])
-    hdul.writeto(outfile,overwrite=True)
-    gzip.gzip(outfile)
-
-
-def extract(conf,sources):
-    if not conf['perform']:
-        return
-    
-    # just some stuff for short-hand
-    calconf=conf['calib']
-    conffile=calconf['h5conf']
-
-    # read grism images
-    grisms=grism.Data(conf['imglst'],'img',conffile)
-
-    
-    # get the grism config data
-    extconf=h5axeconfig.Camera(conffile,grisms.grism,beams=conf['beam'])
-    mskconf=h5axeconfig.Camera(conffile,grisms.grism,beams=conf['mask'])
-    grismFF=h5axeconfig.FlatField(calconf['h5flat'])
-
-    
-    # make the tables if need-be
-    tabulate(conf['tables'],grisms,sources,extconf,'odt')
-    #tabulate(conf['tables'],grisms,sources,mskconf,'omt')
-
-
-    # set extraction values for each source
-    print('move extraction parameters out of matrix.py to here')
-
-    
     # build the matrix and guesses
     mat=Matrix(conf,grisms,sources,extconf,mskconf,grismFF)
     x0=getInitialGuess(mat,sources)
-
-    
+        
     # type of extraction
     method=conf['mode'].lower()
     if method == 'grid':
@@ -222,16 +62,167 @@ def extract(conf,sources):
         result=methods.classicExtraction()
     else:
         raise NotImplementedError("Extraction mode is invalid.")
-    
-    # make the LCurve plot
-    mat.lcurve(conf['outroot'])
 
+
+    
+    # plot
+    mat.lcurve.plot(pdf,grpid=grpid)
+
+
+    # write the group data
+    logr1,logx,logl=mat.lcurve.values()
+    c=mat.lcurve.curvature
+    dtype=[('logdamp',np.float32),('logr1norm',np.float32),\
+           ('logxnorm',np.float32),('curv',np.float32)]
+    data=np.array(list(zip(logl,logr1,logx,c)),dtype=dtype)
+    dgrp=h5g.create_dataset(str(grpid),data=data,compression='gzip')
+    dgrp.attrs['istop']=np.uint8(result.istop)
+    dgrp.attrs['itn']=np.uint32(result.itn)
+    dgrp.attrs['r1norm']=np.float32(result.r1norm)
+    dgrp.attrs['r2norm']=np.float32(result.r2norm)
+    dgrp.attrs['anorm']=np.float32(result.anorm)
+    dgrp.attrs['acond']=np.float32(result.acond)
+    dgrp.attrs['xnorm']=np.float32(result.xnorm)
+    dgrp.attrs['arnorm']=np.float32(result.arnorm)
+    dgrp.attrs['damping']=np.float32(result.damp)
+    dgrp.attrs['time']=np.float32(result.time)
+    dgrp.attrs['nsrc']=np.uint16(len(sources))
+    dgrp.attrs['npix']=np.uint32(mat.shape[0])
+    dgrp.attrs['nlam']=np.uint32(mat.shape[1])
+    dgrp.attrs['frob']=np.float32(mat.frob)
+
+    
+    
     # update with MCMC uncertainties
     result=mcmcunc.mcmcUncertainties(conf['mcmcunc'],mat,result,sources)
+    
+    # package the outputs
+    mcmcconf=conf['mcmcunc']       # something for easier access later  
+    dtype=[('lam',np.float32),('flam',np.float32),\
+           ('flo',np.float32),('fhi',np.float32)]
+    for segid,src in sources:
+        lam=src.waves
+        flam=np.full_like(lam,np.nan)
+        flo=np.full_like(lam,np.nan)
+        fhi=np.full_like(lam,np.nan)
+        
+        
+        if segid in mat.segids:
+            index=mat.segids.index(segid)
+            s,g1=mat.ri[index]
+            if (s==segid) and (len(g1)!=0):
+                g2=mat.lam[g1]
+                flam[g2]=result.x[g1]
+                flo[g2]=result.lo[g1]
+                fhi[g2]=result.hi[g1]
+        data=np.array(list(zip(lam,flam,flo,fhi)),dtype=dtype)
+        dset=h5s.create_dataset(str(segid),data=data,compression='gzip')
 
-    # compute the residuals
-    residuals.computeResiduals(conf['residuals'],grisms,extconf,mat,result)
+        dset.attrs['group']=np.uint16(grpid)
+        dset.attrs['RA']=src.adc[0]
+        dset.attrs['Dec']=src.adc[1]
+        dset.attrs['x']=np.float32(src.xyc[0]-src.ltv[0])
+        dset.attrs['y']=np.float32(src.xyc[1]-src.ltv[1])
+        dset.attrs['npix']=np.uint32(src.npix)
+        dset.attrs['area']=np.float32(src.area)
+        dset.attrs['total']=np.float32(src.total)
+        dset.attrs['mag']=np.float32(src.mag)
+        dset.attrs['lamb0']=np.float32(src.lamb0)
+        dset.attrs['lamb1']=np.float32(src.lamb1)
+        dset.attrs['dlamb']=np.float32(src.dlamb)
+        dset.attrs['nlamb']=np.uint16(len(lam))
+        dset.attrs['MCMCUNC']=np.bool(mcmcconf['perform'])
+        if mcmcconf['perform']:
+            dset.attrs['nwalkers']=np.uint16(mcmcconf['nwalkers'])
+            dset.attrs['nstep']=np.uint32(mcmcconf['nstep'])
+            dset.attrs['burn']=np.float32(mcmcconf['burn'])
+                        
 
-    # write to disk
-    writeFITS(conf,result,mat,sources,method)
+def h5yaml(h5,conf):
+    for k,v in conf.items():
+        if isinstance(v,dict):
+            h5g=h5.create_group(k)
+            h5yaml(h5g,v)
+        elif isinstance(v,str):
+            h5.attrs[k]=np.string_(v)
+        elif v is None:
+            h5.attrs[k]=np.string_("")
+        else:
+            h5.attrs[k]=v
+            
 
+def extract(conf,sources):
+    if not conf['perform']:
+        return
+    
+    # just some stuff for short-hand
+    calconf=conf['calib']
+    conffile=calconf['h5conf']
+
+    # read grism images
+    grisms=grism.Data(conf['imglst'],'img',conffile)
+    
+    # get the grism config data
+    extconf=h5axeconfig.Camera(conffile,grisms.grism,beams=conf['beam'])
+    mskconf=h5axeconfig.Camera(conffile,grisms.grism,beams=conf['mask'])
+    grismFF=h5axeconfig.FlatField(calconf['h5flat'],grisms.grism)
+    
+    # make the tables, if need-be
+    tabulate(conf['tables'],grisms,sources,extconf,'odt')
+    #tabulate(conf['tables'],grisms,sources,mskconf,'omt')
+
+    # set extraction values for each source
+    print('[debug]move extraction parameters out of matrix.py to here')
+    conf['group']=True
+
+            
+    # output file names
+    h5file='{}.h5'.format(conf['outroot'])
+    pdffile='{}.pdf'.format(conf['outroot'])
+    
+    with h5py.File(h5file,'w') as h5,PdfPages(pdffile) as pdf:
+        now=datetime.datetime.now()
+        h5.attrs['date']=np.string_(now.strftime("%Y-%m-%d"))
+        h5.attrs['time']=np.string_(now.strftime("%H:%M:%S"))
+        h5.attrs['nimage']=np.uint16(len(grisms))
+        h5.attrs['nsource']=np.uint16(len(sources))
+        h5.attrs['grism']=np.string_(grisms.grism)
+        h5.attrs['fluxscale']=np.float32(FLUXSCALE)
+        h5.attrs['fluxunit']=np.string_(FLUXUNIT)
+        h5.attrs['confpath']=np.string_(os.path.abspath(conf.conffile))
+        h5.attrs['conffile']=np.string_(os.path.basename(conf.conffile))
+
+        # copy in the config
+        h5y=h5.create_group("CONFIG")
+        h5yaml(h5y,conf)
+
+        # create groups for the data
+        h5g=h5.create_group('GROUPS')
+        h5s=h5.create_group('SPECTRA')
+        h5s.attrs['nsource']=np.uint32(len(sources))
+
+        
+
+        
+        if conf['group']:
+            # do the grouping!
+            groups=group.makeGroups(conf,grisms,sources,extconf)
+            ngrp=len(groups)
+            for grpid,grp in enumerate(groups):
+                theseSources=sources.select(grp)
+                extractSources(conf,theseSources,grisms,extconf,mskconf,\
+                               grismFF,grpid,h5g,h5s,pdf)
+        else:
+            grpid=0
+            ngrp=1
+            extractSources(conf,sources,grisms,extconf,mskconf,grismFF,\
+                           grpid,h5g,h5s,pdf)
+
+        # put in some data for the groups
+        h5g.attrs['ngroup']=np.uint16(ngrp)
+
+    if conf['residuals']['perform']:
+        print('[debug]Must code up the new residuals plan.')
+    # update the residuals
+    #residuals.computeResiduals(conf['residuals'],grisms,extconf,mat,results)
+    

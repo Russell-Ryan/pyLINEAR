@@ -18,8 +18,8 @@ class LCurve(object):
         self.frob=frob
         
     def append(self,x,y,l):
-        self.x.append(np.log10(x))
-        self.y.append(np.log10(y))
+        self.x.append(np.log10(x))    #=log(r1norm)  --- like chi2
+        self.y.append(np.log10(y))    #=log(xnorm)
         self.l.append(l)
 
     def values(self):
@@ -60,8 +60,8 @@ class LCurve(object):
             print('# 4: curvature',file=fp)
             print('',file=fp)
             
-            for xx,yy,ll,cc in zip(l,x,y,c):
-                print('{0:+.4f} {1:+.4e} {2:+.4e} {3:+.4e}'.format(xx,yy,ll,cc),file=fp)
+            for v in zip(l,x,y,c):
+                print('{0:+.4f} {1:+.4e} {2:+.4e} {3:+.4e}'.format(*v),file=fp)
                 
 
 
@@ -110,8 +110,18 @@ class LCurve(object):
         return curv
 
     
-    def plot(self,filename,fontsize=14,colormap='Spectral'):
 
+    def plot(self,INPUT,**kwargs):
+        if isinstance(INPUT,str):
+            with PdfPages(INPUT) as pdf:
+                self.writePDF(pdf,**kwargs)
+        elif isinstance(INPUT,PdfPages):
+            self.writePDF(INPUT,**kwargs)
+        else:
+            raise NotImplementedError("Invalid plot settings")
+
+            
+    def writePDF(self,pdf,colormap='Spectral',grpid=None):
         
         # define a colormap
         cmap=plt.cm.get_cmap(colormap)
@@ -123,63 +133,59 @@ class LCurve(object):
         x,y,l=self.values()
         curv=self.curvature
         
-        xt,yt=0.67,0.93
-            
-
-        with PdfPages(filename) as pdf:
-
-            # make L-curve figure        
-            fig,ax=plt.subplots()
-
-            ln=ax.plot(x,y,'-k',linewidth=1.,zorder=1)
-            sc=ax.scatter(x,y,c=l,zorder=2,\
-                          vmin=np.amin(l),vmax=np.amax(l),\
-                          s=40,cmap=cmap,\
-                          edgecolors='k',marker='o')
-            tt=ax.text(xt,yt,r'$\log\ ||A||_F=${0:+.3f}'.format(self.logfrob),\
-                       horizontalalignment='left',transform=ax.transAxes,\
-                       bbox=dict(facecolor='white',edgecolor='white'))
-
-            
-            plt.xlabel(r'$\log\ ||Ax-b||^2$', fontsize=fontsize)
-            plt.ylabel(r'$\log\ ||x||^2$', fontsize=fontsize)
-            
-            ax.set_axisbelow(True)
-            ax.grid(True)
-            cbar=plt.colorbar(sc)
-
-            l0,l1=np.amin(l),np.amax(l)
-            cbar.set_clim(l0,l1)
-            #cbar.solids.set_rasterized(True)
-            cbar.solids.set_edgecolor("face")
-            cbar.ax.set_ylabel(r"$\log\ \ell$",rotation=90,\
-                               fontsize=int(1.1*fontsize))
-            plt.tight_layout()
-            pdf.savefig(fig)
+        xt,yt=0.67,0.88
 
 
-            
-            # make curvature plot
-            fig,ax=plt.subplots()
-            
-                        
-            ln=ax.plot(l,curv,'-k',linewidth=1.,zorder=1)
-            
-            sc=ax.scatter(l,curv,c=l,zorder=2,\
-                          vmin=np.amin(l),vmax=np.amax(l),\
-                          s=40,cmap=cmap,\
-                          edgecolors='k',marker='o')            
-            plt.xlabel(r'$\log\ \ell$', fontsize=fontsize)
-            plt.ylabel(r'curvature', fontsize=fontsize)
-            plt.xlim([l0,l1])
-            ax.set_axisbelow(True)
-            ax.grid(True)
+        gridspec_kw={'height_ratios':[0.8,1]}
+        fig,(ax1,ax2)=plt.subplots(2,1,sharex=False,\
+                                   gridspec_kw=gridspec_kw)
 
-            plt.tight_layout()
-            pdf.savefig(fig)
-
-            #plt.savefig(filename)
-
+        if grpid is not None:
+            ax1.set_title('group: {}'.format(grpid))
+        
+        ln=ax1.plot(x,y,'-k',linewidth=1.,zorder=1)
+        sc=ax1.scatter(x,y,c=l,zorder=2,\
+                       vmin=np.amin(l),vmax=np.amax(l),\
+                       s=40,cmap=cmap,\
+                       edgecolors='k',marker='o')
+        tt=ax1.text(xt,yt,r'$\log\ ||A||_F=${0:+.3f}'.format(self.logfrob),\
+                    horizontalalignment='left',transform=ax1.transAxes,\
+                    bbox=dict(facecolor='white',edgecolor='white'))
+        
+        ax1.set(xlabel=r'$\log\ ||Ax-b||^2$',\
+                ylabel=r'$\log\ ||x||^2$')
+        
+        
+        ax1.set_axisbelow(True)
+        ax1.grid(True)
+        
+        
+        l0,l1=np.amin(l),np.amax(l)
+        ln=ax2.plot(l,curv,'-k',linewidth=1.,zorder=1)
+        
+        
+        sc=ax2.scatter(l,curv,c=l,zorder=2,\
+                       vmin=np.amin(l),vmax=np.amax(l),\
+                       s=40,cmap=cmap,\
+                       edgecolors='k',marker='o')
+        
+        ax2.set(ylabel=r'curvature')
+        ax2.set_xticklabels([])
+        
+        
+        ax2.set_xlim([l0,l1])
+        ax2.set_axisbelow(True)
+        
+        ax2.grid(True)
+        
+        cbar=plt.colorbar(sc,ax=ax2,orientation='horizontal',pad=0.0,\
+                          aspect=60,shrink=1)
+        cbar.ax.set_xlabel(r"$\log\ \ell$")
+        
+        
+        plt.tight_layout()
+        pdf.savefig(fig)
+                 
     @property
     def logfrob(self):
         return np.log10(self.frob)

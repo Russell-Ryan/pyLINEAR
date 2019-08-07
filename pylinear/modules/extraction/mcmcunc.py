@@ -48,7 +48,8 @@ def mcmcUncertainties(conf,mat,result,sources):
     if not conf['perform']:
         return result
 
-    print('Computing MCMC uncertainties')
+    print('[info]Computing MCMC uncertainties')
+    print('[debug]MCMC must be single processor')
     
     # compute the residuals
     resid=mat.bi-mat.A.matvec(result.x)
@@ -65,39 +66,6 @@ def mcmcUncertainties(conf,mat,result,sources):
         hi.append(h)
         sig.append(s)
         
-
-    # figure out how to use a generator
-
-    #pool.pool(mc_mcmcUncertainty,[(*mat.residualMatrix(j,resid),func) for j,func in enumerate(result.lo)],conf)
-
-        
-    
-    #if ncpu is None or ncpu>1:
-    #    pool=mp.Pool(processes=ncpu)
-    #    R=[pool.apply_async(mp_mcmcUncertainty,\
-    #                        args=(conf,*mat.residualMatrix(j,resid),func)) \
-    #       for j,func in enumerate(result.lo)]
-    #    pool.close()
-    #    pool.join()
-    #    unc=[]
-    #    for r in R:
-    #        if r.successful():
-    #            unc.append(r.get())
-    #        else:
-    #            raise exceptions.LINEARProcessFailure()
-    #else:
-    #    unc=[]
-    #    for j,func in enumerate(result.lo):
-    #        sub=mat.residualMatrix(j,resid)
-    #        unc.append(mp_mcmcUncertainty(conf,*sub,func))
-    #
-    ## reform the results
-    #unc=list(zip(*unc))
-
-    # set the output
-    #result.lo=np.array(unc[0])
-    #result.hi=np.array(unc[1])
-
 
     # set the outputs
     result.lo=np.array(lo)

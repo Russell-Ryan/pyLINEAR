@@ -3,10 +3,10 @@ from astropy.io import fits
 
 from pylinear.utilities import gzip,indices
 
-def computeResiduals(conf,grisms,grismconf,mat,result):
+def computeResiduals(conf,grisms,grismconf,mat,results):
     if not conf['perform']:
         return
-    print("computing the residuals")
+    print("[info]computing the residuals")
     
     # compute the model
     model=mat.A.matvec(result.x)
@@ -25,11 +25,6 @@ def computeResiduals(conf,grisms,grismconf,mat,result):
             # get the pixels if there are some valid ones
             g=np.where(imgindex==index)[0]
             if len(g)!=0:
-
-                # get zeroth
-                #hdr=flt.primaryHeader
-                #print(hdr)
-                
                 # read the images
                 sci,scihdr=flt.readfits(detconf.sciext,detconf.extver)
                 unc,unchdr=flt.readfits(detconf.sciext,detconf.extver)

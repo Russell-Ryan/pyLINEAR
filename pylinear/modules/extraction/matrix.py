@@ -7,17 +7,13 @@ import pdb
 from . import lcurve,lsqrresult
 from pylinear import h5table
 from pylinear.utilities import progressbar,indices
-from .fluxunit import FLUXUNIT
+from .fluxunit import FLUXSCALE
 
 class Matrix(object):
-
-    
-    TTYPE='ddt'
-
-    
+    TTYPE='DDT'            # Which type of table to 
     def __init__(self,conf,grisms,sources,extconf,mskconf,grismFF):
-        print("building the matrix")
-
+        print("[info]Building the matrix")
+        
         # stuff for LSQR
         lsqrconf=conf['lsqr']
         self.atol=float(lsqrconf['atol'])
@@ -33,9 +29,9 @@ class Matrix(object):
         # get extraction properties for the sources
         nwav=[]
         for segid,src in sources:
-            if src.lamb0 is None: src.lamb0=conf['lamb0']
-            if src.lamb1 is None: src.lamb1=conf['lamb1']
-            if src.dlamb is None: src.dlamb=conf['dlamb']
+            if src.lamb0 is None: src.lamb0=self.epar(conf,extconf,'lamb0')
+            if src.lamb1 is None: src.lamb1=self.epar(conf,extconf,'lamb1')
+            if src.dlamb is None: src.dlamb=self.epar(conf,extconf,'dlamb')
             nwav.append(src.nwav)
             
         # get cumulative indices
@@ -78,7 +74,7 @@ class Matrix(object):
             raise RuntimeError("matrix had no elements")
         
         # loaded everything
-        print("Compressing the indices.")
+        print("[info]Compressing the indices")
         ic,iu=indices.compress(i)
         jc,ju=indices.compress(j)
         dim=np.array([len(iu),len(ju)])
@@ -119,6 +115,15 @@ class Matrix(object):
         # for making a plot
         self.lcurve=lcurve.LCurve(self.frob)
 
+
+
+    def epar(self,conf,extconf,key):
+        if key in conf:
+            return conf[key]
+        else:
+            return getattr(extconf,key)
+
+        
     def __imul__(self,v):
         self.A.A.data*=v
         self.frob*=v
@@ -182,7 +187,7 @@ class Matrix(object):
         return i,j,aij
                 
     def maskBeams(self,flt,mskconf,path):
-        print("making beam masks")
+        print("[info]Making beam masks")
         masks={}
         if len(mskconf.beams)!=0:
             with h5table.H5Table(flt.dataset,path=path,suffix='omt') as h5:
@@ -222,20 +227,17 @@ class Matrix(object):
             # loop over the sources
             for srcindex,(segid,src) in enumerate(sources):
 
-
-                if self.TTYPE=='odt':                
-                    # Read the ODT
+                if self.TTYPE=='ODT':                 # Read the ODT
                     odt=h5table.ODT(src.segid)
                     odt.readH5(h5beam)
                     ddt=odt.decimate()
                     del(odt)
-                elif self.TTYPE=='ddt':
-                    # Read the DDT
+                elif self.TTYPE=='DDT':               # Read the DDT
                     ddt=h5table.DDT(src.segid)
                     ddt.readH5(h5beam)
                 else:
                     raise NotImplementedError("Invalid Table Type: {}".format(self.TTYPE))
-                    
+
                 if len(ddt)!=0:
                     
                     # get limits 
@@ -258,7 +260,7 @@ class Matrix(object):
                         # compute the scaling terms
                         ff=grismFF(xg,yg,ddt.wav,detconf.detector)
                         p=detimg.pixelArea(xg,yg)    # pixel area map
-                        s=beamconf.sensitivity(ddt.wav)*FLUXUNIT
+                        s=beamconf.sensitivity(ddt.wav)*FLUXSCALE
                         
                         # scale the DDT
                         ddt*=(ff*p*s)

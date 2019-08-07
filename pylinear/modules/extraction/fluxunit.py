@@ -1,3 +1,4 @@
 
 # change this based on the brightness of the sources
-FLUXUNIT=1e-18
+FLUXSCALE=1e-18
+FLUXUNIT='erg/s/cm2/A'

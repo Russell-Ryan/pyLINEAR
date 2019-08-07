@@ -8,7 +8,7 @@ def printDamping(value,frob,optimal=True):
     
     # https://www.utf8-chartable.de/unicode-utf8-table.pl?number=1024&utf8=dec
     print('')
-    print("pyLINEAR results: {}".format(opt))
+    print("[info]pyLINEAR results: {}".format(opt))
     print("  unscaled log(\u2113) = {}".format(value))
     print("    scaled log(\u2113) = {}".format(value+np.log10(frob)))
     #print("          \u221a||A||\u00b2 = {}".format(frob))
@@ -41,7 +41,7 @@ def classicExtraction():
 def gridSearch(logdamp,mat,x0):
     ''' Iterate through log(damp) values and find point of max curvature. '''
     
-    print('starting grid search')
+    print('[info]Starting grid search')
     # determine some log damping values
     ldamp=np.arange(logdamp[0],logdamp[1]+logdamp[2],logdamp[2])
     
@@ -66,7 +66,7 @@ def gridSearch(logdamp,mat,x0):
 def goldenSearch(logdamp,mat,x0):
     ''' Find point of maximum curvature following Cultrera Golden Search. '''
 
-    print('starting golden search')
+    print('[info]Starting golden search')
     # set some constants
     phi=(1.+np.sqrt(5.))/2.
     eps=logdamp[2]
@@ -121,7 +121,7 @@ def goldenSearch(logdamp,mat,x0):
 def fixedDamping(logdamp,mat,x0):
     ''' Just run do a single value of log(damp). '''
 
-    print('staring fixed damping')
+    print('[info]Starting fixed damping')
     
     # Run LSQR
     if isinstance(logdamp,list):
