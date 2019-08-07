@@ -24,21 +24,35 @@ python setup.py install
 ```
 
 
-2. install h5axeconfig by R. Ryan: [github repo](https://github.com/Russell-Ryan/h5axeconfig). This requires ruamel: [pypi](https://pypi.org/project/ruamel.yaml/) and wget: [pypi](https://pypi.org/project/wget/).
-```
-linux> pip install wget
-linux> pip install ruamel.yaml
-linux> cd h5axeconfig
-linux> python setup.py install
-```
-
-
-
-
+2. install [h5axeconfig](https://github.com/Russell-Ryan/h5axeconfig).  This has two key dependences that must be resolved first: [ruamel](https://pypi.org/project/ruamel.yaml/) and [wget](https://pypi.org/project/wget/).
 
 ```
+pip install wget
+pip install ruamel.yaml
+```
+Then clone and install h5axeconfig
+```
+git clone https://github.com/Russell-Ryan/h5axeconfig.git
+cd h5axeconfig
 python setup.py install
 ```
+
+3. install pyLINEAR.  This has one key dependency not yet resolved: [emcee](https://github.com/dfm/emcee).
+```
+git clone https://github.com/dfm/emcee.git
+cd emcee
+python setup.py install
+```
+
+Then clone and install pyLINEAR
+```
+git clone https://github.com/Russell-Ryan/pyLINEAR.git
+cd pyLINEAR
+python setup.py install
+```
+
+4. Hopefully at this point, everything should be working --- including the compiled C components.
+
 
 
 ## Example Usage
