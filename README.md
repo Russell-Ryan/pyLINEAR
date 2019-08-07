@@ -31,11 +31,12 @@ cd h5axeconfig
 python setup.py install
 ```
 
-3. install pyLINEAR.  This has one key dependency not yet resolved: [emcee](https://github.com/dfm/emcee).
+3. install pyLINEAR.  This has two key dependencies not yet resolved: [emcee](https://github.com/dfm/emcee) and [shapely](https://pypi.org/project/Shapely/)
 ```
 git clone https://github.com/dfm/emcee.git
 cd emcee
 python setup.py install
+pip install shapely
 ```
 
 Then clone and install pyLINEAR
