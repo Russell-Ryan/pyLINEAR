@@ -30,7 +30,9 @@ python setup.py install
 pip install wget
 pip install ruamel.yaml
 ```
+
 Then clone and install h5axeconfig
+
 ```
 git clone https://github.com/Russell-Ryan/h5axeconfig.git
 cd h5axeconfig
