@@ -10,16 +10,16 @@ pyLINEAR requires several packages that exist in the ether, as well as several t
 
 **1. install [polycilp](https://github.com/Russell-Ryan/polyclip)** 
 
-a) clone polyclip repo:
-```
-git clone https://github.com/Russell-Ryan/polyclip.git
-```
+    1.1 clone polyclip repo:
+    ```
+    git clone https://github.com/Russell-Ryan/polyclip.git
+    ```
 
-b) build polyclip
-```
-cd polyclip
-python setup.py install
-```
+    1.2 build polyclip
+    ```
+    cd polyclip
+    python setup.py install
+    ```
 
 
 2. install h5axeconfig by R. Ryan: [github repo](https://github.com/Russell-Ryan/h5axeconfig). This requires ruamel: [pypi](https://pypi.org/project/ruamel.yaml/) and wget: [pypi](https://pypi.org/project/wget/).
