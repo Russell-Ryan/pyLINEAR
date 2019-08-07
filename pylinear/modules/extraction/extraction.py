@@ -63,11 +63,8 @@ def extractSources(conf,sources,grisms,extconf,mskconf,grismFF,grpid,\
     else:
         raise NotImplementedError("Extraction mode is invalid.")
 
-
-    
     # plot
     mat.lcurve.plot(pdf,grpid=grpid)
-
 
     # write the group data
     logr1,logx,logl=mat.lcurve.values()
@@ -90,8 +87,6 @@ def extractSources(conf,sources,grisms,extconf,mskconf,grismFF,grpid,\
     dgrp.attrs['npix']=np.uint32(mat.shape[0])
     dgrp.attrs['nlam']=np.uint32(mat.shape[1])
     dgrp.attrs['frob']=np.float32(mat.frob)
-
-    
     
     # update with MCMC uncertainties
     result=mcmcunc.mcmcUncertainties(conf['mcmcunc'],mat,result,sources)
