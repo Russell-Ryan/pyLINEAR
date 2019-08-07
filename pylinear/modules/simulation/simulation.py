@@ -22,17 +22,23 @@ TTYPE='ddt'
 def addNoise(conf,sci):
     if conf['perform']:
         print("[alarm]hardcoded dark and read for WFC3/IR")
+
+
+        # Table 4 of gives effective read noise levels for WFC3/IR:
+        # http://www.stsci.edu/hst/wfc3/documents/ISRs/WFC3-2009-23.pdf
         
         dark,read=0.046,12.
         
         # create variance
         rdvar=read*read
-        print(np.amax(sci))
         var=(sci+conf['skyrate']+dark)*conf['exptime']+rdvar
 
         # draw Poisson variables
-        sci=(np.random.poisson(var)-rdvar)/conf['exptime']-conf['skyrate']-dark
+        sci=np.random.poisson(var)
         unc=np.sqrt(var)/conf['exptime']
+        
+        # remove those artifacts
+        sci=(sci-rdvar)/conf['exptime']-conf['skyrate']-dark
 
         # force types
         sci=sci.astype(SCITYPE)
@@ -174,9 +180,10 @@ def simulateWorker(flt,conf,grismconf,grismflat,sources,overwrite=True):
                         del val
                         
 
+            # update the SCI image for noise and make an UNC image
             sci,unc=addNoise(conf['noise'],sci)
             
-            # create a DQA image
+            # create a DQA image (set to all 0)
             dqa=np.full_like(sci,0,dtype=DQATYPE)
             
             # the SCI image
