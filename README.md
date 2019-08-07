@@ -10,10 +10,10 @@ pyLINEAR requires several packages that exist in the ether, as well as several t
 
 **1. install [polycilp](https://github.com/Russell-Ryan/polyclip)** 
 
-    1.1 clone polyclip repo:
-    ```
-    git clone https://github.com/Russell-Ryan/polyclip.git
-    ```
+    - clone polyclip repo:
+```
+git clone https://github.com/Russell-Ryan/polyclip.git
+```
 
     1.2 build polyclip
     ```
