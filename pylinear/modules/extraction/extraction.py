@@ -168,7 +168,7 @@ def extract(conf,sources):
 
     # set extraction values for each source
     print('[debug]move extraction parameters out of matrix.py to here')
-    conf['group']=True
+    
 
             
     # output file names

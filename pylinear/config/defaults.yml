@@ -43,6 +43,7 @@ modules:
   extraction:
     perform: true 
     mode: golden
+    group: True
     logdamp: [-6.,-1.,0.1]
     outroot: test
     imglst: flt.lst
