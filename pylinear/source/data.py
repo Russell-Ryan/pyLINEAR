@@ -43,12 +43,12 @@ class Data(object):
 
 
         # rmeove sources below the magnitude limit
-        self.maglimit=conf['maglim']
         try:
-            self.applyMagLimit(self.maglimit)
+            self.maglimit=conf['maglim']
         except:
-            pass
-
+            self.maglimit=None
+        self.applyMagLimit(self.maglimit)
+        
 
         # set the default spectra as photometry
         self.loadPhotometry()
@@ -124,9 +124,9 @@ class Data(object):
 
     def applyMagLimit(self,maglimit):
         ''' apply a magnitude limit cut '''
-
-        print('[info]Apply magnitude limit: {}'.format(maglimit))
+            
         if maglimit is not None:
+            print('[info]Apply magnitude limit: {}'.format(maglimit))
             for segid,src in self.sources.items():
                 if src.mag > maglimit:
                     del self.sources[segid]

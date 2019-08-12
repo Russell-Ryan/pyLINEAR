@@ -63,8 +63,11 @@ class Matrix(object):
         for fltindex,(fltfile,flt) in enumerate(grisms):
             # update the prograssbar
             pb.suffix='{}/{}'.format(fltindex+1,self.nimg)
-            data=self.loadFLT(flt,sources,extconf,mskconf,grismFF,pb,path)
+            pb.increment()
 
+            # do one FLT:            
+            data=self.loadFLT(flt,sources,extconf,mskconf,grismFF,pb,path)
+            
             # update the results
             i.extend(data[0])
             j.extend(data[1])
