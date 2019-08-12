@@ -127,9 +127,10 @@ class Data(object):
             
         if maglimit is not None:
             print('[info]Apply magnitude limit: {}'.format(maglimit))
+            sources=OrderedDict()
             for segid,src in self.sources.items():
-                if src.mag > maglimit:
-                    del self.sources[segid]
+                if src.mag < maglimit:
+                    sources[segid]=src
                     
             if len(sources)==0:
                 raise RuntimeError("All sources too faint.")
