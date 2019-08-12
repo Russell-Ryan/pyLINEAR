@@ -10,8 +10,9 @@ TTYPE='DDT'
 
 def groupFLT(flt,sources,extconf,path,minarea=0.1):
     
+    print(flt.dataset)
     
-    # get the FLTs' polygons
+    # get the polygons for this FLT:
     with h5table.H5Table(flt.dataset,TTYPE,path=path) as h5:
 
         for detname,detimg in flt:
@@ -48,11 +49,11 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
                         # save the results
                         ids.append([segid])
                         polys.append(poly)
-    # At this point, we've made shapely.Polygons out of each DDT
+    # At this point, we've made shapely.Polygons out of a given DDT
         
 
                         
-    # now group those FLTs' 
+    # group those sources with Shapely math
     data=list(zip(ids,polys))
     nnew=ndata=len(ids)
     while nnew!=0:
@@ -62,16 +63,19 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
         while len(data)!=0:
             thisid,thispoly=data.pop(0)
 
-            ids=thisid
+            #ids=thisid
             for i,(testid,testpoly) in enumerate(data):
                 inter=thispoly.intersection(testpoly)
-                area=inter.area
+                area=inter.area   # intersection area
+                print(area)
                 if area>minarea:
-                    thispoly=thispoly.union(testpoly)
-                    data.pop(i)
+                    data.pop(i)   # it was grouped, so remove it from the list
 
-                    ids.extend(testid)
-            groups.append((ids,thispoly))
+                    # update the this
+                    thispoly=thispoly.union(testpoly)
+                    thisids.extend(testid)
+                    
+            groups.append((thisids,thispoly))
         data=groups
         nnew=ndata-len(data)
         ndata=len(data)
