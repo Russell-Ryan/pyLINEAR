@@ -73,9 +73,9 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
 
                     # update the this
                     thispoly=thispoly.union(testpoly)
-                    thisids.extend(testid)
+                    thisid.extend(testid)
                     
-            groups.append((thisids,thispoly))
+            groups.append((thisid,thispoly))
         data=groups
         nnew=ndata-len(data)
         ndata=len(data)
