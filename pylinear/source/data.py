@@ -125,7 +125,7 @@ class Data(object):
     def applyMagLimit(self,maglimit):
         ''' apply a magnitude limit cut '''
 
-        
+        print('[info]Apply magnitude limit: {}'.format(maglimit))
         if maglimit is not None:
             for segid,src in self.sources.items():
                 if src.mag > maglimit:

@@ -75,22 +75,16 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
                 #if area>minarea:
                     data.pop(i)   # it was grouped, so remove it from the list
 
-                    tarea=testpoly.area
-                    print(r1,r2)
-                    print(inter.area,testpoly.area,thispoly.area)
-
-                    fig,ax=plt.subplots(1,1)
-
-                    ax.plot(*thispoly.exterior.xy, color='#6699cc', alpha=0.7,
-                            linewidth=3, solid_capstyle='round', zorder=2)
-                    ax.plot(*testpoly.exterior.xy, color='#cccccc', alpha=0.7,
-                            linewidth=3, solid_capstyle='round', zorder=2)
-
-                    #ax.plot(*testpoly.exterior.xy, color='#cc9966', alpha=0.7,
+                    
+                    #print(r1,r2)
+                    #print(inter.area,testpoly.area,thispoly.area)
+                    #fig,ax=plt.subplots(1,1)
+                    #ax.plot(*thispoly.exterior.xy, color='#6699cc', alpha=0.7,
                     #        linewidth=3, solid_capstyle='round', zorder=2)
-
-                    ax.set_title('Polygon')
-                    plt.show()
+                    #ax.plot(*testpoly.exterior.xy, color='#cccccc', alpha=0.7,
+                    #        linewidth=3, solid_capstyle='round', zorder=2)
+                    #ax.set_title('Polygon')
+                    #plt.show()
                     
                     # update the this
                     thispoly=thispoly.union(testpoly)
