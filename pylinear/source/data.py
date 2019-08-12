@@ -131,10 +131,14 @@ class Data(object):
             for segid,src in self.sources.items():
                 if src.mag < maglimit:
                     sources[segid]=src
-                    
-            if len(sources)==0:
+            n=len(sources)
+            if n==0:
                 raise RuntimeError("All sources too faint.")
+
+            print('[info]Magnitude limit: {} -> {}'.format(len(self),n))
             self.sources=sources
+
+            
 
     def fromClassic(self,seglist,imglist):
         ''' load sources via a classic segmentation map '''
