@@ -49,11 +49,12 @@ class Pool(object):
             out=[]
             for result in results:
                 val=result.get()
+                print(type(val))
                 if result.successful():
                     out.append(val)
                 else:
                     print("[warn]Process failed:")
-                    print(val)
+                    print('[warn]'+val)
 
         return out
 
