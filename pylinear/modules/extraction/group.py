@@ -1,6 +1,7 @@
 import numpy as np
 from shapely.geometry import Polygon
 from scipy.spatial import ConvexHull
+from matplotlib import pyplot
 
 from pylinear import h5table
 from pylinear.utilities import indices,pool,convexhull
@@ -70,7 +71,21 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
                 if area>minarea:
                     data.pop(i)   # it was grouped, so remove it from the list
 
+                    
+                
 
+                    ax = fig.add_subplot(111)
+
+                    ax.plot(*thispoly.exterior.xy, color='#6699cc', alpha=0.7,
+                            linewidth=3, solid_capstyle='round', zorder=2)
+                    ax.plot(*testpoly.exterior.xy, color='#cc9966', alpha=0.7,
+                            linewidth=3, solid_capstyle='round', zorder=2)
+
+                    #ax.plot(*testpoly.exterior.xy, color='#cc9966', alpha=0.7,
+                    #        linewidth=3, solid_capstyle='round', zorder=2)
+
+                    ax.set_title('Polygon')
+                    q=input()
                     
                     # update the this
                     thispoly=thispoly.union(testpoly)
