@@ -14,6 +14,7 @@ class Data(object):
     SEGTYPE=np.uint32           # force SEGIDs to have this type
     
     def __init__(self,conf):
+        print('[info]Loading OBSLST')
         
         # load the obs data
         self.obsdata=ObsLST(conf)
@@ -123,6 +124,8 @@ class Data(object):
 
     def applyMagLimit(self,maglimit):
         ''' apply a magnitude limit cut '''
+
+        
         if maglimit is not None:
             for segid,src in self.sources.items():
                 if src.mag > maglimit:
@@ -134,7 +137,7 @@ class Data(object):
 
     def fromClassic(self,seglist,imglist):
         ''' load sources via a classic segmentation map '''
-
+        print('[info]Loading sources from CLASSIC segmentation map')
 
         # load the images
         seg=fitsimage.FitsImage()
@@ -169,10 +172,8 @@ class Data(object):
             # put the segID in the header
             subseg['SEGID']=segid
 
-
             # create the source
             self[segid]=Source(subimg,subseg,detzpt,segid=segid)
-            #self[segid]=thisSource
 
         
         
@@ -181,12 +182,8 @@ class Data(object):
     def fromMEF(self,seglist,imglist):
         ''' load sources via a multi-extension fits file '''
 
-        #def keyword(key):
-        #    if key in seghdu.header:
-        #        v=seghdu.header[key]
-        #    else:
-        #        v=None
-        #    return v
+        print('[info]Loading sources from MEF segmentation map')
+        
 
         keyword=lambda key,hdu:hdu.header[key] if key in hdu.header else None
 

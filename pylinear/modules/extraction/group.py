@@ -8,9 +8,8 @@ from pylinear.utilities import indices,pool
 
 TTYPE='DDT'
 
-def groupFLT(flt,sources,extconf,path):
-    #print("[info]Grouping the FLT: {}".format(flt.filename))
-    minarea=0.1
+def groupFLT(flt,sources,extconf,path,minarea=0.1):
+    
     
     # get the FLTs' polygons
     with h5table.H5Table(flt.dataset,TTYPE,path=path) as h5:
@@ -38,12 +37,12 @@ def groupFLT(flt,sources,extconf,path):
                         pts=np.array([x,y]).T
 
                         # try making the ConvexHull
-                        try:
-                            hull=ConvexHull(pts)
-                        except:
-                            msg='[alarm]ConvexHull failed: {}'.format(segid)
-                            print(len(x),pts.shape)
-                            q=input()
+                        #try:
+                        hull=ConvexHull(pts)
+                        
+                        #    msg='[alarm]ConvexHull failed: {}'.format(segid)
+                        #    print(len(x),pts.shape)
+                        #    q=input()
 
                         # get the (x,y) pairs to make a polygon
                         xy=[(pts[v,0],pts[v,1]) for v in hull.vertices]
