@@ -71,8 +71,9 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
                 if area>minarea:
                     data.pop(i)   # it was grouped, so remove it from the list
 
-                    
-                
+                    tarea=testpoly.area
+                    print(area,tarea,area/tarea)
+
                     fig,ax=plt.subplots(1,1)
 
                     ax.plot(*thispoly.exterior.xy, color='#6699cc', alpha=0.7,
