@@ -38,6 +38,11 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
 
                         # try making the ConvexHull
                         #try:
+                        with open('test.dat',w) as fp:
+                            for xx,yy in x,y:
+                                print(xx,yy,file=fp)
+                                
+                        
                         hull=ConvexHull(pts)
                         
                         #    msg='[alarm]ConvexHull failed: {}'.format(segid)
