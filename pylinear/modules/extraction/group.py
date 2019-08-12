@@ -34,25 +34,15 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
                         xyg=ddt.xyg.to_numpy
                         xyg=indices.unique(xyg)
                         x,y=indices.one2two(xyg,detimg.naxis)
-                        #pts=np.array([x,y]).T
+                        del xyg
 
-                        # try making the ConvexHull
-                        #try:
-                        with open('test.dat','w') as fp:
-                            for xx,yy in zip(x,y):
-                                print(xx,yy,file=fp)
-                                
-                        
-                        xh,yh=convexhull.vertices(x,y)
-                        xy=list(zip(xh,yh))
-                        
-                        
-                        #    msg='[alarm]ConvexHull failed: {}'.format(segid)
-                        #    print(len(x),pts.shape)
-                        #    q=input()
+                        # get the vertices
+                        xy=convexhull.vertices(x,y)
 
-                        # get the (x,y) pairs to make a polygon
-                        #xy=[(pts[v,0],pts[v,1]) for v in hull.vertices]
+                        # reform to (x,y) pairs
+                        xy=list(zip(*xy))
+
+                        # make into a polygon from Shapely
                         poly=Polygon(xy)
 
                         # save the results
@@ -86,15 +76,17 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
         nnew=ndata-len(data)
         ndata=len(data)
 
-    # return the lists
+    # get just the IDs
     groups=list(zip(*groups))[0]
+
+
+    # return a list of sets
     ids=[set(group) for group in groups]
 
 
+    print(ids)
     q=input()
     
-    #if (len(ids)==1) or isinstance(ids,np.uint32):
-    #    ids=list(ids)
     return ids
         
 
