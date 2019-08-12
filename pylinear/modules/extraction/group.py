@@ -3,7 +3,7 @@ from shapely.geometry import Polygon
 from scipy.spatial import ConvexHull
 
 from pylinear import h5table
-from pylinear.utilities import indices,pool
+from pylinear.utilities import indices,pool,convexhull
 
 
 TTYPE='DDT'
@@ -34,7 +34,7 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
                         xyg=ddt.xyg.to_numpy
                         xyg=indices.unique(xyg)
                         x,y=indices.one2two(xyg,detimg.naxis)
-                        pts=np.array([x,y]).T
+                        #pts=np.array([x,y]).T
 
                         # try making the ConvexHull
                         #try:
@@ -43,14 +43,16 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
                                 print(xx,yy,file=fp)
                                 
                         
-                        hull=ConvexHull(pts)
+                        xh,yh=convexhull.vertices(x,y)
+                        xy=list(zip(xh,yh))
+                        
                         
                         #    msg='[alarm]ConvexHull failed: {}'.format(segid)
                         #    print(len(x),pts.shape)
                         #    q=input()
 
                         # get the (x,y) pairs to make a polygon
-                        xy=[(pts[v,0],pts[v,1]) for v in hull.vertices]
+                        #xy=[(pts[v,0],pts[v,1]) for v in hull.vertices]
                         poly=Polygon(xy)
 
                         # save the results
