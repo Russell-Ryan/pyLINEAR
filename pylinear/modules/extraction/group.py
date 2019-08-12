@@ -103,10 +103,7 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
 
     # return a list of sets
     ids=[set(group) for group in groups]
-
-
-    print(ids)
-    q=input()
+    print(len(ids))
     
     return ids
         
