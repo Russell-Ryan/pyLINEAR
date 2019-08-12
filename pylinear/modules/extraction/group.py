@@ -78,7 +78,7 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
 
                     ax.plot(*thispoly.exterior.xy, color='#6699cc', alpha=0.7,
                             linewidth=3, solid_capstyle='round', zorder=2)
-                    ax.plot(*testpoly.exterior.xy, color='#cc9966', alpha=0.7,
+                    ax.plot(*testpoly.exterior.xy, color='#cccccc', alpha=0.7,
                             linewidth=3, solid_capstyle='round', zorder=2)
 
                     #ax.plot(*testpoly.exterior.xy, color='#cc9966', alpha=0.7,
@@ -90,7 +90,7 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
                     # update the this
                     thispoly=thispoly.union(testpoly)
                     thisid.extend(testid)
-                    print(i,area,thisid)
+                    #print(i,area,thisid)
 
                     
             groups.append((thisid,thispoly))
