@@ -69,14 +69,15 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
                 inter=thispoly.intersection(testpoly)
                 #inter=inter.area   # intersection area
 
-                r1=inter.area/test.area
-                r2=inter.area/this.area
+                r1=inter.area/testpoly.area
+                r2=inter.area/thispoly.area
                 if r1 > minarea and r2 > minarea:                
                 #if area>minarea:
                     data.pop(i)   # it was grouped, so remove it from the list
 
                     tarea=testpoly.area
-                    print(area,tarea,thispoly.area,area/tarea,area/thispoly.area)
+                    print(r1,r2)
+                    print(inter.area,testpoly.area,thispoly.area)
 
                     fig,ax=plt.subplots(1,1)
 
