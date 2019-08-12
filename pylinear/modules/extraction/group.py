@@ -87,7 +87,7 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
         ndata=len(data)
 
     # return the lists
-    ids=set(list(zip(*groups))[0])
+    ids=list(list(zip(*groups))[0])
     #if (len(ids)==1) or isinstance(ids,np.uint32):
     #    ids=list(ids)
     return ids
