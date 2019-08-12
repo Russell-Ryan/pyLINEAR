@@ -6,8 +6,8 @@ class Base(object):
         return '{} for {}'.format(self.ttype,self.name)
 
     def notFound(self):
-        print("[warn]{} for {} not found.".format(self.ttype,self.name))
-
+        #print("[warn]{} for {} not found.".format(self.ttype,self.name))
+        pass
     
     @property
     def ttype(self):
