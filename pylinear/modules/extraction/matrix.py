@@ -187,7 +187,7 @@ class Matrix(object):
         return i,j,aij
                 
     def maskBeams(self,flt,mskconf,path):
-        print("[info]Making beam masks")
+        print("[info]Making beam mask for: {}".format(flt.filename))
         masks={}
         if len(mskconf.beams)!=0:
             with h5table.H5Table(flt.dataset,path=path,suffix='omt') as h5:

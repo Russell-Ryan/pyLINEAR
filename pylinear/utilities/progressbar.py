@@ -10,8 +10,9 @@ class ProgressBar(object):
         self.fill=fill
         self.unfill=unfill
         self.setLength()
+        self.count=0       # the current increment
 
-
+        
     @property
     def prefix(self):
         return self._prefix
@@ -64,28 +65,46 @@ class ProgressBar(object):
             sys.stdout.logging=False
 
         print(self.message(iteration),end='\r')
-
+        
         if logging:
             sys.stdout.logging=True
         
-        # Print New Line on Complete
+        # Print New Line on Completion
         if iteration == self.total and newline: 
             print()
 
+            
+    def increment(self):
+        self.count+=1
+        self(self.count)
 
-if __name__=='__main__':
+def test(obj,progressbar=None):
     from time import sleep
+    #for i in range(n):
+    #count=itr[0]
+    #obj=itr[1]
+    
+    if progressbar is not None:
+        progressbar.increment()
+    sleep(0.05)
 
+    return obj
+
+        
+if __name__=='__main__':
+    
+    import pool
 
     n=100
-
     pb=ProgressBar(n,suffix='1')
-    for i in range(n):
-        pb(i+1,newline=False)
-        sleep(0.05)
-
-    pb.suffix='2'
-    for i in range(n):
-        pb(i+1,newline=False)
-        sleep(0.05)
-        
+    #for i in range(n):
+    #    pb(i+1,newline=False)
+    #    sleep(0.05)
+    #
+    #pb.suffix='2'
+    #for i in range(n):
+    #    pb(i+1,newline=False)
+    #    sleep(0.05)
+    iters=[i for i in range(n)]
+    pool.pool(test,iters,ncpu=2)
+    

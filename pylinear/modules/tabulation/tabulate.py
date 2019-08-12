@@ -2,9 +2,6 @@ import numpy as np
 import multiprocessing as mp
 import os
 
-
-#from pylinear import h5table,h5utils
-#from pylinear.h5table import h5table,h5utils
 from pylinear import h5table
 from pylinear.h5table import h5utils
 from pylinear.utilities import indices,pool
@@ -20,21 +17,20 @@ def detGroup(h5,det,detconf):
 
 
 def makeODTs(grism,sources,grismconf,path,remake,nsub):
-    print('[info]Making ODTs')
     # create the table
     tab=h5table.H5Table(grism.dataset,TTYPE,path=path)
-
+    
     # remake the table?
-    if remake and os.path.isfile(tab.filename):
-        os.remove(tab.filename)
-
-        
+    if not (remake or not os.path.isfile(tab.filename)):
+        return tab.filename
+    
     # pixel based ------------------------------
     dx=np.array([0,0,1,1])            # HARDCODE
     dy=np.array([0,1,1,0])            # HARDCODE
     #-------------------------------------------
 
     with tab as h5:
+
         # add some stuff to that header
         h5utils.writeAttr(h5,'segmap',sources.segmap)
         h5utils.writeAttr(h5,'nsource',np.uint16(len(sources)))
@@ -230,12 +226,20 @@ def tabulate(conf,grisms,sources,grismconf,ttype):
         func=makeOMTs
     else:
         raise NotImplementedError("Table type ({}) not found.".format(ttype))
-  
+
+
+    # print a message
+    print('[info]Making '+ttype)
+    
+        
     # arguments that do not change
     args=(sources,grismconf,conf['path'],conf['remake'],conf['nsub'])
 
     # run the code
     #q=[func(flt,*args) for name,flt in grisms]
-    pool.pool(func,grisms.values(),*args,ncpu=conf['cpu']['ncpu'])
+    #pool.pool(func,grisms.values(),*args,ncpu=conf['cpu']['ncpu'])
+    p=pool.Pool(ncpu=conf['cpu']['ncpu'])
+    filenames=p(func,grisms.values,*args)
 
+    return filenames
     

@@ -10,6 +10,7 @@ class WCS(object):
     __SOUTH__=1e-7*__RADEG__     # Called south_offset in wcssph2xy
     
     def __init__(self,hdr,name=None):
+
         self.WCSname=name
         self.naxis=np.zeros(2,dtype=int)
         self.cd=np.zeros((2,2))
@@ -27,7 +28,7 @@ class WCS(object):
         self.ap={}
         self.bp={}
 
-        self.load(hdr)
+        self.loadHDR(hdr)
 
         
 
@@ -133,14 +134,18 @@ class WCS(object):
             hdr[k]=v
 
         return hdr
+
+
+    def _checkDefault(self,key,hdr,default):
+        if (key in hdr):
+            if (hdr[key] != default):
+                raise NotImplementedError("{} must be set to default.".format(key))
         
-    def load(self,hdr):
-        def check_default(key,default):
-            if (key in hdr):
-                if (hdr[key] != default):
-                    raise NotImplementedError("{} must be set to default.".format(key))
-        check_default('EQUINOX',self.equinox)
-        check_default('LONGPOLE',self.longpole)
+    def loadHDR(self,hdr):
+
+
+        self._checkDefault('EQUINOX',hdr,self.equinox)
+        self._checkDefault('LONGPOLE',hdr,self.longpole)
 
         
         self.naxis[0]=hdr['NAXIS1']
@@ -197,7 +202,7 @@ class WCS(object):
                         self.bp[key]=v
                     else:
                         print("Invalid SIP function: {} {} {}".format(*spl))
-                             
+
     def getrot(self,silent=True):
         cd=self.cd/self.__RADEG__
 

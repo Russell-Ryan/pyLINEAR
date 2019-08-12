@@ -72,9 +72,16 @@ class Data(object):
         yield from self.sources.items()
 
 
-    def __getitem__(self,key):
-        return self.sources[key]
-
+    def __getitem__(self,segid):
+        return self.sources[segid]
+    def __setitem__(self,segid,src):
+        if isinstance(src,Source):
+            if segid in self.sources:
+                print("[alarm]Duplicate SEGIDs are ignored: {}".format(segid))
+            else:
+                if src.valid:
+                    self.sources[self.SEGTYPE(segid)]=src
+            
     def keys(self):
         return self.sources.keys()
 
@@ -162,12 +169,10 @@ class Data(object):
             # put the segID in the header
             subseg['SEGID']=segid
 
-            # create the source
-            thisSource=Source(subimg,subseg,detzpt)
 
-            # keep the source?
-            if (thisSource.npix > 0) & (thisSource.total>0):
-                self.sources[segid]=thisSource
+            # create the source
+            self[segid]=Source(subimg,subseg,detzpt,segid=segid)
+            #self[segid]=thisSource
 
         
         
@@ -176,25 +181,23 @@ class Data(object):
     def fromMEF(self,seglist,imglist):
         ''' load sources via a multi-extension fits file '''
 
-        def keyword(key):
-            if key in seghdu.header:
-                v=seghdu.header[key]
-            else:
-                v=None
-            return v
+        #def keyword(key):
+        #    if key in seghdu.header:
+        #        v=seghdu.header[key]
+        #    else:
+        #        v=None
+        #    return v
+
+        keyword=lambda key,hdu:hdu.header[key] if key in hdu.header else None
+
         
         detzpt=self.obsdata.detZeropoint
         for seghdu,imghdu in zip(seglist,imglist):
             src=Source(imghdu,seghdu,detzpt,\
-                       lamb0=keyword('LAMB0'),\
-                       lamb1=keyword('LAMB1'),\
-                       dlamb=keyword('DLAMB'))
-
-            segid=self.SEGTYPE(src['SEGID'])
-            if (segid not in self.sources) & (src.npix>0) & (src.total>0):
-                self.sources[segid]=src
-            else:
-                print("[warn]Duplicate SEGIDs are ignored.")
+                       lamb0=keyword('LAMB0',seghdu),\
+                       lamb1=keyword('LAMB1',seghdu),\
+                       dlamb=keyword('DLAMB',seghdu))
+            self[src.segid]=src
                 
                 
 

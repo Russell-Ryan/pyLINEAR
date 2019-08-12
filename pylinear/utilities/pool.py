@@ -1,55 +1,70 @@
 import multiprocessing as mp
 import psutil as ps
 
-''' utility to call the multiprocessing '''
+from . import progressbar
+#import progressbar
 
 
-def pool(func,iterator,*args,ncpu=None):
 
-    
-    # this uses multiprocessing, but Clare S. recommended using
-    # DASK, that it is easier to facilitate https://dask.org
-    
-    # get some settings for the processing
-    ncpus=ps.cpu_count(logical=False)
-    ncores=ps.cpu_count(logical=True)
-    nmax=ncores-1
-
-    
-    # set a default to the max
-    if ncpu is None:
-        ncpu=nmax
-    else:
-        ncpu=min(max(ncpu,1),nmax)    # force this to be in range
-
+class Pool(object):
+    def __init__(self,ncpu=None):
+        # get some settings for the processing
+        ncpus=ps.cpu_count(logical=False)
+        ncores=ps.cpu_count(logical=True)
+        nmax=ncores-1
         
-    # start the processing
-    if ncpu==1:
-        print('[info]Serial processing')
-        out=[func(it,*args) for it in iterator]
-    else:
-        print('[info]Parallel processing')
-        pool=mp.Pool(processes=ncpu)
+        nmax=10
+        
+        # set a default to the max
+        if ncpu is None:
+            self.ncpu=nmax
+        else:
+            self.ncpu=min(max(ncpu,1),nmax)    # force this to be in range
+    def callback(self,retval):
+        self.pb.increment()
+        
+                   
+            
+    def __call__(self,func,lis,*args,**kwargs):
+        self.pb=progressbar.ProgressBar(len(lis),**kwargs)
+        if self.ncpu==1:
+            print('[info]Serial processing')
+            out=[]
+            for l in lis:
+                out.append(func(l,*args))
+                self.pb.increment()
+                #out=[func(l,*args) for l in lis]
+        else:
+            print('[info]Parallel processing')
 
-        results=[pool.apply_async(func,(it,*args)) for it in iterator]
-        pool.close()
-        pool.join()
 
 
-        # out=[result.get() for result in results if result.successful()]
-        out=[]
-        for result in results:
-            if result.successful():
-                out.append(result.get())
-            else:
-                print("Process failed.")
+            pool=mp.Pool(processes=self.ncpu)
+            results=[pool.apply_async(func,(l,*args),callback=self.callback) \
+                     for l in lis]
+            
+            pool.close()
+            pool.join()
 
-    return out
-    
-    
+            out=[]
+            for result in results:
+                val=result.get()
+                if result.successful():
+                    out.append(val)
+                else:
+                    print("[warn]Process failed:")
+                    print(val)
+
+        return out
+
+
+def test(itr):
+    return itr
+
 
 if __name__=='__main__':
-    pool('func','iterator')
+    p=Pool(ncpu=2)
 
-    
-    
+    iters=[i for i in range(100)]
+    iters=['hi',1,2,3,4]
+    p(test,iters)

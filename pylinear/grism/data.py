@@ -44,11 +44,9 @@ class Data(object):
     def __iter__(self):
         yield from self.images.items()
 
+    @property
     def values(self):
-        #return list(self.images.values())
-        for image in self.images.values():
-            yield image
-        
+        return list(self.images.values())
         
     def loadObserved(self,filename,conffile):
         print('[info]Loading observed grism images')

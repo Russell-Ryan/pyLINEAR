@@ -5,36 +5,50 @@ from .extractionparameters import ExtractionParameters
 from pylinear.synthphot import SED
 from pylinear.astro import WCS
 
+
+
 class Source(WCS,ExtractionParameters):
-    def __init__(self,img,seg,zero,segid=None,lamb0=None,lamb1=None,dlamb=None):
+    SEGTYPE=np.uint32           # force SEGIDs to have this type
+
+    def __init__(self,img,seg,zero,segid=None,minpix=0,\
+                 lamb0=None,lamb1=None,dlamb=None):
 
         #get the SEGID
         if segid is None:
-            try:
+            if 'SEGID' in seg.header:
                 segid=seg.header['SEGID']
-            except:
-                raise RuntimeError("Segmentation ID is missing from header.")
-        self.segid=segid
+            else:
+                print('[alarm]Segmentation ID is missing from header.')
+                self.valid=False
+                return
 
+        self.segid=self.SEGTYPE(segid)
+        
         # get the good pixels
         g=np.where(seg.data == self.segid)
         self.npix=len(g[0])
-        if self.npix==0:
-            print("[warn]No valid pixels for source={}".format(self.npix))
+        if self.npix<=minpix:
+            print("[warn]Too few pixels ({}) for {} ".format(self.npix,self.segid))
 
+
+            
             
         # check that the img/seg astrometry matches
         keys=['NAXIS','NAXIS2','CRPIX1','CRPIX2','CRVAL1','CRVAL2', \
               'CD1_1','CD1_2','CD2_1','CD2_2','CTYPE1','CTYPE2']
-        ok=[img[key]==seg[key] for key in keys]
-        if False in ok:
-            raise RuntimeError("Incompatible img/seg fits header keywords.")
+        for key in keys:
+            if img[key]!=seg[key]:
+                print('[alarm]Incompatible headers for {}'.format(self.segid))
+                self.valid=False
+                return
+        
         
         # initialize an SED object
         self.sed=SED()
-        
+
         # initialize the header
         WCS.__init__(self,seg.header)  # could be seg or img here
+
         
         # initialize the extraction parameters
         ExtractionParameters.__init__(self,lamb0,lamb1,dlamb)
@@ -56,9 +70,14 @@ class Source(WCS,ExtractionParameters):
             self.xyc=np.array([np.average(self.xd,weights=self.wht), \
                                np.average(self.yd,weights=self.wht)])
             self.adc=np.array(self.xy2ad(self.xyc[0],self.xyc[1]))
-            
-        
 
+        else:
+            print('[alarm]Negative flux in source {}'.format(self.segid))
+            self.valid=False
+            return
+
+        self.valid=True
+            
         
     def instrumentalFlux(self,img):
         ''' compute the instrumental flux of this source in an image '''
@@ -69,7 +88,21 @@ class Source(WCS,ExtractionParameters):
 
     @property
     def convexHull(self):
+        dx=[0,0,1,1]
+        dy=[0,1,1,0]
+        points=[]
+        for x,y in zip(dx,dy):
+            xx=self.xd+x
+            yy=self.yd+y
+            points.extend(list(zip(xx,yy)))
+        points=np.array(list(set(points)))
+
+
+        print(points.shape)
+
+        
         points=np.array([self.xd,self.yd]).T
+        print(points.shape)
         hull=ConvexHull(points)
 
         xh,yh=[],[]
@@ -92,3 +125,6 @@ class Source(WCS,ExtractionParameters):
     def __iter__(self):
         for x,y,w in zip(self.xd,self.yd,self.wht):
             yield x,y,w
+
+    def __len__(self):
+        return len(self.xd)

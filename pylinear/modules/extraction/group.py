@@ -3,13 +3,13 @@ from shapely.geometry import Polygon
 from scipy.spatial import ConvexHull
 
 from pylinear import h5table
-from pylinear.utilities import progressbar,indices
+from pylinear.utilities import indices,pool
 
 
 TTYPE='DDT'
 
 def groupFLT(flt,sources,extconf,path):
-    print("[info]Grouping the FLTs")
+    #print("[info]Grouping the FLT: {}".format(flt.filename))
     minarea=0.1
     
     # get the FLTs' polygons
@@ -26,22 +26,36 @@ def groupFLT(flt,sources,extconf,path):
                 polys=[]
                 
                 for segid,src in sources:
+                    # read the DDT
                     ddt=h5table.DDT(src.segid)
                     ddt.readH5(h5beam)
                     if len(ddt)!=0:
                         
+                        # collect the points accordingly
                         xyg=ddt.xyg.to_numpy
                         xyg=indices.unique(xyg)
                         x,y=indices.one2two(xyg,detimg.naxis)
                         pts=np.array([x,y]).T
-                        
-                        hull=ConvexHull(pts)
-                        
-                        xy=[(pts[v,0],pts[v,1]) for v in hull.vertices]
-                        ids.append(segid)
-                        polys.append(Polygon(xy))
-                        
 
+                        # try making the ConvexHull
+                        try:
+                            hull=ConvexHull(pts)
+                        except:
+                            msg='[alarm]ConvexHull failed: {}'.format(segid)
+                            print(len(x),pts.shape)
+                            q=input()
+
+                        # get the (x,y) pairs to make a polygon
+                        xy=[(pts[v,0],pts[v,1]) for v in hull.vertices]
+                        poly=Polygon(xy)
+
+                        # save the results
+                        ids.append(segid)
+                        polys.append(poly)
+    # At this point, we've made shapely.Polygons out of each DDT
+        
+
+                        
     # now group those FLTs' 
     data=list(zip(ids,polys))
     nnew=ndata=len(ids)
@@ -93,15 +107,18 @@ def groupIDs(data):
     return data
 
 
-def makeGroups(conf,grisms,sources,extconf,dtype=None):
+def makeGroups(conf,grisms,sources,extconf):
     print("[info]Starting the grouping algorithm")
-    if dtype is None: dtype=np.uint16
-
+   
     path=conf['tables']['path']
-
+    
     # group within an FLT
-    ids=[groupFLT(flt,sources,extconf,path) for fltname,flt in grisms]
+    #ids=[groupFLT(flt,sources,extconf,path) for fltname,flt in grisms]
 
+    # use the pool to group the FLTs
+    p=pool.Pool(ncpu=conf['cpu']['ncpu'])
+    ids=p(groupFLT,grisms.values,sources,extconf,path)
+    
     # group those IDs
     data=groupIDs(ids)
     
@@ -109,6 +126,6 @@ def makeGroups(conf,grisms,sources,extconf,dtype=None):
     out=[datum for datum in data]
 
     # print something for something's sake
-    print("[info]Found {} groups.".format(len(out)))
+    print("[info]Done grouping. Found {} groups.".format(len(out)))
     
     return out
