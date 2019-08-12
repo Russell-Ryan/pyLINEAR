@@ -56,7 +56,7 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
                         poly=Polygon(xy)
 
                         # save the results
-                        ids.append(list(segid))
+                        ids.append([segid])
                         polys.append(poly)
     # At this point, we've made shapely.Polygons out of each DDT
         
