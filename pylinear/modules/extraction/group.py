@@ -85,7 +85,6 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
 
                     ax.set_title('Polygon')
                     plt.show()
-                    q=input()
                     
                     # update the this
                     thispoly=thispoly.union(testpoly)
