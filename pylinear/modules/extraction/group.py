@@ -87,10 +87,12 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
         ndata=len(data)
 
     # return the lists
-    ids=list(list(zip(*groups))[0])
+    ids=list(zip(*groups))[0]
+    sets=[set(ID) for ID in ids]
+    
     #if (len(ids)==1) or isinstance(ids,np.uint32):
     #    ids=list(ids)
-    return ids
+    return sets
         
 
 def groupIDs(data):
@@ -126,6 +128,8 @@ def makeGroups(conf,grisms,sources,extconf):
     # use the pool to group the FLTs
     p=pool.Pool(ncpu=conf['cpu']['ncpu'])
     ids=p(groupFLT,grisms.values,sources,extconf,path)
+    print(ids)
+
     
     # group those IDs
     data=groupIDs(ids)
