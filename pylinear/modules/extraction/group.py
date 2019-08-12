@@ -39,7 +39,7 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
                         # try making the ConvexHull
                         #try:
                         with open('test.dat',w) as fp:
-                            for xx,yy in x,y:
+                            for xx,yy in zip(x,y):
                                 print(xx,yy,file=fp)
                                 
                         
