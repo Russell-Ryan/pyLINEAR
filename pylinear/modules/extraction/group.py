@@ -67,13 +67,16 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
             for i,(testid,testpoly) in enumerate(data):
                 inter=thispoly.intersection(testpoly)
                 area=inter.area   # intersection area
-                print(area)
                 if area>minarea:
                     data.pop(i)   # it was grouped, so remove it from the list
 
+
+                    
                     # update the this
                     thispoly=thispoly.union(testpoly)
                     thisid.extend(testid)
+                    print(i,area,thisid)
+
                     
             groups.append((thisid,thispoly))
         data=groups
