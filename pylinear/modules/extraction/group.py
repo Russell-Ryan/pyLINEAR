@@ -72,7 +72,7 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
                     data.pop(i)   # it was grouped, so remove it from the list
 
                     tarea=testpoly.area
-                    print(area,tarea,area/tarea)
+                    print(area,tarea,thipoly.area,area/tarea,area/thispoly.area)
 
                     fig,ax=plt.subplots(1,1)
 
