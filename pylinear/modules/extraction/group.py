@@ -11,7 +11,7 @@ TTYPE='DDT'
 
 def groupFLT(flt,sources,extconf,path,minarea=0.1):
     
-    print('loading the polygons for {}'.format(flt.dataset))
+    #print('loading the polygons for {}'.format(flt.dataset))
     
     # get the polygons for this FLT:
     with h5table.H5Table(flt.dataset,TTYPE,path=path) as h5:
@@ -52,7 +52,7 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
                         polys.append(poly)
     # At this point, we've made shapely.Polygons out of a given DDT
         
-    print('grouping the polygons for {}'.format(flt.dataset))
+    #print('grouping the polygons for {}'.format(flt.dataset))
                         
     # group those sources with Shapely math
     data=list(zip(ids,polys))
@@ -117,6 +117,10 @@ def groupIDs(data):
         new=[]
         while len(data)!=0:
             this=data.pop(0)
+            print(data)
+            print(this)
+            q=input()
+
             
             for i,test in enumerate(data):
                 print(i,type(test),type(this))
