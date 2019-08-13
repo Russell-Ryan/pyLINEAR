@@ -118,7 +118,6 @@ def groupIDs(data):
         while len(data)!=0:
             this=data.pop(0)
             for i,test in enumerate(data):
-                print(i,type(test),type(this))
                 if this.intersection(test):
                     this=this.union(test)
                     data.pop(i)
