@@ -12,7 +12,13 @@ from .fluxunit import FLUXSCALE
 class Matrix(object):
     TTYPE='DDT'            # Which type of table to 
     def __init__(self,conf,grisms,sources,extconf,mskconf,grismFF):
-        print("[info]Building the matrix")
+
+        # dimensionalities
+        self.nimg=len(grisms)
+        self.nsrc=len(sources)
+
+        # print a message
+        print("[info]Building the matrix: {} images, {} sources".format(self.nimg,self.nsrc))
         
         # stuff for LSQR
         lsqrconf=conf['lsqr']
@@ -43,9 +49,6 @@ class Matrix(object):
         ii,jj,aij=[],[],[]
         self.bi=[]
 
-        # dimensionalities
-        self.nimg=len(grisms)
-        self.nsrc=len(sources)
 
         # this was like 'i' before.  but now we need to increment for
         # each FLT and detector

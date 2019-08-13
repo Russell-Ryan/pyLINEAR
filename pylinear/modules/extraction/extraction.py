@@ -170,6 +170,11 @@ def extract(conf,sources):
     print('[debug]move extraction parameters out of matrix.py to here')
     
 
+    print('\n\n')
+    print('[debug]Must make beam masks *OUTSIDE* of matrix.py')
+    print('\n\n')
+
+    
             
     # output file names
     h5file='{}.h5'.format(conf['outroot'])
