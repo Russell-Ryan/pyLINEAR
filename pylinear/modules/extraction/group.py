@@ -113,8 +113,10 @@ def groupIDs(data):
     
     # group those IDs
     nnew=ndata=len(data)
-
+    print(type(data))
     print(data[0])
+
+    q=input()
     
     while nnew!=0:
         new=[]
