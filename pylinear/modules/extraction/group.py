@@ -146,10 +146,16 @@ def makeGroups(conf,grisms,sources,extconf):
     
     # group those IDs
     data=groupIDs(sets)
+
+    # sort them by reverse order
+    #n=[len(x) for d in data]
+    #data=[d for _,d in reversed(sorted(zip(n,data)))]
+
     
     # make data for output
     out=[datum for datum in data]
 
+    
     # print something for something's sake
     print("[info]Done grouping. Found {} groups.".format(len(out)))
     
