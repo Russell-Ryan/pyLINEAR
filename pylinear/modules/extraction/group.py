@@ -138,12 +138,12 @@ def makeGroups(conf,grisms,sources,extconf,sort=True):
     p=pool.Pool(ncpu=conf['cpu']['ncpu'])
     ids=p(groupFLT,grisms.values,sources,extconf,path)
 
+    # convert list of lists of sets to list of sets
     sets=[]
-    for ID in ids:
-        sets.extend(ID)
+    for i in ids:
+        sets.extend(i)
     del ids
-    
-    
+        
     # group those IDs
     data=groupIDs(sets)
 

@@ -11,9 +11,8 @@ from pylinear.utilities import convexhull
 class Source(WCS,ExtractionParameters):
     SEGTYPE=np.uint32           # force SEGIDs to have this type
 
-    def __init__(self,img,seg,zero,segid=None,minpix=0,\
-                 lamb0=None,lamb1=None,dlamb=None):
-
+    def __init__(self,img,seg,zero,segid=None,lamb0=None,lamb1=None,dlamb=None,\
+                 minpix=0,maglim=26):
         #get the SEGID
         if segid is None:
             if 'SEGID' in seg.header:
@@ -29,11 +28,11 @@ class Source(WCS,ExtractionParameters):
         g=np.where(seg.data == self.segid)
         self.npix=len(g[0])
         if self.npix<=minpix:
-            print("[warn]Too few pixels ({}) for {} ".format(self.npix,self.segid))
-
-
-            
-            
+            print('[warn]Too few pixels for {}.'.format(self.segid))
+            self.valid=False
+            return
+        
+                    
         # check that the img/seg astrometry matches
         keys=['NAXIS','NAXIS2','CRPIX1','CRPIX2','CRVAL1','CRVAL2', \
               'CD1_1','CD1_2','CD2_1','CD2_2','CTYPE1','CTYPE2']
@@ -63,8 +62,13 @@ class Source(WCS,ExtractionParameters):
 
         # compute a few brightness measures
         self.total=np.sum(img.data[g])
-        if self.total >0:
+        if self.total>0:
             self.mag=-2.5*np.log10(self.total)+zero
+            if self.mag >maglim:
+                print('[alarm]Below mag limit for {}'.format(self.segid))
+                self.valid=False
+                return
+            
             self.wht=img.data[g]/self.total
 
             # compute the centroids (in pixel and RA,Dec)
@@ -72,8 +76,12 @@ class Source(WCS,ExtractionParameters):
                                np.average(self.yd,weights=self.wht)])
             self.adc=np.array(self.xy2ad(self.xyc[0],self.xyc[1]))
 
-        else:
-            print('[alarm]Negative flux in source {}'.format(self.segid))
+        elif self.total==0:
+            print('[alarm]Zero flux for {}'.format(self.segid))
+            self.valid=False
+            return
+        else:                
+            print('[alarm]Negative flux for {}'.format(self.segid))
             self.valid=False
             return
 

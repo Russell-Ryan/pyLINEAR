@@ -37,9 +37,9 @@ class Data(object):
 
                 # load according to how many extensions
                 if len(hdus)==1:
-                    self.fromClassic(hdus,hdui)
+                    self.fromClassic(conf,hdus,hdui)
                 else:
-                    self.fromMEF(hdus,hdui)
+                    self.fromMEF(conf,hdus,hdui)
 
 
         # rmeove sources below the magnitude limit
@@ -140,7 +140,7 @@ class Data(object):
 
             
 
-    def fromClassic(self,seglist,imglist):
+    def fromClassic(self,conf,seglist,imglist):
         ''' load sources via a classic segmentation map '''
         print('[info]Loading sources from CLASSIC segmentation map')
 
@@ -178,13 +178,14 @@ class Data(object):
             subseg['SEGID']=segid
 
             # create the source
-            self[segid]=Source(subimg,subseg,detzpt,segid=segid)
+            self[segid]=Source(subimg,subseg,detzpt,segid=segid,\
+                               maglim=conf['maglim'],minpix=conf['minpix'])
 
         
         
 
 
-    def fromMEF(self,seglist,imglist):
+    def fromMEF(self,conf,seglist,imglist):
         ''' load sources via a multi-extension fits file '''
 
         print('[info]Loading sources from MEF segmentation map')
@@ -195,10 +196,11 @@ class Data(object):
         
         detzpt=self.obsdata.detZeropoint
         for seghdu,imghdu in zip(seglist,imglist):
-            src=Source(imghdu,seghdu,detzpt,\
+            src=Source(imghdu,seghdu,detzpt,
                        lamb0=keyword('LAMB0',seghdu),\
                        lamb1=keyword('LAMB1',seghdu),\
-                       dlamb=keyword('DLAMB',seghdu))
+                       dlamb=keyword('DLAMB',seghdu),\
+                       maglim=conf['maglim'],minpix=conf['minpix'])
             self[src.segid]=src
                 
                 

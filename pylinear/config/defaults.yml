@@ -22,7 +22,8 @@ sources:
   obslst: obs.lst                        # file describing the bands
   detindex: 0                            # detection index in obslst
   maglim: 26.                            # magnitude limit of sources
-
+  minpix: 5                              # minimum number of pixels
+  
 modules:
   simulation:
     perform: false                        # flag to run the simulation
