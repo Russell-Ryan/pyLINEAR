@@ -113,22 +113,10 @@ def groupIDs(data):
     
     # group those IDs
     nnew=ndata=len(data)
-    print(type(data))
-    print(data[0])
-
-    q=input()
-    
     while nnew!=0:
         new=[]
         while len(data)!=0:
             this=data.pop(0)
-            print(this)
-            print('\n\n\n')
-            print(data)
-            
-            q=input()
-
-            
             for i,test in enumerate(data):
                 print(i,type(test),type(this))
                 if this.intersection(test):
