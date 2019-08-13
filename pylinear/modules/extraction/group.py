@@ -129,7 +129,7 @@ def groupIDs(data):
     return data
 
 
-def makeGroups(conf,grisms,sources,extconf):
+def makeGroups(conf,grisms,sources,extconf,sort=True):
     print("[info]Starting the grouping algorithm")
    
     path=conf['tables']['path']
@@ -148,8 +148,9 @@ def makeGroups(conf,grisms,sources,extconf):
     data=groupIDs(sets)
 
     # sort them by reverse order
-    #n=[len(x) for d in data]
-    #data=[d for _,d in reversed(sorted(zip(n,data)))]
+    if sort:
+        n=[len(x) for d in data]
+        data=[d for _,d in reversed(sorted(zip(n,data)))]
 
     
     # make data for output

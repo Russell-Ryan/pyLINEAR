@@ -8,8 +8,6 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 import h5axeconfig
 
-
-
 from pylinear import grism
 from pylinear.utilities import gzip
 from . import methods,residuals,mcmcunc
@@ -46,8 +44,14 @@ def getInitialGuess(mat,sources):
 def extractSources(conf,sources,grisms,extconf,mskconf,grismFF,grpid,\
                    h5g,h5s,pdf):
 
-    # build the matrix and guesses
+    # build the matrix and check validity
     mat=Matrix(conf,grisms,sources,extconf,mskconf,grismFF)
+    if not hasattr(mat,'A'):
+        print("[warn]Invalid matrix.  Ignoring grpid: {}.".format(grpid))
+        return 
+        
+    
+    # get initial guess
     x0=getInitialGuess(mat,sources)
         
     # type of extraction
@@ -86,7 +90,7 @@ def extractSources(conf,sources,grisms,extconf,mskconf,grismFF,grpid,\
     dgrp.attrs['nsrc']=np.uint16(len(sources))
     dgrp.attrs['npix']=np.uint32(mat.shape[0])
     dgrp.attrs['nlam']=np.uint32(mat.shape[1])
-    dgrp.attrs['frob']=np.float32(mat.frob)
+    dgrp.attrs['frob']=np.float32(mat.norm)
     
     # update with MCMC uncertainties
     result=mcmcunc.mcmcUncertainties(conf['mcmcunc'],mat,result,sources)
@@ -202,8 +206,7 @@ def extract(conf,sources):
         h5s.attrs['nsource']=np.uint32(len(sources))
 
         
-
-        
+        # extract the sources based on a grouping choice
         if conf['group']:
             # do the grouping!
             groups=group.makeGroups(conf,grisms,sources,extconf)

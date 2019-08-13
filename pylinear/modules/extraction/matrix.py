@@ -77,8 +77,10 @@ class Matrix(object):
             aij.extend(data[2])
 
         if len(i)==0:
-            raise RuntimeError("matrix had no elements")
-        
+            print('[alarm]Matrix has no elements.')
+            #raise RuntimeError("matrix had no elements")
+            return 
+            
         # loaded everything
         print("[info]Compressing the indices")
         ic,iu=indices.compress(i)
@@ -122,7 +124,7 @@ class Matrix(object):
         self.lcurve=lcurve.LCurve(self.frob)
 
 
-
+        
     def epar(self,conf,extconf,key):
         if key in conf:
             return conf[key]
@@ -381,5 +383,16 @@ class Matrix(object):
 
     @property
     def shape(self):
-        return self.A.shape
-    
+        try:
+            sh=self.A.shape
+        except:
+            sh=[None,None]
+        return sh
+        
+    @property
+    def norm(self):
+        try:
+            nrm=self.frob
+        except:
+            nrm=None
+        return nrm
