@@ -150,9 +150,15 @@ def makeGroups(conf,grisms,sources,extconf):
     # use the pool to group the FLTs
     p=pool.Pool(ncpu=conf['cpu']['ncpu'])
     ids=p(groupFLT,grisms.values,sources,extconf,path)
+
+    sets=[]
+    for ID in ids:
+        sets.extend(ID)
+    del ids
+    
     
     # group those IDs
-    data=groupIDs(ids)
+    data=groupIDs(sets)
     
     # make data for output
     out=[datum for datum in data]
