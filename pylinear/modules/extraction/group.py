@@ -117,8 +117,10 @@ def groupIDs(data):
         new=[]
         while len(data)!=0:
             this=data.pop(0)
-            print(data)
             print(this)
+            print('\n\n\n')
+            print(data)
+            
             q=input()
 
             
@@ -143,10 +145,6 @@ def makeGroups(conf,grisms,sources,extconf):
     # use the pool to group the FLTs
     p=pool.Pool(ncpu=conf['cpu']['ncpu'])
     ids=p(groupFLT,grisms.values,sources,extconf,path)
-
-    print(ids)
-    q=input()
-
     
     # group those IDs
     data=groupIDs(ids)
