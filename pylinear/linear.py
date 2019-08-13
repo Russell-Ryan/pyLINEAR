@@ -125,7 +125,8 @@ def runTime(t0,days=True,hours=True,minutes=True,seconds=True,lost=False):
 def linearPipeline(conf):
     ''' call the linear pipelines '''
 
-    # load sources (includes spectra)
+    # load sources (includes spectra) --- this also applies cuts for valid
+    # sources (ie. too faint, too small, etc.)
     sources=source.Data(conf['sources'])
 
     # call the modules
