@@ -149,7 +149,7 @@ def makeGroups(conf,grisms,sources,extconf,sort=True):
 
     # sort them by reverse order
     if sort:
-        n=[len(x) for d in data]
+        n=[len(d) for d in data]
         data=[d for _,d in reversed(sorted(zip(n,data)))]
 
     
