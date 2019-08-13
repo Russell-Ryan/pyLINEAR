@@ -28,7 +28,7 @@ class Matrix(object):
         self.maxiter=lsqrconf['maxiter']
         self.show=False
         
-        # double check something
+        # double check the type of maxiter
         if self.maxiter is not None:
             self.maxiter=int(self.maxiter)
             
