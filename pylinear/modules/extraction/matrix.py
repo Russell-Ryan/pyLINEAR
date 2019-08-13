@@ -55,7 +55,7 @@ class Matrix(object):
         path=conf['tables']['path']
         
         # loop over images
-        pb=progressbar.ProgressBar(self.nsrc,prefix=' Loading ODTs')
+        pb=progressbar.ProgressBar(self.nimg,prefix=' Loading ODTs')
 
         # output values
         i,j,aij=[],[],[]
@@ -190,9 +190,10 @@ class Matrix(object):
         return i,j,aij
                 
     def maskBeams(self,flt,mskconf,path):
-        print("[info]Making beam mask for: {}".format(flt.filename))
+
         masks={}
         if len(mskconf.beams)!=0:
+            print("[info]Making beam mask for: {}".format(flt.filename))
             with h5table.H5Table(flt.dataset,path=path,suffix='omt') as h5:
                 
                 # loop over detectors
