@@ -49,7 +49,6 @@ class Pool(object):
             out=[]
             for result in results:
                 val=result.get()
-                print(type(val))
                 if result.successful():
                     out.append(val)
                 else:
