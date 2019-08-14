@@ -337,7 +337,7 @@ class Matrix(object):
         if atol is None: atol=self.atol
         if btol is None: btol=self.btol
         if conlim is None: conlim=self.conlim
-
+        
         logfrob=np.log10(self.frob)
 
         
@@ -355,8 +355,10 @@ class Matrix(object):
                 damp=0.
             else:
                 damp=np.power(10.,ldamp)*self.frob
+
                 
             # run LSQR
+            print("[info]Starting LSQR log(l)={}".format(ldamp))
             r=ssl.lsqr(self.A,self.bi,damp=damp,x0=x0,show=show,calc_var=True,\
                        atol=atol,btol=btol,conlim=conlim,iter_lim=self.maxiter)
             t2=timeit.default_timer()

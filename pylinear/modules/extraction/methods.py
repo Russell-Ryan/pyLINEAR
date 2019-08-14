@@ -54,7 +54,7 @@ def gridSearch(logdamp,mat,x0):
     for i in range(1,n-1,1):
         j,k=i-1,i+1
         curv[i]=menger(results[j].xy,results[i].xy,results[k].xy)
-
+        
     # select the result with maximum curvature        
     i=np.nanargmax(curv)
     out=results[i]
@@ -81,7 +81,6 @@ def goldenSearch(logdamp,mat,x0):
     state=[None,*state]
 
     # start the Cultrera algorithm
-    print("[info]damping   curvature")
     while (state[4].damp-state[1].damp) > eps*state[4].damp:
         c2=menger(state[1].xy,state[2].xy,state[3].xy)
         c3=menger(state[2].xy,state[3].xy,state[4].xy)
@@ -102,17 +101,14 @@ def goldenSearch(logdamp,mat,x0):
             
             x2=(state[4].logdamp+phi*state[1].logdamp)/(1+phi)
             state[2]=mat.runLSQR(x2,x0=x0)
-            c=c2
             
         else:
             state[0]=state[3]     # optimal solution
             state[1]=state[2]
             state[2]=state[3]
 
-
             x3=state[1].logdamp+(state[4].logdamp-state[2].logdamp)
             state[3]=mat.runLSQR(x3,x0=x0)
-            c=c3
 
         print('[info]{} {}'.format(state[0].damp,c))
             
