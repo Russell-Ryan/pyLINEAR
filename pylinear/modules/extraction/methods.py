@@ -110,8 +110,7 @@ def goldenSearch(logdamp,mat,x0):
             x3=state[1].logdamp+(state[4].logdamp-state[2].logdamp)
             state[3]=mat.runLSQR(x3,x0=x0)
 
-        print('[info]{} {}'.format(state[0].damp,c))
-            
+                        
     # the output
     out=state[0]
 

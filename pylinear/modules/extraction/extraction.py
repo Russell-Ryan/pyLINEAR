@@ -158,9 +158,10 @@ def extract(conf,sources):
     calconf=conf['calib']
     conffile=calconf['h5conf']
 
+
     # read grism images
     grisms=grism.Data(conf['imglst'],'img',conffile)
-    
+
     # get the grism config data
     extconf=h5axeconfig.Camera(conffile,grisms.grism,beams=conf['beam'])
     mskconf=h5axeconfig.Camera(conffile,grisms.grism,beams=conf['mask'])
@@ -226,6 +227,9 @@ def extract(conf,sources):
 
     if conf['residuals']['perform']:
         print('[debug]Must code up the new residuals plan.')
+
+
+
     # update the residuals
     #residuals.computeResiduals(conf['residuals'],grisms,extconf,mat,results)
     
