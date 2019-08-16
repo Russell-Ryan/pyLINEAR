@@ -12,13 +12,13 @@ class Source(WCS,ExtractionParameters):
     SEGTYPE=np.uint32           # force SEGIDs to have this type
 
     def __init__(self,img,seg,zero,segid=None,lamb0=None,lamb1=None,dlamb=None,\
-                 minpix=0,maglim=26):
+                 minpix=3,maglim=26):
         #get the SEGID
         if segid is None:
             if 'SEGID' in seg.header:
                 segid=seg.header['SEGID']
             else:
-                print('[alarm]Segmentation ID is missing from header.')
+                #print('[alarm]Segmentation ID is missing from header.')
                 self.valid=False
                 return
 
@@ -38,7 +38,7 @@ class Source(WCS,ExtractionParameters):
               'CD1_1','CD1_2','CD2_1','CD2_2','CTYPE1','CTYPE2']
         for key in keys:
             if img[key]!=seg[key]:
-                print('[alarm]Incompatible headers for {}'.format(self.segid))
+                #print('[alarm]Incompatible headers for {}'.format(self.segid))
                 self.valid=False
                 return
         
@@ -65,7 +65,7 @@ class Source(WCS,ExtractionParameters):
         if self.total>0:
             self.mag=-2.5*np.log10(self.total)+zero
             if self.mag >maglim:
-                print('[alarm]Below mag limit for {}'.format(self.segid))
+                #print('[alarm]Below mag limit for {}'.format(self.segid))
                 self.valid=False
                 return
             
@@ -77,11 +77,11 @@ class Source(WCS,ExtractionParameters):
             self.adc=np.array(self.xy2ad(self.xyc[0],self.xyc[1]))
 
         elif self.total==0:
-            print('[alarm]Zero flux for {}'.format(self.segid))
+            #print('[alarm]Zero flux for {}'.format(self.segid))
             self.valid=False
             return
         else:                
-            print('[alarm]Negative flux for {}'.format(self.segid))
+            #print('[alarm]Negative flux for {}'.format(self.segid))
             self.valid=False
             return
 
