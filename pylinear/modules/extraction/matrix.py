@@ -340,7 +340,6 @@ class Matrix(object):
         if conlim is None: conlim=self.conlim
         
         logfrob=np.log10(self.frob)
-
         
         # force this to be a list
         if np.isscalar(logdamp):
