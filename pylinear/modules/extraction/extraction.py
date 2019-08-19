@@ -162,10 +162,15 @@ def extract(conf,sources):
     # read grism images
     grisms=grism.Data(conf['imglst'],'img',conffile)
 
+
+
+    
     # get the grism config data
     extconf=h5axeconfig.Camera(conffile,grisms.grism,beams=conf['beam'])
     mskconf=h5axeconfig.Camera(conffile,grisms.grism,beams=conf['mask'])
     grismFF=h5axeconfig.FlatField(calconf['h5flat'],grisms.grism)
+
+
     
     # make the tables, if need-be
     tabulate(conf['tables'],grisms,sources,extconf,'odt')

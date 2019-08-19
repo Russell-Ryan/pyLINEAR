@@ -93,7 +93,8 @@ def loadConfig(userfile,defs):
     if userfile is not None and os.path.isfile(userfile):
         user=config.Config(conffile=userfile)
         defs.conf=updateDefaults(defs.conf,user.conf)
-        
+    defs.conffile=user.conffile
+
     return defs    
 
 def runTime(t0,days=True,hours=True,minutes=True,seconds=True,lost=False):

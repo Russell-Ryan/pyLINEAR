@@ -126,10 +126,11 @@ class Matrix(object):
 
         
     def epar(self,conf,extconf,key):
-        if key in conf:
-            return conf[key]
-        else:
+        val=conf[key]
+        if val is None:
             return getattr(extconf,key)
+        else:
+            return val
 
         
     def __imul__(self,v):

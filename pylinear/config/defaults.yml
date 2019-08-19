@@ -50,9 +50,9 @@ modules:
     imglst: flt.lst
     beam: A
     mask: null
-    #lamb0: 9000.
-    #lamb1: 18000.
-    #dlamb: 100.
+    lamb0: null
+    lamb1: null
+    dlamb: null
     lsqr:
       atol: 1e-10          # a tol
       btol: 1e-10
