@@ -161,6 +161,10 @@ class LCurve(object):
         
         
         l0,l1=np.amin(l),np.amax(l)
+        if l0==l1:
+            l0-=0.5
+            l1+=0.5
+        
         ln=ax2.plot(l,curv,'-k',linewidth=1.,zorder=1)
         
         
