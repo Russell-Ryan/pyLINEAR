@@ -168,14 +168,22 @@ class LCurve(object):
         ln=ax2.plot(l,curv,'-k',linewidth=1.,zorder=1)
         
         
-        sc=ax2.scatter(l,curv,c=l,zorder=2,\
+        sc=ax2.scatter(l,curv,c=l,zorder=3,\
                        vmin=np.amin(l),vmax=np.amax(l),\
                        s=40,cmap=cmap,\
                        edgecolors='k',marker='o')
-        
+
+        if len(curv)>1:
+            g=np.where(curv == np.nanmax(curv))[0][0]
+        else:
+            g=0
+        loglmax=l[g]
+
+        ax2.axvline(x=loglmax,color='k',linestyle=':',zorder=2)
+            
         ax2.set(ylabel=r'curvature')
         ax2.set_xticklabels([])
-        
+
         
         ax2.set_xlim([l0,l1])
         ax2.set_axisbelow(True)
