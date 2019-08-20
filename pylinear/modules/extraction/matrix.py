@@ -358,7 +358,7 @@ class Matrix(object):
 
                 
             # run LSQR
-            print("[info]Starting LSQR log(l)={}".format(ldamp))
+            print("[info]Starting LSQR log(l) = {0:+.3f}".format(ldamp))
             r=ssl.lsqr(self.A,self.bi,damp=damp,x0=x0,show=show,calc_var=True,\
                        atol=atol,btol=btol,conlim=conlim,iter_lim=self.maxiter)
             t2=timeit.default_timer()
