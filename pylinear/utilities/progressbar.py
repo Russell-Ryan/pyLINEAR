@@ -50,6 +50,7 @@ class ProgressBar(object):
         return percent
 
     def message(self,iteration):
+        
         percent=self.percentage(iteration)
         filledLength = int(self.length * iteration // self.total)
         unfilledLength=self.length-filledLength
