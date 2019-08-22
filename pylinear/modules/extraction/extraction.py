@@ -159,12 +159,8 @@ def extract(conf,sources):
     calconf=conf['calib']
     conffile=calconf['h5conf']
 
-
     # read grism images
     grisms=grism.Data(conf['imglst'],'img',conffile)
-
-
-
     
     # get the grism config data
     extconf=h5axeconfig.Camera(conffile,grisms.grism,beams=conf['beam'])
@@ -184,8 +180,6 @@ def extract(conf,sources):
     print('\n\n')
     print('[debug]Must make beam masks *OUTSIDE* of matrix.py')
     print('\n\n')
-
-    
             
     # output file names
     h5file='{}.h5'.format(conf['outroot'])

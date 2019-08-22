@@ -86,12 +86,14 @@ class Matrix(object):
         ic,iu=indices.compress(i)
         jc,ju=indices.compress(j)
         dim=np.array([len(iu),len(ju)])
-        self.npar=np.amax(jc)
+        #self.npar=np.amax(jc)     # IDL has +1 here
+        self.npar=np.amax(jc)+1
         del i,j
         
         # compute some things for ragged arrays
         if len(sources)==1:
-            srcind=np.zeros(self.npar+1,dtype=int)
+            #srcind=np.zeros(self.npar+1,dtype=int)
+            srcind=np.zeros(self.npar,dtype=int)
         else:
             srcind=np.digitize(ju,self.cwav)-1
         lam=ju-self.cwav[srcind]
@@ -175,12 +177,11 @@ class Matrix(object):
                                     grismFF)
                 self.imgindex+=1
 
-                # collect the previous outputs
+                # collect previous outputs (move this inside the if below)
                 i.extend(data[0])
                 j.extend(data[1])
                 aij.extend(data[2])
-                
-                
+
                 # collect the bi
                 if len(data[3])!=0:
                     xyg=indices.unique(np.array(data[3]))
@@ -188,6 +189,15 @@ class Matrix(object):
                     xg=xg.astype(int)
                     yg=yg.astype(int)
                     bi=sci[yg,xg]/unc[yg,xg]
+
+                    # check for bad values in bi
+                    g=np.where(np.isinf(bi))[0]
+                    if len(g)!=0:
+                        print('[warn]Infinite values in bi')
+                        print(bi[g])
+                        q=input()
+
+                    # like IDL's push
                     self.bi.extend(bi)
 
                 # save the memory usage
@@ -222,8 +232,6 @@ class Matrix(object):
         segids=[ri[0] for ri in self.ri]
         return segids
                 
-                
-
     def loadBeams(self,h5det,detconf,detimg,unc,gpx,sources,grismFF):
 
         # output stuff
@@ -246,7 +254,8 @@ class Matrix(object):
                     ddt=h5table.DDT(src.segid)
                     ddt.readH5(h5beam)
                 else:
-                    raise NotImplementedError("Invalid Table Type: {}".format(self.TTYPE))
+                    msg="Invalid Table Type: {}".format(self.TTYPE)
+                    raise NotImplementedError(msg)
 
                 if len(ddt)!=0:
                     
@@ -254,6 +263,9 @@ class Matrix(object):
                     limits=src.limits
                     wav0=np.amin(limits)
                     wav1=np.amax(limits)
+                    if np.amin(ddt.val)<=1e-9:
+                        print('[warn]Implement thresholding')
+                        q=input()
                     
                     # remove pixels out of range and/or in GPX
                     xg,yg=indices.one2two(ddt.xyg,detimg.naxis)
@@ -271,7 +283,7 @@ class Matrix(object):
                         ff=grismFF(xg,yg,ddt.wav,detconf.detector)
                         p=detimg.pixelArea(xg,yg)    # pixel area map
                         s=beamconf.sensitivity(ddt.wav)*FLUXSCALE
-                        
+                                                
                         # scale the DDT
                         ddt*=(ff*p*s)
                         del ff,p,s
@@ -289,8 +301,6 @@ class Matrix(object):
                         ij=jjj+self.npar*iii
                         ij=ij.astype(np.uint64)
                         del iii,jjj
-
-
                         
                         # decimate over repeated indices
                         aiju,iju=indices.decimate(ij,val)
@@ -300,7 +310,7 @@ class Matrix(object):
 
                         # compute pixel positions
                         imgind,xygind=np.divmod(iu,detimg.npix)
-                        imgind=indices.unique(imgind)
+                        #imgind=indices.unique(imgind)   # this is not needed
                         xygind=indices.unique(xygind)
 
                         # save the outputs
@@ -356,17 +366,42 @@ class Matrix(object):
             else:
                 damp=np.power(10.,ldamp)*self.frob
 
+
+                
                 
             # run LSQR
             print("[info]Starting LSQR log(l) = {0:+.3f}".format(ldamp))
+            
+            '''
+            # Using SciPy the way I think it works:
             r=ssl.lsqr(self.A,self.bi,damp=damp,x0=x0,show=show,calc_var=True,\
                        atol=atol,btol=btol,conlim=conlim,iter_lim=self.maxiter)
-            t2=timeit.default_timer()
-            
 
+
+            '''
+            
+            # Using LSQR a la the IDL implementation
+            if x0 is None:
+                bi=self.bi
+            else:
+                bi=self.bi-self.A.matvec(x0)
+            
+            r=ssl.lsqr(self.A,bi,damp=damp,show=show,calc_var=True,\
+                       atol=atol,btol=btol,conlim=conlim,iter_lim=self.maxiter)
+            if x0 is not None:
+                r=(r[0]+x0,*r[1:])
+
+
+            # there doesn't seem to be any difference whatsoever.
+                
+
+            # get the final time
+            t2=timeit.default_timer()
+                
             # package the output
             r=lsqrresult.LSQRResult(*r,damp/self.frob,t2-t1)
 
+            
             # update the plot
             self.lcurve.append(r.r1norm,r.xnorm,r.logdamp)
 
