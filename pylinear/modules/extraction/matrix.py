@@ -269,9 +269,9 @@ class Matrix(object):
                     limits=src.limits
                     wav0=np.amin(limits)
                     wav1=np.amax(limits)
-                    if np.amin(ddt.val)<=1e-9:
+                    if np.amin(ddt.val)<=0:
                         print('[warn]Implement thresholding')
-                        q=input()
+                        #q=input()
                     
                     # remove pixels out of range and/or in GPX
                     xg,yg=indices.one2two(ddt.xyg,detimg.naxis)
