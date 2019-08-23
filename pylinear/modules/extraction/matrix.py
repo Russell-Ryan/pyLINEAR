@@ -18,7 +18,8 @@ class Matrix(object):
         self.nsrc=len(sources)
 
         # print a message
-        print("[info]Building the matrix: {} images, {} sources".format(self.nimg,self.nsrc))
+        msg="[info]Building the matrix: {} images, {} sources"
+        print(msg.format(self.nimg,self.nsrc))
         
         # stuff for LSQR
         lsqrconf=conf['lsqr']
@@ -70,16 +71,17 @@ class Matrix(object):
 
             # do one FLT:            
             data=self.loadFLT(flt,sources,extconf,mskconf,grismFF,pb,path)
-            
+
             # update the results
             i.extend(data[0])
             j.extend(data[1])
             aij.extend(data[2])
 
+        
         if len(i)==0:
             print('[alarm]Matrix has no elements.')
             #raise RuntimeError("matrix had no elements")
-            return 
+            return
             
         # loaded everything
         print("[info]Compressing the indices")
@@ -87,8 +89,12 @@ class Matrix(object):
         jc,ju=indices.compress(j)
         dim=np.array([len(iu),len(ju)])
         #self.npar=np.amax(jc)     # IDL has +1 here
-        self.npar=np.amax(jc)+1
+        #self.npar=np.amax(jc)+1
+        self.npar=np.amax(ju)+1
         del i,j
+
+
+
         
         # compute some things for ragged arrays
         if len(sources)==1:
@@ -281,12 +287,12 @@ class Matrix(object):
                         
                         # compute the scaling terms
                         ff=grismFF(xg,yg,ddt.wav,detconf.detector)
-                        p=detimg.pixelArea(xg,yg)    # pixel area map
-                        s=beamconf.sensitivity(ddt.wav)*FLUXSCALE
-                                                
+                        pa=detimg.pixelArea(xg,yg)    # pixel area map
+                        sens=beamconf.sensitivity(ddt.wav)*FLUXSCALE
+
                         # scale the DDT
-                        ddt*=(ff*p*s)
-                        del ff,p,s
+                        ddt*=(ff*pa*sens)
+                        del ff,pa,sens
                                                 
                         # compute the wavelength indices
                         lamind=np.digitize(ddt.wav,limits)-1
