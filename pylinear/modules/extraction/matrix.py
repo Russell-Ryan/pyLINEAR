@@ -239,6 +239,7 @@ class Matrix(object):
         return segids
                 
     def loadBeams(self,h5det,detconf,detimg,unc,gpx,sources,grismFF,thresh=0.0):
+        thresh=np.float64(thresh)
         
         # output stuff
         i,j,aij,xyg=[],[],[],[]
@@ -269,16 +270,11 @@ class Matrix(object):
                     limits=src.limits
                     wav0=np.amin(limits)
                     wav1=np.amax(limits)
-                    #g=np.where(ddt.val < thresh)[0]
-                    #if len(g)!=0:
-                    #    print('[warn]Implement thresholding')
-                    #    print(ddt.val[g])
-                    #    #q=input()
                     
                     # remove pixels out of range and/or in GPX
                     xg,yg=indices.one2two(ddt.xyg,detimg.naxis)
                     g=np.where((ddt.wav >=wav0) & (ddt.wav<=wav1) & \
-                               (gpx[yg,xg]) & (ddt.val > thresh))[0]
+                               (gpx[yg,xg]) & (ddt.val>thresh))[0]
                     if len(g)!=0:
                         ddt.select(g)
                         xg,yg=xg[g],yg[g]
