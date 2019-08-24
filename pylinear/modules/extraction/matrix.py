@@ -2,7 +2,7 @@ import numpy as np
 import timeit
 import scipy.sparse.linalg as ssl
 from scipy.sparse import coo_matrix
-import pdb
+import pdb,sys
 
 from . import lcurve,lsqrresult
 from pylinear import h5table
@@ -82,7 +82,10 @@ class Matrix(object):
             print('[alarm]Matrix has no elements.')
             #raise RuntimeError("matrix had no elements")
             return
-            
+
+        print('SIZE OF i,j,aij',sys.getsizeof(i),\
+              sys.getsizeof(j),sys.getsizeof(aij))
+        
         # loaded everything
         print("[info]Compressing the indices")
         ic,iu=indices.compress(i)
