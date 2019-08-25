@@ -44,7 +44,7 @@ class Matrix(object):
         # get cumulative indices
         cwav=np.cumsum(nwav)
         self.npar=cwav[-1]
-        self.cwav=np.array([0,*cwav])
+        self.cwav=np.array([0,*cwav],dtype=cwav.dtype)
 
         # data to hold matrix/vector stuff
         ii,jj,aij=[],[],[]
@@ -82,31 +82,28 @@ class Matrix(object):
             print('[alarm]Matrix has no elements.')
             #raise RuntimeError("matrix had no elements")
             return
-
         print('SIZE OF i,j,aij',sys.getsizeof(i),\
               sys.getsizeof(j),sys.getsizeof(aij))
-        
+
         # loaded everything
         print("[info]Compressing the indices")
         ic,iu=indices.compress(i)
         jc,ju=indices.compress(j)
         dim=np.array([len(iu),len(ju)])
-        #self.npar=np.amax(jc)     # IDL has +1 here
-        #self.npar=np.amax(jc)+1
-        self.npar=np.amax(ju)+1
+        self.npar=np.amax(ju)+1     # IDL has +1 here
+        self.npar=self.npar.astype(ju.dtype)
         del i,j
-
-
-
+        
         
         # compute some things for ragged arrays
         if len(sources)==1:
             #srcind=np.zeros(self.npar+1,dtype=int)
-            srcind=np.zeros(self.npar,dtype=int)
+            srcind=np.zeros(self.npar,dtype=ju.dtype)
         else:
             srcind=np.digitize(ju,self.cwav)-1
-        lam=ju-self.cwav[srcind]
-        self.lam=lam.astype(int)
+
+        self.lam=ju-self.cwav[srcind]
+        #self.lam=lam.astype(int)
         
         # get the reverse indices
         segids=np.array(list(sources.keys()))
@@ -119,10 +116,14 @@ class Matrix(object):
         # compute the frobenius norm
         self.frob=np.sqrt(np.sum(aij*aij))
         
+        
+        
         # sparse matrix is constructed as (ic,jc,np.array(mat['aij']),dim)
         self.A=ssl.aslinearoperator(coo_matrix((aij,(ic,jc)),shape=dim))
         del aij
-        
+
+
+
         # record stuff
         self.bi=np.array(self.bi)
         self.icomp=ic
@@ -130,7 +131,10 @@ class Matrix(object):
         self.jcomp=jc
         self.juniq=ju
 
+        
 
+
+        
         # for making a plot
         self.lcurve=lcurve.LCurve(self.frob)
 
@@ -211,6 +215,7 @@ class Matrix(object):
 
                 # save the memory usage
                 del data
+        
 
         return i,j,aij
                 
@@ -315,6 +320,7 @@ class Matrix(object):
                         # compute matrix coordinates
                         iu,ju=np.divmod(iju,self.npar)
 
+                        
                         # compute pixel positions
                         imgind,xygind=np.divmod(iu,detimg.npix)
                         #imgind=indices.unique(imgind)   # this is not needed
