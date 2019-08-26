@@ -86,6 +86,8 @@ def extractSources(conf,sources,grisms,extconf,mskconf,grismFF,grpid,\
     dgrp.attrs['xnorm']=np.float32(result.xnorm)
     dgrp.attrs['arnorm']=np.float32(result.arnorm)
     dgrp.attrs['damping']=np.float32(result.damp)
+    dgrp.attrs['nmatrix']=np.uint64(len(mat))
+    dgrp.attrs['density']=np.float32(len(mat))/(mat.shape[0]*mat.shape[1])
     dgrp.attrs['time']=np.float32(result.time)
     dgrp.attrs['nsrc']=np.uint16(len(sources))
     dgrp.attrs['npix']=np.uint32(mat.shape[0])

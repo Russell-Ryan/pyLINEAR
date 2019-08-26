@@ -82,8 +82,9 @@ class Matrix(object):
             print('[alarm]Matrix has no elements.')
             #raise RuntimeError("matrix had no elements")
             return
-        print('SIZE OF i,j,aij',sys.getsizeof(i),\
-              sys.getsizeof(j),sys.getsizeof(aij))
+        
+        #print('SIZE OF i,j,aij',sys.getsizeof(i),\
+        #      sys.getsizeof(j),sys.getsizeof(aij))
 
         # loaded everything
         print("[info]Compressing the indices")
@@ -102,7 +103,12 @@ class Matrix(object):
         else:
             srcind=np.digitize(ju,self.cwav)-1
 
-        self.lam=ju-self.cwav[srcind]
+        
+        try:
+            self.lam=ju-self.cwav[srcind]
+        except:
+            print(len(ju),len(srcind),len(sources))
+            q=input()
         #self.lam=lam.astype(int)
         
         # get the reverse indices
@@ -147,6 +153,8 @@ class Matrix(object):
         else:
             return val
 
+    def __len__(self):
+        return len(self.A.A.data)
         
     def __imul__(self,v):
         self.A.A.data*=v
@@ -190,19 +198,23 @@ class Matrix(object):
                                     grismFF)
                 self.imgindex+=1
 
-                # collect previous outputs (move this inside the if below)
-                i.extend(data[0])
-                j.extend(data[1])
-                aij.extend(data[2])
-
-                # collect the bi
+                # collect the results
                 if len(data[3])!=0:
+                    # collect the matrix terms
+                    i.extend(data[0])
+                    j.extend(data[1])
+                    aij.extend(data[2])
+
+
+                    # compute pixel (x,y) pairs
                     xyg=indices.unique(np.array(data[3]))
                     xg,yg=indices.one2two(xyg,detimg.naxis)
                     xg=xg.astype(int)
                     yg=yg.astype(int)
                     bi=sci[yg,xg]/unc[yg,xg]
-
+                    del xg,yg     # clean up memor usage
+                    
+                    
                     # check for bad values in bi
                     g=np.where(np.isinf(bi))[0]
                     if len(g)!=0:
@@ -212,7 +224,8 @@ class Matrix(object):
 
                     # like IDL's push
                     self.bi.extend(bi)
-
+                    del bi    # again, every little bit helps
+                    
                 # save the memory usage
                 del data
         
@@ -284,20 +297,20 @@ class Matrix(object):
                     g=np.where((ddt.wav >=wav0) & (ddt.wav<=wav1) & \
                                (gpx[yg,xg]) & (ddt.val>thresh))[0]
                     if len(g)!=0:
+                        # select the items that are good
                         ddt.select(g)
                         xg,yg=xg[g],yg[g]
                         del g
-                        
-                        # compute (x,y) for each value
-                        #xg,yg=indices.one2two(ddt.xyg,detimg.naxis)
-                        
+                                                
                         # compute the scaling terms
                         ff=grismFF(xg,yg,ddt.wav,detconf.detector)
                         pa=detimg.pixelArea(xg,yg)    # pixel area map
                         sens=beamconf.sensitivity(ddt.wav)*FLUXSCALE
-
+                        
+                        
                         # scale the DDT
-                        ddt*=(ff*pa*sens)
+                        #ddt*=(ff*pa*sens)
+                        ddt*=sens
                         del ff,pa,sens
                                                 
                         # compute the wavelength indices
@@ -320,6 +333,11 @@ class Matrix(object):
                         # compute matrix coordinates
                         iu,ju=np.divmod(iju,self.npar)
 
+                        # here can downtype (iu,ju) as np.uint32
+                        # here can downtype aij as np.float32.
+                        # to save space
+
+                        
                         
                         # compute pixel positions
                         imgind,xygind=np.divmod(iu,detimg.npix)
