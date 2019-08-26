@@ -50,7 +50,7 @@ def extractSources(conf,sources,grisms,extconf,mskconf,grismFF,grpid,\
         print("[warn]Invalid matrix.  Ignoring grpid: {}.".format(grpid))
         return 
 
-    mat.writeAscii('test.mat')
+    mat.write('test.mat')
     
     # get initial guess
     x0=getInitialGuess(mat,sources)
