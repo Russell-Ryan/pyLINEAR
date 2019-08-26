@@ -352,7 +352,17 @@ class Matrix(object):
 
         return i,j,aij,xyg
                         
-        
+
+    def write(self,filename,filetype='ascii'):
+        filetype=filetype.lower()
+
+        if filetype=='ascii':
+            with open(filename,'w') as f:
+                for i,j,aij in zip(self.A.A.row,self.A.A.col,self.A.A.data):
+                    print('{} {} {}'.format(i,j,aij),file=f)
+        else:
+            print('[warn]File type {} is unsupported.'.format(filetype))
+            raise NotImplementedError("Invalid File type")
                 
     def residualMatrix(self,j,resid):
         g=np.where((self.A.A.col == j))[0]
