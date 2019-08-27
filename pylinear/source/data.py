@@ -7,12 +7,12 @@ import copy
 from .source import Source
 from .obslst import ObsLST
 from pylinear.astro import fitsimage
-from pylinear.utilities import indices
+from pylinear.utilities import indices,progressbar
 
 
 class Data(object):
     SEGTYPE=np.uint32           # force SEGIDs to have this type
-    
+    PREFIX=' {:6d}'
     def __init__(self,conf):
         print('[info]Loading OBSLST')
         
@@ -151,11 +151,15 @@ class Data(object):
         img=fitsimage.FitsImage()
         img.loadHDU(imglist[0])
 
-
+        
         # get the reverse indices (is potentially slow)
         revind=indices.reverse(seg.data.astype(self.SEGTYPE))
         if revind[0][0]==0:
             del revind[0]     # remove the sky index from the segmentation
+
+
+        # get a progress bar
+        pb=progressbar.ProgressBar(len(revind))
 
 
         # get the detection filter
@@ -163,6 +167,9 @@ class Data(object):
             
         # process each index
         for segid,ri in revind:
+            # set the suffix
+            pb.prefix=self.PREFIX.format(segid)            
+                        
             # compute (x,y) pairs
             x,y=indices.one2two(ri,seg.naxis)
 
@@ -181,9 +188,9 @@ class Data(object):
             self[segid]=Source(subimg,subseg,detzpt,segid=segid,\
                                maglim=conf['maglim'],minpix=conf['minpix'])
 
-        
-        
-
+            # update the progress bar
+            pb.increment()
+            
 
     def fromMEF(self,conf,seglist,imglist):
         ''' load sources via a multi-extension fits file '''
@@ -193,15 +200,24 @@ class Data(object):
 
         keyword=lambda key,hdu:hdu.header[key] if key in hdu.header else None
 
+
+        # get a progress bar
+        pb=progressbar.ProgressBar(len(seglist))
         
         detzpt=self.obsdata.detZeropoint
         for seghdu,imghdu in zip(seglist,imglist):
+            # set the suffix
+            pb.prefix=self.PREFIX.format(segid)            
+
             src=Source(imghdu,seghdu,detzpt,
                        lamb0=keyword('LAMB0',seghdu),\
                        lamb1=keyword('LAMB1',seghdu),\
                        dlamb=keyword('DLAMB',seghdu),\
                        maglim=conf['maglim'],minpix=conf['minpix'])
             self[src.segid]=src
+
+            # increment
+            pb.increment()
                 
                 
 
