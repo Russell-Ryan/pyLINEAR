@@ -13,9 +13,10 @@ python setup.py install
 ```
 
 
-2. install [h5axeconfig](https://github.com/Russell-Ryan/h5axeconfig).  This has two key dependences that must be resolved first: [ruamel](https://pypi.org/project/ruamel.yaml/) and [wget](https://pypi.org/project/wget/).
+2. install [h5axeconfig](https://github.com/Russell-Ryan/h5axeconfig).  This has three key dependences that must be resolved first: [h5py](https://pypi.org/project/h5py/), [ruamel](https://pypi.org/project/ruamel.yaml/), and [wget](https://pypi.org/project/wget/).
 
 ```
+pip install h5py
 pip install wget
 pip install ruamel.yaml
 ```
@@ -42,6 +43,8 @@ git clone https://github.com/Russell-Ryan/pyLINEAR.git
 cd pyLINEAR
 python setup.py install
 ```
+
+** pyLINEAR also uses the [h5py](https://pypi.org/project/h5py/) library, but this should now be installed. **
 
 4. Hopefully at this point, everything should be working --- including the compiled C components.
 
