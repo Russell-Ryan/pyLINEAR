@@ -97,30 +97,6 @@ class Source(WCS,ExtractionParameters):
 
     @property
     def convexHull(self):
-        #dx=[0,0,1,1]
-        #dy=[0,1,1,0]
-        #points=[]
-        #for x,y in zip(dx,dy):
-        #    xx=self.xd+x
-        #    yy=self.yd+y
-        #    points.extend(list(zip(xx,yy)))
-        #points=np.array(list(set(points)))#
-        #
-        #print(points.shape)
-        #
-        #
-        #points=np.array([self.xd,self.yd]).T
-        #print(points.shape)
-        #hull=ConvexHull(points)
-        #
-        #xh,yh=[],[]
-        #for vertex in hull.vertices:
-        #    xh.append(points[vertex,0])
-        #    yh.append(points[vertex,1])
-        #xh,yh=np.array(xh),np.array(yh)
-        
-        #return xh,yh
-
         return convexhull.vertices(self.xd,self.yd)
     
     @property
