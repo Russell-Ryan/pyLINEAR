@@ -10,7 +10,7 @@ from pylinear.utilities import progressbar,indices
 from .fluxunit import FLUXSCALE
 
 class Matrix(object):
-    TTYPE='DDT'            # Which type of table to 
+    TTYPE='DDT'            # Which type of table to use
     def __init__(self,conf,grisms,sources,extconf,mskconf,grismFF):
 
         # dimensionalities
