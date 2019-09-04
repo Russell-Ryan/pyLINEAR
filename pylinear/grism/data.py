@@ -27,7 +27,8 @@ class Data(object):
             self.loadSimulated(self.filename,conffile)
         else:
             raise NotImplementedError("{} unsupported.".format(filetype))
-
+        print('[info]Loaded {} grism images.\n'.format(len(self)))
+        
         
     def __contains__(self,key):
         return key in self.sources 
