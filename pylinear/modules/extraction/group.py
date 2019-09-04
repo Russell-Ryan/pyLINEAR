@@ -159,6 +159,6 @@ def makeGroups(conf,grisms,sources,extconf,sort=True):
 
     
     # print something for something's sake
-    print("[info]Done grouping. Found {} groups.".format(len(out)))
+    print("[info]Done grouping. Found {} groups.\n".format(len(out)))
     
     return out
