@@ -214,6 +214,13 @@ class Matrix(object):
 
                     # compute pixel (x,y) pairs
                     xyg=indices.unique(np.array(data[3]))
+
+                    # the following line was encapsulated in unqiify
+                    # (written by R Ryan), but needs to be explicitly
+                    # put in for the differences with the way unique was
+                    # implemented (could put sort flag in indices.unique)
+                    xyg=np.sort(xyg)
+                    
                     xg,yg=indices.one2two(xyg,detimg.naxis)
                     xg=xg.astype(int)
                     yg=yg.astype(int)
