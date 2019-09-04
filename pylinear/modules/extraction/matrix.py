@@ -102,11 +102,13 @@ class Matrix(object):
         else:
             srcind=np.digitize(ju,self.cwav)-1
 
-        
+            
+        # get the wavelength indices
         try:
             self.lam=ju-self.cwav[srcind]
         except:
             print(len(ju),len(srcind),len(sources))
+            print('[debug]something wrong in matrix.py')
             q=input()
         #self.lam=lam.astype(int)
         
