@@ -47,7 +47,7 @@ cd pyLINEAR
 python setup.py install
 ```
 
-**pyLINEAR also uses the [h5py](https://pypi.org/project/h5py/) library, but this should now be installed.**
+**pyLINEAR also uses the [h5py](https://pypi.org/project/h5py/) and  [ruamel](https://pypi.org/project/ruamel.yaml/) libraries, but you installed them as part of [h5axeconfig](https://github.com/Russell-Ryan/h5axeconfig).**
 
 4. Hopefully at this point, everything should be working --- including the compiled C components.
 
