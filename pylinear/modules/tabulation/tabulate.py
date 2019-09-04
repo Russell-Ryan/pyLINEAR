@@ -56,8 +56,11 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
 
             for beam,beamconf in detconf:
                 beamgrp=detgrp.require_group(beam)
-                sourcesDone=list(beamgrp.keys())
-
+                if remake:
+                    sourcesDone=[]
+                else:
+                    sourcesDone=list(beamgrp.keys())
+                
                 #if beam in detgrp:
                 #    beamgrp=detgrp[beam]
                 #    sourcesDone=list(beamgrp.keys())
@@ -132,7 +135,7 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
                                             area=np.float32(src.area),\
                                             npix=np.uint32(src.npix))
                             elif TTYPE=='DDT':
-                                ddt=odt.decimate()
+                                ddt=odt.decimate(thisGrism.npix)
                                 ddt.writeH5(beamgrp,RA=src.adc[0],\
                                             Dec=src.adc[1],\
                                             xc=xyc[0],yc=xyc[1],\
@@ -176,12 +179,19 @@ def makeOMTs(flt,sources,grismconf,path,remake,nsub):
             thisGrism=flt[det]
                 
             for beam,beamconf in detconf:
-                if beam in detgrp:
-                    beamgrp=detgrp[beam]
-                    sourcesDone=list(beamgrp.keys())
-                else:
-                    beamgrp=detgrp.create_group(beam)
+                beamgrp=detgrp.require_group(beam)
+                if remake:
                     sourcesDone=[]
+                else:
+                    sourcesDone=list(beamgrp.keys())
+                    
+                    
+                #if beam in detgrp:
+                #    beamgrp=detgrp[beam]
+                #    sourcesDone=list(beamgrp.keys())
+                #else:
+                #    beamgrp=detgrp.create_group(beam)
+                #    sourcesDone=[]
                     
                 wav=beamconf.wavelengths(xc,yc,1)      # force nsub=1
 

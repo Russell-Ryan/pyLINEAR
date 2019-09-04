@@ -36,9 +36,11 @@ class Matrix(object):
         # get extraction properties for the sources
         nwav=[]
         for segid,src in sources:
-            if src.lamb0 is None: src.lamb0=self.epar(conf,extconf,'lamb0')
-            if src.lamb1 is None: src.lamb1=self.epar(conf,extconf,'lamb1')
-            if src.dlamb is None: src.dlamb=self.epar(conf,extconf,'dlamb')
+            for key in ['lamb0','lamb1','dlamb']:
+                self.epar2(src,conf,extconf,key)
+            #if src.lamb0 is None: src.lamb0=self.epar(conf,extconf,'lamb0')
+            #if src.lamb1 is None: src.lamb1=self.epar(conf,extconf,'lamb1')
+            #if src.dlamb is None: src.dlamb=self.epar(conf,extconf,'dlamb')
             nwav.append(src.nwav)
             
         # get cumulative indices
@@ -144,8 +146,14 @@ class Matrix(object):
         # for making a plot
         self.lcurve=lcurve.LCurve(self.frob)
 
-
-        
+    def epar2(self,src,conf,extconf,key):
+        if getattr(src,key) is None:
+            val=conf[key]
+            if val is None:
+                val=getattr(extconf,key)
+            setattr(src,key,val)
+            
+            
     def epar(self,conf,extconf,key):
         val=conf[key]
         if val is None:
@@ -190,8 +198,9 @@ class Matrix(object):
 
                 # make a good pixel mask
                 gpx=(dqa == 0) & (unc > 0)
-                if len(masks)!=0: gpx &= masks[detname]
-                del dqa,dqahdr        # don't need these anymore
+                if len(masks)!=0:
+                    gpx &= masks[detname]
+                del dqa,dqahdr,unchdr      # don't need these anymore
 
                 # call a load beam
                 data=self.loadBeams(h5det,detconf,detimg,unc,gpx,sources,\
@@ -220,7 +229,7 @@ class Matrix(object):
                     if len(g)!=0:
                         print('[warn]Infinite values in bi')
                         print(bi[g])
-                        q=input()
+                        raise RuntimeError("Infinite values. aborting.")
 
                     # like IDL's push
                     self.bi.extend(bi)
