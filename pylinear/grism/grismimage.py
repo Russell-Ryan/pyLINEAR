@@ -33,7 +33,14 @@ class GrismImage(object):
         
     def __str__(self):
         return 'grism image'
-    
+
+    @property
+    def totalPixels(self):
+        totpix=int(0)
+        for name,det in self.detectors:
+            totpix+=det.totpix
+        return int(totpix)
+            
     @property
     def filename(self):
         suf='.gz' if self.gzip else ''
