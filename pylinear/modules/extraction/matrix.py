@@ -12,7 +12,7 @@ from .fluxunit import FLUXSCALE
 class Matrix(object):
     TTYPE='DDT'            # Which type of table to use
     def __init__(self,conf,grisms,sources,extconf,mskconf,grismFF):
-
+        
         # dimensionalities
         self.nimg=len(grisms)
         self.nsrc=len(sources)
@@ -47,11 +47,11 @@ class Matrix(object):
         cwav=np.cumsum(nwav)
         self.npar=cwav[-1]
         self.cwav=np.array([0,*cwav],dtype=cwav.dtype)
-
+        
         # data to hold matrix/vector stuff
         ii,jj,aij=[],[],[]
         self.bi=[]
-
+        self.downtype=False    # attempt to save space
 
         # this was like 'i' before.  but now we need to increment for
         # each FLT and detector
@@ -227,7 +227,7 @@ class Matrix(object):
                     xg=xg.astype(int)
                     yg=yg.astype(int)
                     bi=sci[yg,xg]/unc[yg,xg]
-                    del xg,yg     # clean up memor usage
+                    del xg,yg     # clean up memory usage
                     
                     
                     # check for bad values in bi
@@ -347,19 +347,22 @@ class Matrix(object):
                         
                         # compute matrix coordinates
                         iu,ju=np.divmod(iju,self.npar)
-
-                        # here can downtype (iu,ju) as np.uint32
-                        # here can downtype aij as np.float32.
-                        # to save space
-
+                    
                         # compute pixel positions
                         imgind,xygind=np.divmod(iu,detimg.npix)
+
+                        # downtype to save space
+                        if self.downtype:
+                            iu=iu.astype(np.uint32)
+                            ju=ju.astype(np.uint32)
+                            aiju=aiju.astype(np.uint32)
+
                         
                         # save the matrix elements
                         i.extend(list(iu))
                         j.extend(list(ju))
                         aij.extend(list(aiju))
-                        del iu,ju,aiju
+                        del iu,aiju
                         
                         # compute the unique positions
                         #imgind=indices.unique(imgind)   # this is not needed
