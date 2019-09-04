@@ -181,7 +181,7 @@ def extract(conf,sources):
     sources.setExtractionParameters(conf,extconf)
     
     print('\n\n')
-    print('[debug]Must make beam masks *OUTSIDE* of matrix.py')
+    print('[debug]make beam masks here!')
     print('\n\n')
             
     # output file names
