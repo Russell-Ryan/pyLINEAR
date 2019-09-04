@@ -135,7 +135,7 @@ class Data(object):
             if n==0:
                 raise RuntimeError("All sources too faint.")
 
-            print('[info]Magnitude limit: {} -> {}'.format(len(self),n))
+            print('[info]Magnitude limit: {} \u27f6  {}'.format(len(self),n))
             self.sources=sources
 
             
