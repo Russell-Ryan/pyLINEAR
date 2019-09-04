@@ -33,9 +33,6 @@ class Matrix(object):
         if self.maxiter is not None:
             self.maxiter=int(self.maxiter)
             
-
-        
-            
         ## get extraction properties for the sources
         #nwav=[]
         #for segid,src in sources:
@@ -146,20 +143,20 @@ class Matrix(object):
         # for making a plot
         self.lcurve=lcurve.LCurve(self.frob)
 
-    def epar2(self,src,conf,extconf,key):
-        if getattr(src,key) is None:
-            val=conf[key]
-            if val is None:
-                val=getattr(extconf,key)
-            setattr(src,key,val)
-            
-            
-    def epar(self,conf,extconf,key):
-        val=conf[key]
-        if val is None:
-            return getattr(extconf,key)
-        else:
-            return val
+    #def epar2(self,src,conf,extconf,key):
+    #    if getattr(src,key) is None:
+    #        val=conf[key]
+    #        if val is None:
+    #            val=getattr(extconf,key)
+    #        setattr(src,key,val)
+    #        
+    #        
+    #def epar(self,conf,extconf,key):
+    #    val=conf[key]
+    #    if val is None:
+    #        return getattr(extconf,key)
+    #    else:
+    #        return val
 
     def __len__(self):
         return len(self.A.A.data)
