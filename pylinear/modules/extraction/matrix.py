@@ -352,19 +352,22 @@ class Matrix(object):
                         # here can downtype aij as np.float32.
                         # to save space
 
+                        # compute pixel positions
+                        imgind,xygind=np.divmod(iu,detimg.npix)
+                        
                         # save the matrix elements
                         i.extend(list(iu))
                         j.extend(list(ju))
                         aij.extend(list(aiju))
                         del iu,ju,aiju
-                                                
                         
-                        # compute pixel positions
-                        imgind,xygind=np.divmod(iu,detimg.npix)
+                        # compute the unique positions
                         #imgind=indices.unique(imgind)   # this is not needed
                         xygind=indices.unique(xygind)
                         xyg.extend(list(xygind))
-
+                        del xygind
+                                                
+                        
         return i,j,aij,xyg
                         
 
