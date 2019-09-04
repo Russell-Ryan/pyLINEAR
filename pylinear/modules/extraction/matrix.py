@@ -224,7 +224,7 @@ class Matrix(object):
                     # check for bad values in bi
                     g=np.where(np.isinf(bi))[0]
                     if len(g)!=0:
-                        print('[warn]Infinite values in bi')
+                        print('[warn]Infinite values in bi; is UNC image ok?')
                         print(bi[g])
                         raise RuntimeError("Infinite values. aborting.")
 
@@ -265,7 +265,8 @@ class Matrix(object):
         segids=[ri[0] for ri in self.ri]
         return segids
                 
-    def loadBeams(self,h5det,detconf,detimg,unc,gpx,sources,grismFF,thresh=0.0):
+    def loadBeams(self,h5det,detconf,detimg,unc,gpx,sources,grismFF,\
+                  thresh=-np.inf):
         thresh=np.float64(thresh)
         
         # output stuff
