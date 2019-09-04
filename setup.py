@@ -11,7 +11,7 @@ setup(name='pylinear',\
       entry_points={'console_scripts':['pylinear=pylinear.linear:main']},
       install_requires=['numpy','scipy','ruamel.yaml','emcee','shapely',\
                         'polyclip','h5axeconfig','argparse','astropy'],\
-      classifiers=['Development Status :: 1 Planning',\
+      classifiers=['Development Status :: 4 Beta',\
                    'Intended Audience :: Science/Research',
                    'Topic :: Scientific/Engineering :: Astronomy',],\
       packages=find_packages(),\
