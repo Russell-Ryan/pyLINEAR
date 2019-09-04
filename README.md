@@ -1,8 +1,5 @@
 # PyLinear
 
-Working on code.  TBD.  Email Russell.
-
-
 
 
 ## Installation
