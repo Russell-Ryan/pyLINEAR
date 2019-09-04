@@ -242,7 +242,7 @@ def tabulate(conf,grisms,sources,grismconf,ttype):
 
 
     # print a message
-    print('[info]Making '+ttype)
+    #print('[info]Making '+ttype)
     
         
     # arguments that do not change
@@ -251,7 +251,7 @@ def tabulate(conf,grisms,sources,grismconf,ttype):
     # run the code
     #q=[func(flt,*args) for name,flt in grisms]
     #pool.pool(func,grisms.values(),*args,ncpu=conf['cpu']['ncpu'])
-    p=pool.Pool(ncpu=conf['cpu']['ncpu'])
+    p=pool.Pool(ncpu=conf['cpu']['ncpu'],prefix=' Making ODTs')
     filenames=p(func,grisms.values,*args)
 
     return filenames
