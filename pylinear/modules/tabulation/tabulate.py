@@ -8,12 +8,12 @@ from pylinear.utilities import indices,pool
 
 TTYPE='DDT'
 
-def detGroup(h5,det,detconf):
-    if det in h5:
-        detgrp=h5[det]
-    else:
-        detgrp=h5.create_group(det)
-    return detgrp
+#def detGroup(h5,det,detconf):
+#    if det in h5:
+#        detgrp=h5[det]
+#    else:
+#        detgrp=h5.create_group(det)
+#    return detgrp
 
 
 def makeODTs(grism,sources,grismconf,path,remake,nsub):
@@ -169,10 +169,13 @@ def makeOMTs(flt,sources,grismconf,path,remake,nsub):
 
 
         for det,detconf in grismconf:
-            if det in h5:
-                detgrp=h5[det]
-            else:
-                detgrp=h5.create_group(det)
+
+            detgrp=h5.require_group(det)
+
+            #if det in h5:
+            #    detgrp=h5[det]
+            #else:
+            #    detgrp=h5.create_group(det)
 
             # get the center of the detector
             xc,yc=detconf.naxis/2.
