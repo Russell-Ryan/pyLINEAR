@@ -316,11 +316,27 @@ class WCS(object):
         xsi,eta=self.__sph2xy__(a,d)
         
         # could put this in an init method
-        cd=self.cd
+        cd=self.cd.copy()
         cd[0,:]=cd[0,:]*self.cdelt[0]
         cd[1,:]=cd[1,:]*self.cdelt[1]
-        cdinv=np.linalg.inv(cd)
-        ################################
+
+        ####### COMPUTE INVERSE OF CD MATRIX ########
+        scl=1e-5    # take this out to avoid rounding errors
+        cd/=scl
+        det=(cd[0,0]*cd[1,1]-cd[0,1]*cd[1,0])*scl
+        if np.isinf(det):
+            raise RuntimeError("Infinite Determinant in CD matrix")
+        
+        fac=scl/det
+        cdinv=np.zeros_like(cd)
+        cdinv[0,0]=cd[1,1]/det
+        cdinv[1,1]=cd[0,0]/det
+        cdinv[0,1]=-cd[0,1]/det
+        cdinv[1,0]=-cd[1,0]/det
+                    
+
+        #cdinv=np.linalg.inv(cd)
+        #############################################
         
         xdif=cdinv[0,0]*xsi+cdinv[0,1]*eta
         ydif=cdinv[1,0]*xsi+cdinv[1,1]*eta
