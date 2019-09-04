@@ -70,8 +70,9 @@ class Data(object):
         return t
 
     def __iter__(self):
-        yield from self.sources.items()
-
+        #yield from self.sources.items()
+        for args in self.sources.items():
+            yield args
 
     def __getitem__(self,segid):
         return self.sources[segid]
@@ -82,7 +83,22 @@ class Data(object):
             else:
                 if src.valid:
                     self.sources[self.SEGTYPE(segid)]=src
-            
+
+
+    def setExtractionParameter(self,src,conf,extconf,key):
+        if getattr(src,key) is None:
+            val=conf[key]
+            if val is None:
+                val=getattr(extconf,key)
+            setattr(src,key,val)
+                
+    def setExtractionParameters(self,conf,extconf):
+        print('[info]Setting extraction parameters') 
+        keys=['lamb0','lamb1','dlamb']
+        for segid,src in self.sources.items():
+            for key in keys:
+                self.setExtractionParameter(src,conf,extconf,key)
+                    
     def keys(self):
         return self.sources.keys()
 

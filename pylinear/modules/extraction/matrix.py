@@ -33,18 +33,23 @@ class Matrix(object):
         if self.maxiter is not None:
             self.maxiter=int(self.maxiter)
             
-        # get extraction properties for the sources
-        nwav=[]
-        for segid,src in sources:
-            for key in ['lamb0','lamb1','dlamb']:
-                self.epar2(src,conf,extconf,key)
-            #if src.lamb0 is None: src.lamb0=self.epar(conf,extconf,'lamb0')
-            #if src.lamb1 is None: src.lamb1=self.epar(conf,extconf,'lamb1')
-            #if src.dlamb is None: src.dlamb=self.epar(conf,extconf,'dlamb')
-            nwav.append(src.nwav)
+
+        
             
-        # get cumulative indices
-        cwav=np.cumsum(nwav)
+        ## get extraction properties for the sources
+        #nwav=[]
+        #for segid,src in sources:
+        #    for key in ['lamb0','lamb1','dlamb']:
+        #        self.epar2(src,conf,extconf,key)
+        #    #if src.lamb0 is None: src.lamb0=self.epar(conf,extconf,'lamb0')
+        #    #if src.lamb1 is None: src.lamb1=self.epar(conf,extconf,'lamb1')
+        #    #if src.dlamb is None: src.dlamb=self.epar(conf,extconf,'dlamb')
+        #    nwav.append(src.nwav)
+
+
+        # get number of wavelengths to use
+        nwav=[src.nwav for segid,src in sources]
+        cwav=np.cumsum(nwav)    # get cumulative indices
         self.npar=cwav[-1]
         self.cwav=np.array([0,*cwav],dtype=cwav.dtype)
         
@@ -137,10 +142,6 @@ class Matrix(object):
         self.iuniq=iu
         self.jcomp=jc
         self.juniq=ju
-
-        
-
-
         
         # for making a plot
         self.lcurve=lcurve.LCurve(self.frob)

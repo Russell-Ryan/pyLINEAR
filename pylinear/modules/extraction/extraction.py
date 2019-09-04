@@ -178,9 +178,8 @@ def extract(conf,sources):
     #tabulate(conf['tables'],grisms,sources,mskconf,'omt')
 
     # set extraction values for each source
-    print('[debug]move extraction parameters out of matrix.py to here')
+    sources.setExtractionParameters(conf,extconf)
     
-
     print('\n\n')
     print('[debug]Must make beam masks *OUTSIDE* of matrix.py')
     print('\n\n')

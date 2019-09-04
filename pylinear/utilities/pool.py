@@ -20,11 +20,10 @@ class Pool(object):
             self.ncpu=nmax
         else:
             self.ncpu=min(max(ncpu,1),nmax)    # force this to be in range
+
     def callback(self,retval):
         self.pb.increment()
-        
-                   
-            
+                             
     def __call__(self,func,lis,*args,**kwargs):
         self.pb=progressbar.ProgressBar(len(lis),**kwargs)
         if self.ncpu==1:
