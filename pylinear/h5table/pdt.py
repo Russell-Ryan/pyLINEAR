@@ -44,7 +44,7 @@ class PDT(Base):
             yield x,l,v
 
     def writeH5(self,grp,**kwargs):
-        new=grp.create_group(self.name)
+        new=grp.require_group(self.name)
         for k,v in kwargs.items():
             h5utils.writeAttr(new,k,v)
         data=h5utils.writeData(new,self.ttype,self.xyg,self.lam,self.val)

@@ -61,7 +61,8 @@ class ODT(Base):
         #                    count=np.array(self.count,dtype=np.uint32))
 
         # new attempt... create groups and write data to that -_-
-        new=grp.create_group(self.name)
+        #new=grp.create_group(self.name)
+        new=grp.require_group(self.name)
         for k,v in kwargs.items():
             h5utils.writeAttr(new,k,v)
 
@@ -109,15 +110,16 @@ class ODT(Base):
         return len(self.wav)
 
     
-    def decimate(self):
+    def decimate(self,npix):
         ddt=DDT(self.segid)     # create empy DDT for output
         if len(self) != 0:
             ddt.pix=self.pix
-
+            npix=self.DTYPE(npix)
+            
             # make a one-d index
-            #xyl=self.xyg.astype(dtype)+self.npix*self.lam.astype(dtype)
-            xyl=self.DTYPE(self.nwav)*self.xyg.astype(self.DTYPE)+\
-                 self.lam.astype(self.DTYPE)
+            xyl=self.xyg.astype(self.DTYPE)+npix*self.lam.astype(self.DTYPE)
+            #xyl=self.DTYPE(self.nwav)*self.xyg.astype(self.DTYPE)+\
+            #     self.lam.astype(self.DTYPE)
 
             # find unique indices & compress
             xylu=np.unique(xyl)
@@ -130,7 +132,8 @@ class ODT(Base):
             
             # go back to 2d indices
             #xygu,lamu=divmod(xylu,self.npix)
-            xygu,lamu=divmod(xylu,self.nwav)
+            #xygu,lamu=divmod(xylu,self.nwav)
+            lamu,xygu=np.divmod(xylu,npix)
             del xylu               # just save on memory usage
             
             # get the wavelengths

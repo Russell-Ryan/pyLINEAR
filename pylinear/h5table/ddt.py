@@ -65,7 +65,8 @@ class DDT(Base):
 
 
     def writeH5(self,grp,**kwargs):
-        new=grp.create_group(self.name)
+        new=grp.require_group(self.name)
+        #new=grp.create_group(self.name)
         for k,v in kwargs.items():
             h5utils.writeAttr(new,k,v)
 

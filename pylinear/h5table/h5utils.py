@@ -10,7 +10,8 @@ import numpy as np
 
 
 def writeGroup(h5,name,**kwargs):
-    grp=h5.create_group(name)
+    #grp=h5.create_group(name)
+    grp=h5.require_group(name)
     for k,v in kwargs.items():
         writeAttr(grp,k,v)
         
@@ -31,7 +32,14 @@ def writeData(grp,name,*args,**kwargs):
 
             
     data=np.array(data,dtype=dtype)            
+
+    # try this for overwriting data in an h5
+    if name in grp:
+        del grp[name]
     dset=grp.create_dataset(name,data=data)
+
+    
+    #dset=grp.create_dataset(name,data=data)
 
     # these are the columns
     for arg in args:
