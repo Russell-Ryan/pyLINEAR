@@ -316,8 +316,7 @@ class Matrix(object):
                         
                         
                         # scale the DDT
-                        #ddt*=(ff*pa*sens)
-                        ddt*=sens
+                        ddt*=(ff*pa*sens)
                         del ff,pa,sens
                                                 
                         # compute the wavelength indices
