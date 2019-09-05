@@ -2,7 +2,6 @@ import numpy as np
 import timeit
 import scipy.sparse.linalg as ssl
 from scipy.sparse import coo_matrix
-import pdb
 
 from . import lcurve,lsqrresult
 from pylinear import h5table
@@ -111,7 +110,9 @@ class Matrix(object):
         except:
             print(len(ju),len(srcind),len(sources))
             print('[debug]something wrong in matrix.py')
-            q=input()
+            import pdb
+            pdb.set_trace()
+            
         #self.lam=lam.astype(int)
         
         # get the reverse indices
