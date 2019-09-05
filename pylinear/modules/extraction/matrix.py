@@ -91,7 +91,8 @@ class Matrix(object):
         ic,iu=indices.compress(i)
         jc,ju=indices.compress(j)
         dim=np.array([len(iu),len(ju)])
-        self.npar=np.amax(ju)+1     # IDL has +1 here
+        self.npar=dim[1]
+        #self.npar=np.amax(ju)+1     # IDL has +1 here (this was an error?)
         self.npar=self.npar.astype(ju.dtype)
         del i,j
         
@@ -118,7 +119,7 @@ class Matrix(object):
         # get the reverse indices
         segids=np.array(list(sources.keys()))
         self.ri=indices.reverse(segids[srcind])
-        self.hsrc=np.bincount(srcind)
+        self.hsrc=np.bincount(srcind.astype(int))
 
         # recast somethings
         aij=np.array(aij)
