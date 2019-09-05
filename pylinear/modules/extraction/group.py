@@ -15,7 +15,6 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
     
     # get the polygons for this FLT:
     with h5table.H5Table(flt.dataset,TTYPE,path=path) as h5:
-
         for detname,detimg in flt:
             h5det=h5[detname]
             detconf=extconf[detname]
@@ -25,6 +24,7 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
                 
                 ids=[]
                 polys=[]
+
                 
                 for segid,src in sources:
                     # read the DDT
@@ -57,6 +57,10 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
     # group those sources with Shapely math
     data=list(zip(ids,polys))
     nnew=ndata=len(ids)
+    if nnew==0:
+        #print('[warn]No objects to group for {}'.format(flt.dataset))
+        return []
+        
     while nnew!=0:
         groups=[]
 
@@ -96,6 +100,7 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
         data=groups
         nnew=ndata-len(data)
         ndata=len(data)
+
 
     # get just the IDs
     groups=list(zip(*groups))[0]
