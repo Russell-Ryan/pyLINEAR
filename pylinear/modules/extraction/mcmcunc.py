@@ -52,7 +52,7 @@ def mcmcUncertainties(conf,mat,result):
         return result
 
     print('[info]Computing MCMC uncertainties')
-    print('[debug]MCMC must be single processor')
+    
     
     # compute the residuals
     resid=mat.bi-mat.A.matvec(result.x)
