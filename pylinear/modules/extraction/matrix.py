@@ -26,7 +26,7 @@ class Matrix(object):
         self.btol=float(lsqrconf['btol'])
         self.conlim=float(lsqrconf['conlim'])
         self.maxiter=lsqrconf['maxiter']
-        self.show=False
+        self.show=lsqrconf['show']
         
         # double check the type of maxiter
         if self.maxiter is not None:
@@ -387,7 +387,11 @@ class Matrix(object):
                 
     def residualMatrix(self,j,resid):
         g=np.where((self.A.A.col == j))[0]
-
+        
+        if len(g)==0:
+            print('[warn]No valid matrix elements for column={}'.format(j))
+            return None,None
+        
         ii=self.A.A.row[g]
         jj=self.A.A.col[g]
         aij=self.A.A.data[g]

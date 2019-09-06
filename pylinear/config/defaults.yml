@@ -58,6 +58,7 @@ modules:
       btol: 1e-10
       conlim: 1e10
       maxiter: 1e5
+      show: False
     cpu: *CPU
     calib: *CALIB
     tables: *TABLES
@@ -66,6 +67,7 @@ modules:
       nwalkers: 100
       nstep: 100
       burn: 0.2
+      cpu: *CPU
     residuals:
       perform: true
       gzip: false

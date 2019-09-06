@@ -98,7 +98,7 @@ def extractSources(conf,sources,grisms,extconf,mskconf,grismFF,grpid,\
     dgrp.attrs['ngrism']=np.uint16(len(grisms))
     
     # update with MCMC uncertainties
-    result=mcmcunc.mcmcUncertainties(conf['mcmcunc'],mat,result,sources)
+    result=mcmcunc.mcmcUncertainties(conf['mcmcunc'],mat,result)
     
     # package the outputs
     mcmcconf=conf['mcmcunc']       # something for easier access later  
