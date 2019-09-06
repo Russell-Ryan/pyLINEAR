@@ -69,7 +69,7 @@ class Matrix(object):
         
         for fltindex,(fltfile,flt) in enumerate(grisms):
             # update the prograssbar
-            pb.suffix='{}/{}'.format(fltindex+1,self.nimg)
+            #pb.suffix='{}/{}'.format(fltindex+1,self.nimg)
             pb.increment()
 
             # do one FLT:            

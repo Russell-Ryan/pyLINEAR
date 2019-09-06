@@ -55,8 +55,11 @@ class ProgressBar(object):
         filledLength = int(self.length * iteration // self.total)
         unfilledLength=self.length-filledLength
         bar = self.fill*filledLength + self.unfill*unfilledLength
+        #msg='\r{} |{}| {}% {}'.format(self.prefix,bar,percent,self.suffix)
+        msg='\r{} |{}| {}/{} {}% {}'.format(self.prefix,bar,iteration,\
+                                            self.total,percent,self.suffix)
         
-        return '\r{} |{}| {}% {}'.format(self.prefix,bar,percent,self.suffix)
+        return msg
 
     
     def __call__(self,iteration,newline=True,resize=True):
