@@ -25,13 +25,13 @@ class SED(object):
         #self._initialize()
 
     def interpolate(self,wav,flam=True):
-
+        g=np.where(np.isfinite(self.flam))[0]
         if flam:
-            f=np.interp(wav,self.lamb,self.flam,left=self.flam[0], \
-                        right=self.flam[-1])
+            f=np.interp(wav,self.lamb[g],self.flam[g],left=self.flam[g][0], \
+                        right=self.flam[g][-1])
         else:
-            f=np.interp(wav,self.lamb,self.fnu,left=self.fnu[0], \
-                        right=self.fnu[-1])
+            f=np.interp(wav,self.lamb[g],self.fnu[g],left=self.fnu[g][0], \
+                        right=self.fnu[g][-1])
         return f
 
     def redshift(self,z):
