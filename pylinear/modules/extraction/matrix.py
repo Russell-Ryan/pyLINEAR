@@ -483,7 +483,14 @@ class Matrix(object):
 
     
 
-
+    @property
+    def count(self):
+        try:
+            count=self.A.shape[0]*self.A.shape[1]
+        except:
+            count=0
+        return count
+    
     @property
     def shape(self):
         try:

@@ -34,8 +34,7 @@ def menger(xyj,xyk,xyl):
     return curv
 
 
-def classicExtraction():
-    raise NotImplementedError("Still have to implement this")
+
 
 
 def gridSearch(logdamp,mat,x0):

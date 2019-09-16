@@ -18,7 +18,7 @@ from .fluxunit import FLUXUNIT,FLUXSCALE
 
 
 
-def getInitialGuess(mat,sources):
+def getInitialGuess(mat,sources,grisms,extconf,conf):
     print('[info]Getting initial guesses')
 
     x0=np.zeros(mat.shape[1])
@@ -35,7 +35,18 @@ def getInitialGuess(mat,sources):
             s,g1=mat.ri[index]
             if s ==segid:
                 g2=mat.lam[g1]
+                init=conf['initialize'].lower()
+                if init=='direct':
+                    w,f,unc=src.directExtraction(grisms,extconf,conf)
+                    src.sed.flam=f
+                    src.sed.lamb=w
+                elif init=='broadband':
+                    pass
+                else:
+                    raise NotImplementedError("no valid initialization scheme")
+                    
                 x0[g1]=src.sed.interpolate(src.waves[g2])/FLUXSCALE
+                
             else:
                 raise IndexError("error in building initial guess")
 
@@ -48,12 +59,10 @@ def extractSources(conf,sources,grisms,extconf,mskconf,grismFF,grpid,\
     mat=Matrix(conf,grisms,sources,extconf,mskconf,grismFF)
     if not hasattr(mat,'A'):
         print("[warn]Invalid matrix.  Ignoring grpid: {}.".format(grpid))
-        return 
-
-    #mat.write('test.mat')
-    
+        return
+        
     # get initial guess
-    x0=getInitialGuess(mat,sources)
+    x0=getInitialGuess(mat,sources,grisms,extconf,conf)
         
     # type of extraction
     method=conf['mode'].lower()
@@ -63,8 +72,6 @@ def extractSources(conf,sources,grisms,extconf,mskconf,grismFF,grpid,\
         result=methods.goldenSearch(conf['logdamp'],mat,x0)
     elif method == 'fixed':
         result=methods.fixedDamping(conf['logdamp'],mat,x0)
-    elif method == 'classic':
-        result=methods.classicExtraction()
     else:
         raise NotImplementedError("Extraction mode is invalid.")
 
@@ -88,8 +95,9 @@ def extractSources(conf,sources,grisms,extconf,mskconf,grismFF,grpid,\
     dgrp.attrs['arnorm']=np.float32(result.arnorm)
     dgrp.attrs['damping']=np.float32(result.damp)
     dgrp.attrs['nmatrix']=np.uint64(len(mat))
-    nmat=mat.shape[0]*mat.shape[1]
-    dgrp.attrs['density']=np.float32(len(mat))/np.float32(nmat)
+    #nmat=mat.shape[0]*mat.shape[1]
+    #dgrp.attrs['density']=np.float32(len(mat))/np.float32(nmat)
+    dgrp.attrs['density']=np.float32(len(mat))/np.float32(mat.count)
     dgrp.attrs['time']=np.float32(result.time)
     dgrp.attrs['nsrc']=np.uint16(len(sources))
     dgrp.attrs['npix']=np.uint32(mat.shape[0])
@@ -123,8 +131,8 @@ def extractSources(conf,sources,grisms,extconf,mskconf,grismFF,grpid,\
         dset=h5s.create_dataset(str(segid),data=data,compression='gzip')
 
         dset.attrs['group']=np.uint16(grpid)
-        dset.attrs['RA']=src.adc[0]
-        dset.attrs['Dec']=src.adc[1]
+        dset.attrs['RA']=np.float64(src.adc[0])
+        dset.attrs['Dec']=np.float64(src.adc[1])
         dset.attrs['x']=np.float32(src.xyc[0]-src.ltv[0])
         dset.attrs['y']=np.float32(src.xyc[1]-src.ltv[1])
         dset.attrs['npix']=np.uint32(src.npix)
@@ -170,7 +178,6 @@ def extract(conf,sources):
     extconf=h5axeconfig.Camera(conffile,grisms.grism,beams=conf['beam'])
     mskconf=h5axeconfig.Camera(conffile,grisms.grism,beams=conf['mask'])
     grismFF=h5axeconfig.FlatField(calconf['h5flat'],grisms.grism)
-
 
     
     # make the tables, if need-be
