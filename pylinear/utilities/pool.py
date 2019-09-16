@@ -2,8 +2,6 @@ import multiprocessing as mp
 import psutil as ps
 
 from . import progressbar
-#import progressbar
-
 
 
 class Pool(object):
@@ -12,8 +10,6 @@ class Pool(object):
         ncpus=ps.cpu_count(logical=False)
         ncores=ps.cpu_count(logical=True)
         nmax=ncores-1
-        
-        nmax=10
         
         # set a default to the max
         if ncpu is None:
