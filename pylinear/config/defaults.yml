@@ -53,6 +53,7 @@ modules:
     lamb0: null
     lamb1: null
     dlamb: null
+    initialize: 'direct'
     lsqr:
       atol: 1e-10          # a tol
       btol: 1e-10

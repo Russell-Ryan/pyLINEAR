@@ -1,14 +1,15 @@
 import numpy as np
 
-
+from .direct import Direct
 from .extractionparameters import ExtractionParameters
+
 from pylinear.synthphot import SED
 from pylinear.astro import WCS
 from pylinear.utilities import convexhull
 
 
 
-class Source(WCS,ExtractionParameters):
+class Source(WCS,ExtractionParameters,Direct):
     SEGTYPE=np.uint32           # force SEGIDs to have this type
 
     def __init__(self,img,seg,zero,segid=None,lamb0=None,lamb1=None,dlamb=None,\
@@ -48,11 +49,14 @@ class Source(WCS,ExtractionParameters):
 
         # initialize the header
         WCS.__init__(self,seg.header)  # could be seg or img here
-
         
         # initialize the extraction parameters
         ExtractionParameters.__init__(self,lamb0,lamb1,dlamb)
 
+        # initialize the direct extraction
+        Direct.__init__(self)
+
+        
         # compute the area of this source
         self.area=self.npix*self.pixelarea
 
