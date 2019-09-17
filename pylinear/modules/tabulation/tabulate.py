@@ -21,8 +21,14 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
     tab=h5table.H5Table(grism.dataset,TTYPE,path=path)
     
     # remake the table?
-    if not (remake or not os.path.isfile(tab.filename)):
-        return tab.filename
+    #if not (remake or not os.path.isfile(tab.filename)):
+    #    return tab.filename
+
+    if remake:
+        if os.path.isfile(tab.filename):
+            os.remove(tab.filename)
+        else:
+            return tab.filename
     
     # pixel based ------------------------------
     dx=np.array([0,0,1,1])            # HARDCODE
