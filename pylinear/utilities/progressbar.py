@@ -42,8 +42,7 @@ class ProgressBar(object):
         
         
         length=int(columns)-len(msg)
-        if length>100:
-            
+        if length>0:
             filledLength = int(length * iteration // self.total)
             unfilledLength=length-filledLength
             bar = self.fill*filledLength + self.unfill*unfilledLength
