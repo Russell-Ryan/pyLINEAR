@@ -252,7 +252,7 @@ def tabulate(conf,grisms,sources,grismconf,ttype):
     #q=[func(flt,*args) for name,flt in grisms]
     #pool.pool(func,grisms.values(),*args,ncpu=conf['cpu']['ncpu'])
     p=pool.Pool(ncpu=conf['cpu']['ncpu'])
-    filenames=p(func,grisms.values,*args,prefix=' Making ODTs')
+    filenames=p(func,grisms.values,*args,prefix='Making ODTs')
 
     return filenames
     

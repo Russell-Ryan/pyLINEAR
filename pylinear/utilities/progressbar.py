@@ -1,114 +1,64 @@
 import os,sys
+import numpy as np
 
 class ProgressBar(object):
-    def __init__(self,total,prefix = '', suffix = '', decimals = 1,
-                 length = 100, fill = '█',unfill='–'):
+    def __init__(self,total,prefix='',fill = '█',unfill='–'):
         self.total=total
-        self.decimals=decimals
-        self._prefix=prefix
-        self._suffix=suffix
+        self.prefix=prefix
         self.fill=fill
         self.unfill=unfill
-        self.setLength()
-        self.count=0       # the current increment
-
-        
-    @property
-    def prefix(self):
-        return self._prefix
-    @prefix.setter
-    def prefix(self,pre):
-        self._prefix=pre
-        self.setLength()
-
-    @property
-    def suffix(self):
-        return self._suffix
-    @suffix.setter
-    def suffix(self,suf):
-        self._suffix=suf
-        self.setLength()
-    
-        
-    def setLength(self):
-        rows, columns = os.popen('stty size', 'r').read().split()
-        self.length=0
-        a=str(self.decimals+4)    # 1 for . and 3 for leading digits
-        b=str(self.decimals)
-        
-        self.string="{0:"+a+"."+b+"f}"
-        msg=self.message(0)
-        self.length=int(columns)-len(msg)
-        if self.length <= 0:
-            raise ValueError("Length must be a positive integer.")
-
+        fmt=str(int(np.ceil(np.log10(self.total))))
+        self.count=0
+        self.base=' {0} |{1}| {2:'+fmt+'}/{3:'+fmt+'} {4:4.1f}%'
         
 
-    def percentage(self,iteration):
-        percent=(float(iteration)/float(self.total))*100.
-        percent = self.string.format(percent)
-        return percent
-
-    def message(self,iteration):
-        
-        percent=self.percentage(iteration)
-        filledLength = int(self.length * iteration // self.total)
-        unfilledLength=self.length-filledLength
-        bar = self.fill*filledLength + self.unfill*unfilledLength
-        #msg='\r{} |{}| {}% {}'.format(self.prefix,bar,percent,self.suffix)
-        msg='\r{} |{}| {}/{} {}% {}'.format(self.prefix,bar,iteration,\
-                                            self.total,percent,self.suffix)
-        
-        return msg
-
-    
-    def __call__(self,iteration,newline=True,resize=True):
-
+    def __call__(self,itr,newline=True):
         logging=hasattr(sys.stdout,'logging')
         if logging:        
             sys.stdout.logging=False
 
-        print(self.message(iteration),end='\r')
+        
+        print('\r'+self.message(itr),end='\r')
         
         if logging:
             sys.stdout.logging=True
         
         # Print New Line on Completion
-        if iteration == self.total and newline: 
+        if itr == self.total and newline: 
             print()
 
-            
     def increment(self):
         self.count+=1
         self(self.count)
 
-def test(obj,progressbar=None):
-    from time import sleep
-    #for i in range(n):
-    #count=itr[0]
-    #obj=itr[1]
-    
-    if progressbar is not None:
-        progressbar.increment()
-    sleep(0.05)
 
-    return obj
+    def message(self,iteration):
+        percent=float(iteration)/float(self.total)*100
+        rows, columns = os.popen('stty size', 'r').read().split()
+
 
         
-if __name__=='__main__':
-    
-    import pool
+        msg=self.base.format(self.prefix,'',iteration,self.total,percent)
+        
+        
+        length=int(columns)-len(msg)
+        if length>100:
+            
+            filledLength = int(length * iteration // self.total)
+            unfilledLength=length-filledLength
+            bar = self.fill*filledLength + self.unfill*unfilledLength
+            msg=self.base.format(self.prefix,bar,iteration,self.total,percent)
+        else:
+            msg=' {0} {1}/{2}'.format(self.prefix,iteration,self.total)
+            
+        
+        return msg
 
-    n=100
-    pb=ProgressBar(n,suffix='1')
-    #for i in range(n):
-    #    pb(i+1,newline=False)
-    #    sleep(0.05)
-    #
-    #pb.suffix='2'
-    #for i in range(n):
-    #    pb(i+1,newline=False)
-    #    sleep(0.05)
-    iters=[i for i in range(n)]
-    pool.pool(test,iters,ncpu=2)
-    
+
+if __name__=='__main__':
+    from time import sleep
+    n=200
+    pb=ProgressBar(n,prefix='test')
+    for i in range(n):
+        pb.increment()
+        sleep(0.01)

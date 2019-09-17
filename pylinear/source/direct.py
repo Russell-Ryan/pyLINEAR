@@ -270,7 +270,7 @@ class Direct(object):
         # load the spectra for each grism
         p=pool.Pool(ncpu=conf['cpu']['ncpu'])
         results=p(self.getSpectrum,grisms.values,extconf,path,\
-                  prefix=' direct extraction')
+                  prefix='direct extraction')
         #results=[self.getSpectrum(g,extconf,conf) for n,g in grisms]
         
         # package the output

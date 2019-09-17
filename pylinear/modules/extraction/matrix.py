@@ -62,14 +62,13 @@ class Matrix(object):
         path=conf['tables']['path']
         
         # loop over images
-        pb=progressbar.ProgressBar(self.nimg,prefix=' Loading ODTs')
+        pb=progressbar.ProgressBar(self.nimg,prefix='Loading ODTs')
 
         # output values
         i,j,aij=[],[],[]
         
         for fltindex,(fltfile,flt) in enumerate(grisms):
-            # update the prograssbar
-            #pb.suffix='{}/{}'.format(fltindex+1,self.nimg)
+            # update the progressbar
             pb.increment()
 
             # do one FLT:            

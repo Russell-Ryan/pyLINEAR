@@ -12,7 +12,7 @@ from pylinear.utilities import indices,progressbar
 
 class Data(object):
     SEGTYPE=np.uint32           # force SEGIDs to have this type
-    PREFIX=' {:6d}'
+    PREFIX='{:6d}'
     def __init__(self,conf):
         print('[info]Loading OBSLST')
         
@@ -183,7 +183,7 @@ class Data(object):
             
         # process each index
         for segid,ri in revind:
-            # set the suffix
+            # set the prefix
             pb.prefix=self.PREFIX.format(segid)            
                         
             # compute (x,y) pairs
@@ -222,7 +222,7 @@ class Data(object):
         
         detzpt=self.obsdata.detZeropoint
         for seghdu,imghdu in zip(seglist,imglist):
-            # set the suffix
+            # set the prefix
             pb.prefix=self.PREFIX.format(segid)            
 
             src=Source(imghdu,seghdu,detzpt,
