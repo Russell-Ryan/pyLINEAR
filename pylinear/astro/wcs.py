@@ -438,7 +438,7 @@ class WCS(object):
 
         r=np.hypot(x,y)
         
-        theta=np.where(r>0,np.arctan(self.__RADEG__/r),np.full_like(x,np.pi/2))
+        theta=np.where(r>=0,np.arctan(self.__RADEG__/r),np.full_like(x,np.pi/2))
         phi=np.arctan2(x,-y)
 
         
