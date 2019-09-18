@@ -437,14 +437,25 @@ class WCS(object):
     def __xy2sph__(self,x,y):
 
         r=np.hypot(x,y)
-        
+
+        # (0) original code.  worked well with arrays/scalars, but
+        # gave a RuntimeWarning when r==0
         #theta=np.where(r>0,np.arctan(self.__RADEG__/r),np.full_like(x,np.pi/2))
 
-        theta=np.full_like(r,np.pi/2.)
-        g=np.where(r>0)[0]
-        if len(g)!=0:
-            theta[g]=np.arctan(self.__RADEG__/r[g])
+        # (1) my attempt to fix the RuntimeWarning, but NP found that it
+        # failed when r was a scalar
+        #theta=np.full_like(r,np.pi/2.)
+        #g=np.where(r>0)[0]
+        #if len(g)!=0:
+        #    theta[g]=np.arctan(self.__RADEG__/r[g])
 
+
+        # (2) third attempt,  NP suggested this apprach as better
+        theta=np.full_like(r,np.pi/2.)
+        g=r>0
+        theta[g]=np.arctan(self.__RADEG__/r[g])
+
+        #################################################################
         
         phi=np.arctan2(x,-y)
 
