@@ -354,7 +354,7 @@ class Matrix(object):
                         if self.downtype:
                             iu=iu.astype(np.uint32)
                             ju=ju.astype(np.uint32)
-                            aiju=aiju.astype(np.uint32)
+                            aiju=aiju.astype(np.float32)
 
                         
                         # save the matrix elements
