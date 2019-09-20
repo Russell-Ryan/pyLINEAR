@@ -222,10 +222,18 @@ class Data(object):
         
         detzpt=self.obsdata.detZeropoint
         for seghdu,imghdu in zip(seglist,imglist):
+            segid=seghdu.header['SEGID']
+            
             # set the prefix
             pb.prefix=self.PREFIX.format(segid)            
 
-            src=Source(imghdu,seghdu,detzpt,
+            img=fitsimage.FitsImage()
+            img.loadHDU(imghdu)
+            
+            seg=fitsimage.FitsImage()
+            seg.loadHDU(seghdu)
+            
+            src=Source(img,seg,detzpt,
                        lamb0=keyword('LAMB0',seghdu),\
                        lamb1=keyword('LAMB1',seghdu),\
                        dlamb=keyword('DLAMB',seghdu),\
