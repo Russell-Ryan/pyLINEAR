@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import timeit
 import scipy.sparse.linalg as ssl
@@ -7,6 +8,8 @@ from . import lcurve,lsqrresult
 from pylinear import h5table
 from pylinear.utilities import progressbar,indices
 from .fluxunit import FLUXSCALE
+
+__RAM__ = False
 
 class Matrix(object):
     TTYPE='DDT'            # Which type of table to use
@@ -50,8 +53,9 @@ class Matrix(object):
         self.cwav=np.array([0,*cwav],dtype=cwav.dtype)
         
         # data to hold matrix/vector stuff
-        ii,jj,aij=[],[],[]
-        self.bi=[]
+        i,j,aij=[],[],[]
+
+        self.bi=np.array([],float)
         self.downtype=False    # attempt to save space
 
         # this was like 'i' before.  but now we need to increment for
@@ -65,21 +69,36 @@ class Matrix(object):
         pb=progressbar.ProgressBar(self.nimg,prefix='Loading ODTs')
 
         # output values
-        i,j,aij=[],[],[]
-        
+        if __RAM__:
+            import os,psutil      
+            pid = os.getpid()
+            py = psutil.Process(pid)
+
         for fltindex,(fltfile,flt) in enumerate(grisms):
             # update the progressbar
+            if __RAM__:
+                print("top:",py.memory_info()[0]/1024/1024/1024)
+
             pb.increment()
-
-            # do one FLT:            
+            
             data=self.loadFLT(flt,sources,extconf,mskconf,grismFF,pb,path)
+            
+            if __RAM__:
+                print("read loadFLT:",py.memory_info()[0]/1024/1024/1024)
 
-            # update the results
-            i.extend(data[0])
-            j.extend(data[1])
-            aij.extend(data[2])
+            i.append(data[0])
+            j.append(data[1])
+            aij.append(data[2])
+            if __RAM__:
+                print("stacked:",py.memory_info()[0]/1024/1024/1024)
 
-        
+        # stacking all the data into a 1D numpy array
+        i = np.hstack(i)
+        j = np.hstack(j)
+        aij = np.hstack(aij)
+        if __RAM__:
+            print("finished:",py.memory_info()[0]/1024/1024/1024)
+
         if len(i)==0:
             print('[alarm]Matrix has no elements.')
             #raise RuntimeError("matrix had no elements")
@@ -172,14 +191,19 @@ class Matrix(object):
     def loadFLT(self,flt,sources,extconf,mskconf,grismFF,pb,path):
 
         # output stuff
-        i,j,aij=[],[],[]
+        i = []
+        j = []
+        aij = []
         
         # make mask for this FLT
         masks=self.maskBeams(flt,mskconf,path)
-        
+        import pickle,os,psutil      
+        pid = os.getpid()
+        py = psutil.Process(pid)
         # open the H5Table
         with h5table.H5Table(flt.dataset,self.TTYPE,path=path) as h5:
-
+            if __RAM__:
+                print("start loadFLT:",py.memory_info()[0]/1024/1024/1024)
             # loop over detectors
             for detname,detimg in flt:
                 h5det=h5[detname]              # get the group
@@ -199,19 +223,29 @@ class Matrix(object):
                 if len(masks)!=0:
                     gpx &= masks[detname]
                 del dqa,dqahdr,unchdr      # don't need these anymore
-
+                
+                if __RAM__:
+                    print("calling loadBeams:",py.memory_info()[0]/1024/1024/1024)
                 # call a load beam
                 data=self.loadBeams(h5det,detconf,detimg,unc,gpx,sources,\
                                     grismFF)
                 self.imgindex+=1
+                if __RAM__:
+                    print("back from loadBeams:",py.memory_info()[0]/1024/1024/1024)
 
                 # collect the results
                 if len(data[3])!=0:
                     # collect the matrix terms
-                    i.extend(data[0])
-                    j.extend(data[1])
-                    aij.extend(data[2])
+                    # i.extend(data[0])
+                    # j.extend(data[1])
+                    # aij.extend(data[2])
 
+                    #i = np.hstack((i,data[0]))
+                    #j = np.hstack((j,data[1]))
+                    #aij = np.hstack((aij,data[2]))
+                    i.append(data[0])
+                    j.append(data[1])
+                    aij.append(data[2])
 
                     # compute pixel (x,y) pairs
                     xyg=indices.unique(np.array(data[3]))
@@ -237,12 +271,17 @@ class Matrix(object):
                         raise RuntimeError("Infinite values. aborting.")
 
                     # like IDL's push
-                    self.bi.extend(bi)
+                    #self.bi.extend(bi)
+                    self.bi = np.hstack((self.bi,bi))
                     del bi    # again, every little bit helps
                     
                 # save the memory usage
                 del data
-        
+        i = np.hstack(i)
+        j = np.hstack(j)
+        aij = np.hstack(aij)
+        if __RAM__:
+            print("done with loadBeams:",py.memory_info()[0]/1024/1024/1024)
 
         return i,j,aij
                 
@@ -278,7 +317,11 @@ class Matrix(object):
         thresh=np.float64(thresh)
         
         # output stuff
-        i,j,aij,xyg=[],[],[],[]
+        #i,j,aij,xyg=np.array([],int),np.array([],int),np.array([],float),np.array([],int)
+        i = []
+        j = []
+        aij = []
+        xyg = []
         
         
         # loop over beams in question
@@ -358,18 +401,30 @@ class Matrix(object):
 
                         
                         # save the matrix elements
-                        i.extend(list(iu))
-                        j.extend(list(ju))
-                        aij.extend(list(aiju))
+                        # i.extend(list(iu))
+                        # j.extend(list(ju))
+                        # aij.extend(list(aiju))
+
+                        #i = np.hstack((i,iu))
+                        #j = np.hstack((j,ju))
+                        #aij = np.hstack((aij,aiju))
+                        i.append(iu)
+                        j.append(ju)
+                        aij.append(aiju)
                         del iu,aiju
                         
                         # compute the unique positions
                         #imgind=indices.unique(imgind)   # this is not needed
                         xygind=indices.unique(xygind)
-                        xyg.extend(list(xygind))
+                        #xyg.extend(list(xygind))
+                        #xyg = np.hstack((xyg,xygind))
+                        xyg.append(xygind)
                         del xygind
                                                 
-                        
+        i = np.hstack(i)
+        j = np.hstack(j)
+        aij = np.hstack(aij)
+        xyg = np.hstack(xyg)
         return i,j,aij,xyg
                         
 
