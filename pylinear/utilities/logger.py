@@ -41,7 +41,7 @@ class Logger(object):
             self.logfile.write(' | '+now+' '*(self.num-len(now))+' |\n')
             self.logfile.write(' | '+self.num*' '+' |\n')
             self.logfile.write(' +-'+self.num*'-'+'-+\n\n\n')
-                
+            self.logfile.flush()
 
             
     def write(self,text):
@@ -68,14 +68,17 @@ class Logger(object):
         # always print that
         if self.logging:
             self.logfile.write(text)
-                    
+            self.logfile.flush()
+
+
         
 
         # original printing
         #self.stdout.write(text)
         #if self.logging:
         #    self.logfile.write(text)
-            
+        #    self.logfile.flush()
+        
     def flush(self):
         ''' obligatory method '''
         pass
