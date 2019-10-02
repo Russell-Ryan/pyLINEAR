@@ -9,7 +9,7 @@ from pylinear import h5table
 from pylinear.utilities import progressbar,indices
 from .fluxunit import FLUXSCALE
 
-__RAM__ = False
+#__RAM__ = False
 
 class Matrix(object):
     TTYPE='DDT'            # Which type of table to use
@@ -69,35 +69,35 @@ class Matrix(object):
         pb=progressbar.ProgressBar(self.nimg,prefix='Loading ODTs')
 
         # output values
-        if __RAM__:
-            import os,psutil      
-            pid = os.getpid()
-            py = psutil.Process(pid)
+        #if __RAM__:
+        #    import os,psutil      
+        #    pid = os.getpid()
+        #    py = psutil.Process(pid)
 
         for fltindex,(fltfile,flt) in enumerate(grisms):
             # update the progressbar
-            if __RAM__:
-                print("top:",py.memory_info()[0]/1024/1024/1024)
+            #if __RAM__:
+            #    print("top:",py.memory_info()[0]/1024/1024/1024)
 
             pb.increment()
             
             data=self.loadFLT(flt,sources,extconf,mskconf,grismFF,pb,path)
             
-            if __RAM__:
-                print("read loadFLT:",py.memory_info()[0]/1024/1024/1024)
+            #if __RAM__:
+            #    print("read loadFLT:",py.memory_info()[0]/1024/1024/1024)
 
             i.append(data[0])
             j.append(data[1])
             aij.append(data[2])
-            if __RAM__:
-                print("stacked:",py.memory_info()[0]/1024/1024/1024)
+            #if __RAM__:
+            #    print("stacked:",py.memory_info()[0]/1024/1024/1024)
 
         # stacking all the data into a 1D numpy array
         i = np.hstack(i)
         j = np.hstack(j)
         aij = np.hstack(aij)
-        if __RAM__:
-            print("finished:",py.memory_info()[0]/1024/1024/1024)
+        #if __RAM__:
+        #    print("finished:",py.memory_info()[0]/1024/1024/1024)
 
         if len(i)==0:
             print('[alarm]Matrix has no elements.')
@@ -202,8 +202,8 @@ class Matrix(object):
         py = psutil.Process(pid)
         # open the H5Table
         with h5table.H5Table(flt.dataset,self.TTYPE,path=path) as h5:
-            if __RAM__:
-                print("start loadFLT:",py.memory_info()[0]/1024/1024/1024)
+            #if __RAM__:
+            #    print("start loadFLT:",py.memory_info()[0]/1024/1024/1024)
             # loop over detectors
             for detname,detimg in flt:
                 h5det=h5[detname]              # get the group
@@ -224,14 +224,14 @@ class Matrix(object):
                     gpx &= masks[detname]
                 del dqa,dqahdr,unchdr      # don't need these anymore
                 
-                if __RAM__:
-                    print("calling loadBeams:",py.memory_info()[0]/1024/1024/1024)
+                #if __RAM__:
+                #    print("calling loadBeams:",py.memory_info()[0]/1024/1024/1024)
                 # call a load beam
                 data=self.loadBeams(h5det,detconf,detimg,unc,gpx,sources,\
                                     grismFF)
                 self.imgindex+=1
-                if __RAM__:
-                    print("back from loadBeams:",py.memory_info()[0]/1024/1024/1024)
+                #if __RAM__:
+                #    print("back from loadBeams:",py.memory_info()[0]/1024/1024/1024)
 
                 # collect the results
                 if len(data[3])!=0:
@@ -280,8 +280,8 @@ class Matrix(object):
         i = np.hstack(i)
         j = np.hstack(j)
         aij = np.hstack(aij)
-        if __RAM__:
-            print("done with loadBeams:",py.memory_info()[0]/1024/1024/1024)
+        #if __RAM__:
+        #    print("done with loadBeams:",py.memory_info()[0]/1024/1024/1024)
 
         return i,j,aij
                 
