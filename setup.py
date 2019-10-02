@@ -2,7 +2,7 @@ from setuptools import setup,find_packages
 import os
 
 
-PKG='pyLINEAR'
+PKG='pylinear'
 AUTHOR='Russell Ryan'
 info = {
     '__author__': AUTHOR,
