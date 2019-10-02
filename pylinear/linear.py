@@ -6,7 +6,7 @@ import timeit
 import numpy as np
 
 
-from .__init__ import __code__,__description__,__author__,\
+from .info import __code__,__description__,__author__,\
     __cite__,__version__,__email__
 from . import config
 from . import source
