@@ -10,7 +10,7 @@ info = {
     '__maintainer__': AUTHOR,
     '__email__': 'rryan@stsci.edu',
     '__license__': 'MIT',
-    '__cite__': 'http://adsabs.harvard.edu/abs/2018PASP..130c4501R',
+    '__cite__': 'https://ui.adsabs.harvard.edu/abs/2018PASP..130c4501R/abstract',
     '__description__':'Linear Extraction and Simulation of Slitless Spectroscopy',
     '__credits__': AUTHOR
 }

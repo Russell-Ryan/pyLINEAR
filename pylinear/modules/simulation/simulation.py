@@ -5,8 +5,7 @@ import datetime
 
 
 import h5axeconfig
-from pylinear.__init__ import __version__
-from pylinear.utilities import asciitable,indices,gzip,pool
+from pylinear.utilities import asciitable,indices,gzip,pool,pkginfo
 from pylinear.synthphot import SED
 from pylinear import grism,h5table
 from ..tabulation import tabulate
@@ -68,8 +67,8 @@ def simulateWorker(flt,conf,grismconf,grismflat,sources,overwrite=True):
     now=datetime.datetime.now()
           
     # update the PHDU for the output image
-    hdr.append(('ORIGIN','pyLINEAR','how the file was created'),end=True)
-    hdr.append(('VERSION',__version__,'pyLINEAR version'),end=True)
+    hdr.append(('ORIGIN',info['name'],'how the file was created'),end=True)
+    hdr.append(('VERSION',info['version'],'code version'),end=True)
     hdr.append(('DATE',now.strftime("%Y-%m-%d"),\
                 'date this file was written (yyyy-mm-dd)'),end=True)
 

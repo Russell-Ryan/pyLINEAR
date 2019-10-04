@@ -1,5 +1,6 @@
 
 from .logger import Logger
+from .pkginfo import pkginfo
 from .progressbar import ProgressBar
 from .asciitable import AsciiTable
 from .indexeddict import IndexedDict

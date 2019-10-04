@@ -6,24 +6,27 @@ import timeit
 import numpy as np
 
 
-from .info import __code__,__description__,__author__,\
-    __cite__,__version__,__email__
+#from .info import __code__,__description__,__author__,\
+#    __version__,__email__
 from . import config
 from . import source
 from . import modules
-from .utilities import Logger
+from .utilities import Logger,pkginfo
 
 
-def splashMessage(conf):
+
+
+
+def splashMessage(conf,info):
     ''' display a splash message when the pipeline is called '''
     txt=['','', \
-         '    '+__description__,\
+         '    '+info['description'],\
          '', \
-         '           by: '+__author__,\
+         '           by: '+info['author'],\
          '', \
-         '     citation: '+__cite__,\
-         '      version: '+__version__, \
-         '      contact: '+__email__, \
+         '     citation: http://adsabs.harvard.edu/abs/2018PASP..130c4501R',
+         '      version: '+info['version'], \
+         '      contact: '+info['author-email'], \
          '']
     for t in txt:
         print(t)
@@ -122,7 +125,6 @@ def runTime(t0,days=True,hours=True,minutes=True,seconds=True,lost=False):
 
 
 
-
 def linearPipeline(conf):
     ''' call the linear pipelines '''
 
@@ -145,12 +147,15 @@ def main():
     # get an initial time
     t0=timeit.default_timer()
 
+    # get the pkg info
+    info=pkginfo(__package__)
+    
     # read the defaults
     defs=config.Config(conffile=defaultConfig())
     #flat=defs.flatten()
     
     # parse the input     
-    p=ap.ArgumentParser(description=__code__+': '+__description__,\
+    p=ap.ArgumentParser(description=info['name']+': '+info['description'],
                         formatter_class=ap.ArgumentDefaultsHelpFormatter)
     p.add_argument('config',help='YAML configuration file',nargs='?',\
                    default='linear.yml')
@@ -173,7 +178,7 @@ def main():
         return
 
     # open my custom logging utilities
-    sys.stdout=Logger(__code__,logfile=args.logfile)
+    sys.stdout=Logger(info['name'],logfile=args.logfile)
     
     # load the configuration with defaults
     conf=loadConfig(args.config,defs)
@@ -181,7 +186,7 @@ def main():
     # if we have a valid config:
     if conf is not None:
         # print a message
-        splashMessage(conf)
+        splashMessage(conf,info)
     
         # call linear!
         linearPipeline(conf)
