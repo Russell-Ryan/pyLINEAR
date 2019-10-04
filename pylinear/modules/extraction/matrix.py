@@ -1,8 +1,10 @@
 import os
 import numpy as np
 import timeit
+import pdb
 import scipy.sparse.linalg as ssl
 from scipy.sparse import coo_matrix
+
 
 from . import lcurve,lsqrresult
 from pylinear import h5table
@@ -51,12 +53,15 @@ class Matrix(object):
         cwav=np.cumsum(nwav)    # get cumulative indices
         self.npar=cwav[-1]
         self.cwav=np.array([0,*cwav],dtype=cwav.dtype)
+
+
+        # specify the type of the INTs/FLTs
+        self.UINT=np.uint64
+        self.FLT=np.float64
         
         # data to hold matrix/vector stuff
         i,j,aij=[],[],[]
-
-        self.bi=np.array([],float)
-        self.downtype=False    # attempt to save space
+        self.bi=np.array([],self.FLT)
 
         # this was like 'i' before.  but now we need to increment for
         # each FLT and detector
@@ -76,10 +81,10 @@ class Matrix(object):
 
         for fltindex,(fltfile,flt) in enumerate(grisms):
             # update the progressbar
+            pb.increment()
+            
             #if __RAM__:
             #    print("top:",py.memory_info()[0]/1024/1024/1024)
-
-            pb.increment()
             
             data=self.loadFLT(flt,sources,extconf,mskconf,grismFF,pb,path)
             
@@ -117,7 +122,6 @@ class Matrix(object):
         
         # compute some things for ragged arrays
         if len(sources)==1:
-            #srcind=np.zeros(self.npar+1,dtype=int)
             srcind=np.zeros(self.npar,dtype=ju.dtype)
         else:
             srcind=np.digitize(ju,self.cwav)-1
@@ -129,7 +133,6 @@ class Matrix(object):
         except:
             print(len(ju),len(srcind),len(sources))
             print('[debug]something wrong in matrix.py')
-            import pdb
             pdb.set_trace()
             
         #self.lam=lam.astype(int)
@@ -137,16 +140,15 @@ class Matrix(object):
         # get the reverse indices
         segids=np.array(list(sources.keys()))
         self.ri=indices.reverse(segids[srcind])
-        self.hsrc=np.bincount(srcind.astype(int))
+        self.hsrc=np.bincount(srcind.astype(self.UINT))
 
         # recast somethings
-        aij=np.array(aij)
+        #aij=np.array(aij)
         
         # compute the frobenius norm
         self.frob=np.sqrt(np.sum(aij*aij))
         
-        
-        
+                
         # sparse matrix is constructed as (ic,jc,np.array(mat['aij']),dim)
         self.A=ssl.aslinearoperator(coo_matrix((aij,(ic,jc)),shape=dim))
         del aij
@@ -154,7 +156,7 @@ class Matrix(object):
 
 
         # record stuff
-        self.bi=np.array(self.bi)
+        #self.bi=np.array(self.bi)
         self.icomp=ic
         self.iuniq=iu
         self.jcomp=jc
@@ -191,15 +193,14 @@ class Matrix(object):
     def loadFLT(self,flt,sources,extconf,mskconf,grismFF,pb,path):
 
         # output stuff
-        i = []
-        j = []
-        aij = []
+        i,j,aij=[],[],[]
         
         # make mask for this FLT
         masks=self.maskBeams(flt,mskconf,path)
-        import pickle,os,psutil      
-        pid = os.getpid()
-        py = psutil.Process(pid)
+        #import pickle,os,psutil      
+        #pid = os.getpid()
+        #py = psutil.Process(pid)
+        
         # open the H5Table
         with h5table.H5Table(flt.dataset,self.TTYPE,path=path) as h5:
             #if __RAM__:
@@ -250,15 +251,15 @@ class Matrix(object):
                     # compute pixel (x,y) pairs
                     xyg=indices.unique(np.array(data[3]))
 
-                    # the following line was encapsulated in unqiify
+                    # the following line was encapsulated in uniqify
                     # (written by R Ryan), but needs to be explicitly
                     # put in for the differences with the way unique was
                     # implemented (could put sort flag in indices.unique)
                     xyg=np.sort(xyg)
                     
                     xg,yg=indices.one2two(xyg,detimg.naxis)
-                    xg=xg.astype(int)
-                    yg=yg.astype(int)
+                    xg=xg.astype(np.UINT)
+                    yg=yg.astype(np.UINT)
                     bi=sci[yg,xg]/unc[yg,xg]
                     del xg,yg     # clean up memory usage
                     
@@ -277,6 +278,7 @@ class Matrix(object):
                     
                 # save the memory usage
                 del data
+                
         i = np.hstack(i)
         j = np.hstack(j)
         aij = np.hstack(aij)
@@ -314,14 +316,10 @@ class Matrix(object):
                 
     def loadBeams(self,h5det,detconf,detimg,unc,gpx,sources,grismFF,\
                   thresh=-np.inf):
-        thresh=np.float64(thresh)
+        thresh=self.FLT(thresh)
         
         # output stuff
-        #i,j,aij,xyg=np.array([],int),np.array([],int),np.array([],float),np.array([],int)
-        i = []
-        j = []
-        aij = []
-        xyg = []
+        i,j,aij,xyg=[],[],[],[]
         
         
         # loop over beams in question
@@ -377,49 +375,40 @@ class Matrix(object):
                         val=ddt.val/unc[yg,xg]
                         
                         # compute the matrix element
-                        iii=ddt.xyg.astype(np.uint64)+\
-                             self.imgindex*detimg.npix
+                        iii=ddt.xyg.astype(self.UINT)+self.imgindex*detimg.npix
                         jjj=lamind+self.cwav[srcindex]
                         ij=jjj+self.npar*iii
-                        ij=ij.astype(np.uint64)
+                        ij=ij.astype(self.UINT)
                         del iii,jjj
                         
                         # decimate over repeated indices
                         aiju,iju=indices.decimate(ij,val)
-                        
+                                                
                         # compute matrix coordinates
                         iu,ju=np.divmod(iju,self.npar)
                     
                         # compute pixel positions
                         imgind,xygind=np.divmod(iu,detimg.npix)
 
-                        # downtype to save space
-                        if self.downtype:
-                            iu=iu.astype(np.uint32)
-                            ju=ju.astype(np.uint32)
-                            aiju=aiju.astype(np.float32)
-
-                        
-                        # save the matrix elements
-                        # i.extend(list(iu))
-                        # j.extend(list(ju))
-                        # aij.extend(list(aiju))
-
-                        #i = np.hstack((i,iu))
-                        #j = np.hstack((j,ju))
-                        #aij = np.hstack((aij,aiju))
-                        i.append(iu)
-                        j.append(ju)
-                        aij.append(aiju)
-                        del iu,aiju
-                        
                         # compute the unique positions
                         #imgind=indices.unique(imgind)   # this is not needed
                         xygind=indices.unique(xygind)
-                        #xyg.extend(list(xygind))
-                        #xyg = np.hstack((xyg,xygind))
+                        
+                        # force types
+                        iu=iu.astype(self.UINT)
+                        ju=ju.astype(self.UINT)
+                        aiju=aiju.astype(self.FLT)
+                        xygind=xygind.astype(self.UINT)                        
+                        
+                        # save the matrix elements and pixel indices
+                        i.append(iu)
+                        j.append(ju)
+                        aij.append(aiju)
                         xyg.append(xygind)
-                        del xygind
+                        del iu,ju,aiju,xygind
+
+
+                        
                                                 
         i = np.hstack(i)
         j = np.hstack(j)
@@ -485,9 +474,6 @@ class Matrix(object):
                 damp=0.
             else:
                 damp=np.power(10.,ldamp)*self.frob
-
-
-                
                 
             # run LSQR
             print("[info]Starting LSQR log(l) = {0:+.3f}".format(ldamp))
@@ -504,16 +490,15 @@ class Matrix(object):
             if x0 is None:
                 bi=self.bi
             else:
-                bi=self.bi-self.A.matvec(x0)
+                bi=self.bi-self.A.matvec(x0)  # solve around damping target
             
             r=ssl.lsqr(self.A,bi,damp=damp,show=show,calc_var=True,\
                        atol=atol,btol=btol,conlim=conlim,iter_lim=self.maxiter)
+
+            # put the damping target back in
             if x0 is not None:
                 r=(r[0]+x0,*r[1:])
 
-
-            # there doesn't seem to be any difference whatsoever.
-                
 
             # get the final time
             t2=timeit.default_timer()
