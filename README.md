@@ -27,6 +27,11 @@ This will install and compile all of the dependencies for pylinear.  Just for th
 | [shapely](https://pypi.org/project/Shapely/) | For some cool geometry things|
 
 
+### Helpful Suggestion:
+
+Since pylinear outputs the spectroscopy in an HDF5 file, you might want a user-friendly interface to inspect an HDF5 file.  I recommend the [HDF Viewer](https://www.hdfgroup.org/downloads/hdfview/), which is free to download (but you will need to register with HDFgroup).
+
+
 
 ## Test Scripts
 
