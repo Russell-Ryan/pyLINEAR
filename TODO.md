@@ -35,7 +35,6 @@ if __name__=='__main__':
 
 3. pixfrac in the drizzling
 
-4. create residuals
-
+4. ~~create residuals~~
 
 
