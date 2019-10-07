@@ -41,7 +41,6 @@ setup(name=PKG,
                    'Intended Audience :: Science/Research',
                    'Topic :: Scientific/Engineering :: Astronomy',],
       packages=find_packages(),
-      packages=find_packages(),\
       package_data={'pylinear':['config/defaults.yml','synthphot/filters/*filt']})
 
 
