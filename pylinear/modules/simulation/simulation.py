@@ -5,7 +5,7 @@ import datetime
 import pkginfo
 
 import h5axeconfig
-from pylinear.utilities import asciitable,indices,gzip,Pool#,pkginfo
+from pylinear.utilities import asciitable,indices,gzip,Pool
 from pylinear.synthphot import SED
 from pylinear import grism,h5table
 from ..tabulation import tabulate

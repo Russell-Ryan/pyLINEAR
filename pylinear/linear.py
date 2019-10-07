@@ -9,7 +9,7 @@ import pkginfo
 from . import config
 from . import source
 from . import modules
-from .utilities import Logger#,pkginfo
+from .utilities import Logger
 
 
 
