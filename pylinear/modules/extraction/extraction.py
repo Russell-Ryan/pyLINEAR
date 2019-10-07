@@ -148,7 +148,12 @@ def extractSources(conf,sources,grisms,extconf,mskconf,grismFF,grpid,\
             dset.attrs['nwalkers']=np.uint16(mcmcconf['nwalkers'])
             dset.attrs['nstep']=np.uint32(mcmcconf['nstep'])
             dset.attrs['burn']=np.float32(mcmcconf['burn'])
-                        
+
+
+    # update the residuals
+    residuals.update(conf['residuals'],grisms,extconf,mat,result)
+        
+            
 
 def h5yaml(h5,conf):
     for k,v in conf.items():
@@ -216,6 +221,10 @@ def extract(conf,sources):
         h5s=h5.create_group('SPECTRA')
         h5s.attrs['nsource']=np.uint32(len(sources))
 
+
+        # create dummy files for the residuals
+        residuals.create(conf['residuals'],grisms,extconf)
+        
         
         # extract the sources based on a grouping choice
         if conf['group']:
@@ -235,11 +244,7 @@ def extract(conf,sources):
         # put in some data for the groups
         h5g.attrs['ngroup']=np.uint16(ngrp)
 
-    if conf['residuals']['perform']:
-        print('[debug]Must code up the new residuals plan.')
 
-
-
-    # update the residuals
-    #residuals.computeResiduals(conf['residuals'],grisms,extconf,mat,results)
+    # gzip the residuals
+    residuals.gzip(conf['residuals'],grisms)
     

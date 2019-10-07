@@ -5,7 +5,7 @@ import datetime
 
 
 import h5axeconfig
-from pylinear.utilities import asciitable,indices,gzip,pool,pkginfo
+from pylinear.utilities import asciitable,indices,gzip,Pool,pkginfo
 from pylinear.synthphot import SED
 from pylinear import grism,h5table
 from ..tabulation import tabulate
@@ -50,10 +50,10 @@ def addNoise(conf,sci):
 
 
 
-def simulateWorker(flt,conf,grismconf,grismflat,sources,overwrite=True):
+def simulateWorker(flt,conf,grismconf,grismflat,sources,info,overwrite=True):
     ''' helper function to facilitate multiprocessing '''
 
-    
+
     path=conf['tables']['path']
     
     # make the output fits file
@@ -203,7 +203,7 @@ def simulateWorker(flt,conf,grismconf,grismflat,sources,overwrite=True):
         
     # output the file
     outfile=flt.filename
-    print('writing simulated image {}'.format(outfile))
+    #print('[info]writing simulated image {}'.format(outfile))
     hdul.writeto(outfile,overwrite=overwrite)
 
     # do we gzip?
@@ -220,6 +220,11 @@ def simulate(conf,sources):
         return
     print("[info]Simulating FLTs")
 
+    # get pkginfo
+    info=pkginfo('pylinear')
+
+
+    
     # get the grism config data
     grismconf=h5axeconfig.Camera(conf['calib']['h5conf'],conf['grism'],\
                                  beams=conf['beam'])
@@ -254,11 +259,16 @@ def simulate(conf,sources):
             # rescale the spectrum
             sed*=(modflam/aveflam)
 
+            sed.write('{}.sed'.format(segid))
+
+            
             # reset the spectrum
             sources[segid].sed=sed
     
     # the things that do not change
-    args=(conf,grismconf,grismflat,sources)
+    args=(conf,grismconf,grismflat,sources,info)
     
     # use my version of pool to codify the use of this
-    pool.pool(simulateWorker,grisms.values(),*args,ncpu=conf['cpu']['ncpu'])
+    #pool.pool(simulateWorker,grisms.values(),*args,ncpu=conf['cpu']['ncpu'])
+    p=Pool(ncpu=conf['cpu']['ncpu'])
+    filenames=p(simulateWorker,grisms.values,*args,prefix='Simulating FLTs')

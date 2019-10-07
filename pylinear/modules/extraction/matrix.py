@@ -140,7 +140,7 @@ class Matrix(object):
         # get the reverse indices
         segids=np.array(list(sources.keys()))
         self.ri=indices.reverse(segids[srcind])
-        self.hsrc=np.bincount(srcind.astype(self.UINT))
+        self.hsrc=np.bincount(srcind).astype(self.UINT)
 
         # recast somethings
         #aij=np.array(aij)
@@ -258,8 +258,8 @@ class Matrix(object):
                     xyg=np.sort(xyg)
                     
                     xg,yg=indices.one2two(xyg,detimg.naxis)
-                    xg=xg.astype(np.UINT)
-                    yg=yg.astype(np.UINT)
+                    xg=xg.astype(self.UINT)
+                    yg=yg.astype(self.UINT)
                     bi=sci[yg,xg]/unc[yg,xg]
                     del xg,yg     # clean up memory usage
                     

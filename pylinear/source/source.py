@@ -39,7 +39,6 @@ class Source(WCS,ExtractionParameters,Direct):
         # these morphological operations restrict the number of pixels
         # that belong to the SEGmap that will be processed.
         if morph is not None:
-            print('morphology')
             operations=[self.smooth,self.erode]
             for operation in operations:
                 seg,img=operation(seg,img,morph)
@@ -179,15 +178,24 @@ class Source(WCS,ExtractionParameters,Direct):
     
         dim=np.int(2*rad+1)
         kern=np.ones((dim,dim),dtype=np.int)
-    
-        eroded=sn.binary_erode(seg.data == self.segid,
-                               structure=kern).astype(np.int)
+
+        good=seg.data == self.segid
+
+        flux0=np.sum(img.data[good])
+
+        eroded=sn.binary_erode(good,structure=kern).astype(np.int)
     
         b=np.where((seg.data != 0) & (seg.data!=self.segid))
         g=np.where(eroded)
         eroded[g]=seg.data[g]
         eroded[b]=seg.data[b]
-    
+
+
+        flux1=np.sum(img.data[b])
+        print(flux0/flux1)
+        print('scale the weights by this amount? or apply it post facto?')
+
+        
         seg.data=eroded
         seg[key]=rad
         return seg,img

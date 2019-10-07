@@ -10,7 +10,13 @@ class SED(object):
             self.load_from_file(filename)
         if len(args)==2:
             self.load_from_data(*args)
-            
+
+
+    def write(self,filename):
+        with open(filename,'w') as fp:
+            for l,f in zip(self.lamb,self.flam):
+                print('{}  {}'.format(l,f),file=fp)
+                
     def load_from_data(self,lamb,flam):
         if len(lamb) == len(flam):
             self.lamb=np.array(lamb)
