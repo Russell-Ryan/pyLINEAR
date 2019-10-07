@@ -5,9 +5,6 @@ import sys
 import timeit
 import numpy as np
 
-
-#from .info import __code__,__description__,__author__,\
-#    __version__,__email__
 from . import config
 from . import source
 from . import modules
@@ -131,13 +128,21 @@ def linearPipeline(conf):
     # load sources (includes spectra) --- this also applies cuts for valid
     # sources (ie. too faint, too small, etc.)
     sources=source.Data(conf['sources'])
+    
+    # make a look-up table for the callable methods
+    items=[(modules.simulate,'simulation'),
+           (modules.extract,'extraction')]
+    
+    # call the modules
+    [method(conf['modules'][key],sources) for (method,key) in items]
+    
+    
 
     # call the modules
-    modconf=conf['modules']
-    
-    modules.simulate(modconf['simulation'],sources)
-    modules.extract(modconf['extraction'],sources)
-#    modules.cutout(modconf['cutout'],sources)
+    #modconf=conf['modules']    
+    #modules.simulate(modconf['simulation'],sources)
+    #modules.extract(modconf['extraction'],sources)
+    #modules.cutout(modconf['cutout'],sources)
  
 
 
