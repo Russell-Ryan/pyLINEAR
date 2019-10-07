@@ -4,11 +4,12 @@ import shutil
 import sys
 import timeit
 import numpy as np
+import pkginfo
 
 from . import config
 from . import source
 from . import modules
-from .utilities import Logger,pkginfo
+from .utilities import Logger#,pkginfo
 
 
 
@@ -17,13 +18,13 @@ from .utilities import Logger,pkginfo
 def splashMessage(conf,info):
     ''' display a splash message when the pipeline is called '''
     txt=['','', \
-         '    '+info['description'],\
+         '    '+info.description,\
          '', \
-         '           by: '+info['author'],\
+         '           by: '+info.author,\
          '', \
          '     citation: http://adsabs.harvard.edu/abs/2018PASP..130c4501R',
-         '      version: '+info['version'], \
-         '      contact: '+info['author-email'], \
+         '      version: '+info.version, \
+         '      contact: '+info.author_email, \
          '']
     for t in txt:
         print(t)
@@ -153,14 +154,15 @@ def main():
     t0=timeit.default_timer()
 
     # get the pkg info
-    info=pkginfo(__package__)
+    #info=pkginfo(__package__)
+    info=pkginfo.Installed(__package__)
     
     # read the defaults
     defs=config.Config(conffile=defaultConfig())
     #flat=defs.flatten()
     
     # parse the input     
-    p=ap.ArgumentParser(description=info['name']+': '+info['description'],
+    p=ap.ArgumentParser(description=info.name+': '+info.description,
                         formatter_class=ap.ArgumentDefaultsHelpFormatter)
     p.add_argument('config',help='YAML configuration file',nargs='?',\
                    default='linear.yml')
@@ -183,7 +185,7 @@ def main():
         return
 
     # open my custom logging utilities
-    sys.stdout=Logger(info['name'],logfile=args.logfile)
+    sys.stdout=Logger(info.name,logfile=args.logfile)
     
     # load the configuration with defaults
     conf=loadConfig(args.config,defs)
