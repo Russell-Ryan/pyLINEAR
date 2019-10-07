@@ -19,13 +19,13 @@ This will install and compile all of the dependencies for *pylinear*.  Just for 
 
 | Package                    | Description |
 |----------------------------|-------------|
-| [h5axeconfig](https://github.com/Russell-Ryan/h5axeconfig) | Does basic processing with the grism configuration |
+| [h5axeconfig](https://github.com/Russell-Ryan/h5axeconfig)* | Does basic processing with the grism configuration |
 | [h5py](https://pypi.org/project/h5py/) | Most of the output files are in [HDF5](https://www.hdfgroup.org/solutions/hdf5/) format, so you'll need this |
 | [ruamel.yaml](https://pypi.org/project/ruamel.yaml/) | For reading and working with configuration data |
 | [wget](https://pypi.org/project/wget/) | For downloading data from the web|
 | [emcee](https://github.com/dfm/emcee) | For the MCMC simulations to compute error bars |
 | [shapely](https://pypi.org/project/Shapely/) | For some cool geometry things|
-
+*Also developed by Russell Ryan.
 
 > **Helpful Tip:** Since *pylinear* outputs the spectroscopy in an HDF5 file, you might want a user-friendly interface to inspect an HDF5 file.  I recommend the [HDF Viewer](https://www.hdfgroup.org/downloads/hdfview/), which is free to download (but you will need to register with HDFgroup).
 
