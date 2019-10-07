@@ -36,17 +36,9 @@ class Matrix(object):
         # double check the type of maxiter
         if self.maxiter is not None:
             self.maxiter=int(self.maxiter)
-            
-        ## get extraction properties for the sources
-        #nwav=[]
-        #for segid,src in sources:
-        #    for key in ['lamb0','lamb1','dlamb']:
-        #        self.epar2(src,conf,extconf,key)
-        #    #if src.lamb0 is None: src.lamb0=self.epar(conf,extconf,'lamb0')
-        #    #if src.lamb1 is None: src.lamb1=self.epar(conf,extconf,'lamb1')
-        #    #if src.dlamb is None: src.dlamb=self.epar(conf,extconf,'dlamb')
-        #    nwav.append(src.nwav)
 
+
+        
 
         # get number of wavelengths to use
         nwav=[src.nwav for segid,src in sources]
@@ -134,29 +126,21 @@ class Matrix(object):
             print(len(ju),len(srcind),len(sources))
             print('[debug]something wrong in matrix.py')
             pdb.set_trace()
-            
-        #self.lam=lam.astype(int)
-        
+                    
         # get the reverse indices
         segids=np.array(list(sources.keys()))
         self.ri=indices.reverse(segids[srcind])
         self.hsrc=np.bincount(srcind).astype(self.UINT)
 
-        # recast somethings
-        #aij=np.array(aij)
-        
-        # compute the frobenius norm
+        # compute the frobenius norm (to prepare for inversion later)
         self.frob=np.sqrt(np.sum(aij*aij))
-        
-                
+                        
         # sparse matrix is constructed as (ic,jc,np.array(mat['aij']),dim)
         self.A=ssl.aslinearoperator(coo_matrix((aij,(ic,jc)),shape=dim))
         del aij
 
 
-
         # record stuff
-        #self.bi=np.array(self.bi)
         self.icomp=ic
         self.iuniq=iu
         self.jcomp=jc
@@ -164,21 +148,6 @@ class Matrix(object):
         
         # for making a plot
         self.lcurve=lcurve.LCurve(self.frob)
-
-    #def epar2(self,src,conf,extconf,key):
-    #    if getattr(src,key) is None:
-    #        val=conf[key]
-    #        if val is None:
-    #            val=getattr(extconf,key)
-    #        setattr(src,key,val)
-    #        
-    #        
-    #def epar(self,conf,extconf,key):
-    #    val=conf[key]
-    #    if val is None:
-    #        return getattr(extconf,key)
-    #    else:
-    #        return val
 
     def __len__(self):
         return len(self.A.A.data)
@@ -240,10 +209,6 @@ class Matrix(object):
                     # i.extend(data[0])
                     # j.extend(data[1])
                     # aij.extend(data[2])
-
-                    #i = np.hstack((i,data[0]))
-                    #j = np.hstack((j,data[1]))
-                    #aij = np.hstack((aij,data[2]))
                     i.append(data[0])
                     j.append(data[1])
                     aij.append(data[2])
@@ -252,9 +217,10 @@ class Matrix(object):
                     xyg=indices.unique(np.array(data[3]))
 
                     # the following line was encapsulated in uniqify
-                    # (written by R Ryan), but needs to be explicitly
-                    # put in for the differences with the way unique was
-                    # implemented (could put sort flag in indices.unique)
+                    # (written by R Ryan) in the IDL version.  But,
+                    # due to differences in the way that uniq in IDL
+                    # works, this was needed (could put flag in
+                    # indices.unique?)
                     xyg=np.sort(xyg)
                     
                     xg,yg=indices.one2two(xyg,detimg.naxis)
@@ -429,7 +395,7 @@ class Matrix(object):
             raise NotImplementedError("Invalid File type")
                 
     def residualMatrix(self,j,resid):
-        g=np.where((self.A.A.col == j))[0]
+        g=np.where(self.A.A.col == j)[0]
         
         if len(g)==0:
             print('[warn]No valid matrix elements for column={}'.format(j))
