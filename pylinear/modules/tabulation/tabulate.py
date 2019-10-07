@@ -4,7 +4,7 @@ import os
 
 from pylinear import h5table
 from pylinear.h5table import h5utils
-from pylinear.utilities import indices,pool
+from pylinear.utilities import indices,Pool
 
 TTYPE='DDT'
 
@@ -257,7 +257,8 @@ def tabulate(conf,grisms,sources,grismconf,ttype):
     # run the code
     #q=[func(flt,*args) for name,flt in grisms]
     #pool.pool(func,grisms.values(),*args,ncpu=conf['cpu']['ncpu'])
-    p=pool.Pool(ncpu=conf['cpu']['ncpu'])
+    #p=pool.Pool(ncpu=conf['cpu']['ncpu'])
+    p=Pool(ncpu=conf['cpu']['ncpu'])
     filenames=p(func,grisms.values,*args,prefix='Making ODTs')
 
     return filenames
