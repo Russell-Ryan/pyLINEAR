@@ -94,7 +94,7 @@ def loadConfig(userfile,defs):
     if userfile is not None and os.path.isfile(userfile):
         user=config.Config(conffile=userfile)
         defs.conf=updateDefaults(defs.conf,user.conf)
-    defs.conffile=user.conffile
+        defs.conffile=user.conffile
 
     return defs    
 
