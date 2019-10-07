@@ -6,7 +6,7 @@ For any questions or comments, please contact [Russell Ryan](mailto:rryan@stsci.
 
 ## Requirments
 
-pylinear is written for python 3.7.  I recommend installing this with STScI [miniconda](https://astroconda.readthedocs.io/en/latest/).  Let me know if you have questions about this.
+*pylinear* is written for python 3.7.  I recommend installing this with STScI [miniconda](https://astroconda.readthedocs.io/en/latest/).  Let me know if you have questions about this.
 
 ## Installation
 
@@ -15,7 +15,7 @@ The installation is now down entirely via pip.
 ```
 pip install git+https://github.com/russell-ryan/pylinear 
 ```
-This will install and compile all of the dependencies for pylinear.  Just for the record this will get
+This will install and compile all of the dependencies for *pylinear*.  Just for the record this will get
 
 | Package                    | Description |
 |----------------------------|-------------|
@@ -27,15 +27,13 @@ This will install and compile all of the dependencies for pylinear.  Just for th
 | [shapely](https://pypi.org/project/Shapely/) | For some cool geometry things|
 
 
-### Helpful Suggestion:
-
-Since pylinear outputs the spectroscopy in an HDF5 file, you might want a user-friendly interface to inspect an HDF5 file.  I recommend the [HDF Viewer](https://www.hdfgroup.org/downloads/hdfview/), which is free to download (but you will need to register with HDFgroup).
+> **Helpful Tip:** Since *pylinear* outputs the spectroscopy in an HDF5 file, you might want a user-friendly interface to inspect an HDF5 file.  I recommend the [HDF Viewer](https://www.hdfgroup.org/downloads/hdfview/), which is free to download (but you will need to register with HDFgroup).
 
 
 
 ## Test Scripts
 
-I currently do not have test scripts for pylinear, but the subsystems that I developed (h5axeconfig and polyclip) do have test scripts. 
+I currently do not have test scripts for *pylinear*, but the subsystems that I developed (h5axeconfig and polyclip) do have test scripts. 
 
 ```
 TBD
@@ -53,6 +51,6 @@ TBD
 
 ## Citations
 
-If you find this code useful, please cite our work at: [Ryan, R. E., Jr.; Casertano, S.; Pirzkal, N. 2018, PASP, 130, 4501](https://ui.adsabs.harvard.edu/abs/2018PASP..130c4501R/abstract)
+If you find this code useful, then we kindly ask that you cite our work: [Ryan, R. E., Jr.; Casertano, S.; Pirzkal, N. 2018, PASP, 130, 4501](https://ui.adsabs.harvard.edu/abs/2018PASP..130c4501R/abstract)
 
 
