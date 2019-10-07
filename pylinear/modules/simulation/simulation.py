@@ -259,9 +259,7 @@ def simulate(conf,sources):
             # rescale the spectrum
             sed*=(modflam/aveflam)
 
-            
-
-            
+                       
             # reset the spectrum
             sources[segid].sed=sed
     
