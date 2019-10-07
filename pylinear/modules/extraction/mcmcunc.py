@@ -68,7 +68,7 @@ def mcmcUncertainties(conf,mat,result):
     unc=list(zip(*unc))
     result.lo=np.array(unc[0])
     result.hi=np.array(unc[1])
-    del unc
+    
 
 
     return result
