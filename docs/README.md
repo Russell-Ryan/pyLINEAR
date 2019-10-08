@@ -13,7 +13,7 @@ f125w_drz.fits    hst_wfc3_f125w
 
 *I have provided a few broadband filters commonly used with HST/ACS and HST/WFC3, they are specified in [pylinear/synthphot/filters.py](https://github.com/Russell-Ryan/pyLINEAR/blob/master/pylinear/synthphot/filters.py "filters.py").  It is trivial to update this file and include additional files.*
 
---
+---
 
 
 ### What is the format of the sed.lst file?
@@ -27,7 +27,7 @@ f125w_drz.fits    hst_wfc3_f125w
 ```
 *The spectra will be normalized based on the brightness measured in the obs.lst file above.*
 
---
+
 
 ### What about noise in the simulated images?
 
