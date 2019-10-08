@@ -1,7 +1,5 @@
 # FAQs
-
-[What is the format of the obs.lst file?][]  
-[What is the format of the sed.lst file?][]
+[test link](#what-is-the-format-of-the-sed.lst-file?)
 
 
 
