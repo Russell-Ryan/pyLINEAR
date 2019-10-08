@@ -44,7 +44,11 @@ def lnlike(x,A,bi):
 
 
 def mcmcStart(data,mat,resid,conf):
-    return mp_mcmcUncertainty(*mat.residualMatrix(data[0],resid),data[1],conf)
+    j,sig=*data
+    A,bi=mat.residualMatrix(data[0],resid)
+    lo,hi,rms=mp_mcmcUncertainty(A,bi,sig,conf)
+    return lo,hi,rms
+    #return mp_mcmcUncertainty(*mat.residualMatrix(data[0],resid),data[1],conf)
 
 
 def mcmcUncertainties(conf,mat,result):
@@ -58,7 +62,7 @@ def mcmcUncertainties(conf,mat,result):
     resid=mat.bi-mat.A.matvec(result.x)
 
     # set up the iterates
-    iters=[(j,f) for j,f in enumerate(result.lo)]
+    iters=[(j,sig) for j,sig in enumerate(result.lo)]
     
     # do the processing
     p=pool.Pool(ncpu=conf['cpu']['ncpu'])
