@@ -1,5 +1,4 @@
 # FAQs
---
 
 ### What is the format of the obs.lst file?
 *This should be an ascii file with two columns (space delimited).  The first column should be the full path to a direct image (i.e. mosaicked image).  The second column should specify the filter, serialized as TELESCOPE\_INSTRUMENT\_FILTER (e.g. hst\_wfc3\_f105w).*
@@ -27,7 +26,7 @@ f125w_drz.fits    hst_wfc3_f125w
 ```
 *The spectra will be normalized based on the brightness measured in the obs.lst file above.*
 
-
+---
 
 ### What about noise in the simulated images?
 
@@ -35,6 +34,6 @@ f125w_drz.fits    hst_wfc3_f125w
 
 *The simulated images will have an uncertainty array set to unity (floating-point) and a data-quality array set to zero (unsigned integer).  These can be simply modified by whatever noise strategy you see fit; I would recommend this for the (re-)extraction to make sense. __Stay tuned if you want my noise strategies.__*
 
-
+---
 
 
