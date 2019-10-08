@@ -1,5 +1,8 @@
 # FAQs
-[test link](#what-is-the-format-of-the-sedlst-file)
+[What is the format of the obs.lst file?](#what-is-the-format-of-the-obs.lst file?)  
+[What is the format of the sed.lst file?](#what-is-the-format-of-the-sedlst-file)  
+[Adding noise to simulated images](#what-about-noise-in-the-simulated-images)
+
 
 ### What is the format of the obs.lst file? 
 *This should be an ascii file with two columns (space delimited).  The first column should be the full path to a direct image (i.e. mosaicked image).  The second column should specify the filter, serialized as TELESCOPE\_INSTRUMENT\_FILTER (e.g. hst\_wfc3\_f105w).*
