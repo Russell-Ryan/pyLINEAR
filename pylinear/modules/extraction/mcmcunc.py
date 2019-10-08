@@ -44,7 +44,7 @@ def lnlike(x,A,bi):
 
 
 def mcmcStart(data,mat,resid,conf):
-    j,sig=*data
+    j,sig=data[0],data[1]
     A,bi=mat.residualMatrix(data[0],resid)
     lo,hi,rms=mp_mcmcUncertainty(A,bi,sig,conf)
     return lo,hi,rms
