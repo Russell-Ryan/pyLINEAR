@@ -1,5 +1,5 @@
 # FAQs
-[What is the format of the obs.lst file?](#what-is-the-format-of-the-obs.lst file?)  
+[What is the format of the obs.lst file?](#what-is-the-format-of-the-obslst-file)  
 [What is the format of the sed.lst file?](#what-is-the-format-of-the-sedlst-file)  
 [Adding noise to simulated images](#what-about-noise-in-the-simulated-images)
 
