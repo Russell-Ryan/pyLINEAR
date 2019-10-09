@@ -8,18 +8,13 @@ from pylinear.utilities import indices,Pool
 
 TTYPE='DDT'
 
-#def detGroup(h5,det,detconf):
-#    if det in h5:
-#        detgrp=h5[det]
-#    else:
-#        detgrp=h5.create_group(det)
-#    return detgrp
-
-
 def makeODTs(grism,sources,grismconf,path,remake,nsub):
     # create the table
     tab=h5table.H5Table(grism.dataset,TTYPE,path=path)
-    
+
+
+    pixfrac=1.0   # DO NOT CHANGE THIS.  NOT YET UNDERSTOOD!
+        
     # remake the table?
     #if not (remake or not os.path.isfile(tab.filename)):
     #    return tab.filename
@@ -48,7 +43,6 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
         
         # process each detector
         for det,detconf in grismconf:
-            #detgrp=detGroup(h5,det,detconf)
             detgrp=h5.require_group(det)
             
             # get the center of the detector
@@ -100,7 +94,7 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
                         
                         # compute ratio of pixel area between
                         # the FLT and the source
-                        pixrat=detpixelarea/src.pixelarea
+                        pixrat=detpixelarea/(pixfrac*src.pixelarea)
 
                         # make an ODT
                         odt=h5table.ODT(src.segid,wav=wav)
@@ -112,7 +106,8 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
                             xg,yg=src.xy2xy(xd+dx,yd+dy,thisGrism)
 
                             # disperse those corners
-                            xyg,lam,val=beamconf.specDrizzle(xg,yg,wav)
+                            xyg,lam,val=beamconf.specDrizzle(xg,yg,wav,
+                                                             pixfrac=pixfrac)
                             if len(xyg)!=0:
                                 
                                 # create the PDT
@@ -177,11 +172,6 @@ def makeOMTs(flt,sources,grismconf,path,remake,nsub):
         for det,detconf in grismconf:
 
             detgrp=h5.require_group(det)
-
-            #if det in h5:
-            #    detgrp=h5[det]
-            #else:
-            #    detgrp=h5.create_group(det)
 
             # get the center of the detector
             xc,yc=detconf.naxis/2.
