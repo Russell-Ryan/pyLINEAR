@@ -65,14 +65,14 @@ def updateDefaults(defs,user):
 
 
 
-def applyUser(user,defs):
-    for k,v in defs.items():
-        if isinstance(v,dict):
-            user=applyUser(user[k],v)
-        else:
-            if k not in user:
-                user[k]=defs[k]
-    return user
+#def applyUser(user,defs):
+#    for k,v in defs.items():
+#        if isinstance(v,dict):
+#            user=applyUser(user[k],v)
+#        else:
+#            if k not in user:
+#                user[k]=defs[k]
+#    return user
 
 
 
@@ -86,10 +86,7 @@ def defaultConfig():
     
 def loadConfig(userfile,defs):
     ''' copy the default configuration file to the CWD '''
-    
-    # get the default configuration
-    #defs=config.Config(conffile=defaultConfig())    # defaults
-    
+        
     # look to see if a config file was specified
     if userfile is not None and os.path.isfile(userfile):
         user=config.Config(conffile=userfile)
@@ -98,7 +95,7 @@ def loadConfig(userfile,defs):
 
     return defs    
 
-def runTime(t0,days=True,hours=True,minutes=True,seconds=True,lost=False):
+def printRunTime(t0,days=True,hours=True,minutes=True,seconds=True,lost=False):
     ''' compute the run time in a special string format '''
     t1=timeit.default_timer()
     
@@ -123,7 +120,7 @@ def runTime(t0,days=True,hours=True,minutes=True,seconds=True,lost=False):
 
 
 
-def linearPipeline(conf):
+def runLinear(conf):
     ''' call the linear pipelines '''
 
     # load sources (includes spectra) --- this also applies cuts for valid
@@ -138,52 +135,48 @@ def linearPipeline(conf):
     [method(conf['modules'][key],sources) for (method,key) in items]
     
     
-
-    # call the modules
-    #modconf=conf['modules']    
-    #modules.simulate(modconf['simulation'],sources)
-    #modules.extract(modconf['extraction'],sources)
-    #modules.cutout(modconf['cutout'],sources)
  
 
 
 def main():
-    ''' primary entry point to the code '''
+    ''' entry point for command-line '''
 
     # get an initial time
     t0=timeit.default_timer()
 
     # get the pkg info
-    #info=pkginfo(__package__)
     info=pkginfo.Installed(__package__)
     
     # read the defaults
     defs=config.Config(conffile=defaultConfig())
-    #flat=defs.flatten()
     
     # parse the input     
     p=ap.ArgumentParser(description=info.name+': '+info.description,
                         formatter_class=ap.ArgumentDefaultsHelpFormatter)
     p.add_argument('config',help='YAML configuration file',nargs='?',\
-                   default='linear.yml')
+                   default='{}.yml'.format(__package__))
     p.add_argument('--logfile',help='output log file',nargs='?',\
-                   default='linear.log')    #)#,metavar='linear.log')
+                   default='{}.log'.format(__package__))
     p.add_argument('-d','--dump',help='dump the default configuration',\
-                   action='store_true')    
+                   action='store_true')
+    
+    # update with the argparser with the 
+    #for flat in defs.flatten():
+    #    p.add_argument('--'+flat[0],default=flat[1],help=flat[2],metavar='')
 
-    #for f in flat:
-    #    p.add_argument('--'+f[0],default=f[1],help=f[2],metavar='')
+    # put the command-line results into the defs
+
+
+    # parse the args
     args=p.parse_args()
 
-    # must put in command-line arguments here
-
-
-    
     # dump the configuration
     if args.dump:
         print(defs)
         return
 
+    
+        
     # open my custom logging utilities
     sys.stdout=Logger(info.name,logfile=args.logfile)
     
@@ -196,11 +189,11 @@ def main():
         splashMessage(conf,info)
     
         # call linear!
-        linearPipeline(conf)
+        runLinear(conf)
 
 
     # print an outro message
-    print('[info]'+runTime(t0))
+    print('[info]'+printRunTime(t0))
     
 
 if __name__=='__main__':
