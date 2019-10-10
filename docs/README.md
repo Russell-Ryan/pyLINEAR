@@ -74,7 +74,7 @@ with sedfile.SEDFile(myFile) as sd:
 
 **The grouping can be controled by the ```group``` keyword in the configuration file.**
 
-[Back to the top](#faq)
+[Back to the top](#faqs)
 
 ---
 
