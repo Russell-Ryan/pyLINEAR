@@ -18,6 +18,8 @@ f125w_drz.fits    hst_wfc3_f125w
 
 *I have provided a few broadband filters commonly used with HST/ACS and HST/WFC3, they are specified in [pylinear/synthphot/filters.py](https://github.com/Russell-Ryan/pyLINEAR/blob/master/pylinear/synthphot/filters.py "filters.py").  It is trivial to update this file and include additional files.*
 
+[Back to the top](#faqs)
+
 ---
 
 
@@ -32,6 +34,8 @@ f125w_drz.fits    hst_wfc3_f125w
 ```
 *The spectra will be normalized based on the brightness measured in the obs.lst file above.*
 
+[Back to the top](#faqs)
+
 ---
 
 ### What about noise in the simulated images?
@@ -39,6 +43,8 @@ f125w_drz.fits    hst_wfc3_f125w
 *We made the decision to omit the noise calculations, figuring that each instrument would be sufficiently different and we were not experts on every instrument.  I am tinkering with some general noising strategies, but they are extremely experimental at this point.*
 
 *The simulated images will have an uncertainty array set to unity (floating-point) and a data-quality array set to zero (unsigned integer).  These can be simply modified by whatever noise strategy you see fit; I would recommend this for the (re-)extraction to make sense. __Stay tuned if you want my noise strategies.__*
+
+[Back to the top](#faqs)
 
 ---
 
