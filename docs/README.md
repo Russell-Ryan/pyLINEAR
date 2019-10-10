@@ -2,6 +2,7 @@
 1. [What is the format of the obs.lst file?](#what-is-the-format-of-the-obslst-file)
 2. [What is the format of the sed.lst file?](#what-is-the-format-of-the-sedlst-file)
 3. [What about noise in the simulated images?](#what-about-noise-in-the-simulated-images)
+4. [How do I read the output HDF5 file containing the spectra?](#how-do-i-read-the-out-hdf5-file-containing-the-spectra)
 
 ---
 
@@ -38,6 +39,40 @@ f125w_drz.fits    hst_wfc3_f125w
 *We made the decision to omit the noise calculations, figuring that each instrument would be sufficiently different and we were not experts on every instrument.  I am tinkering with some general noising strategies, but they are extremely experimental at this point.*
 
 *The simulated images will have an uncertainty array set to unity (floating-point) and a data-quality array set to zero (unsigned integer).  These can be simply modified by whatever noise strategy you see fit; I would recommend this for the (re-)extraction to make sense. __Stay tuned if you want my noise strategies.__*
+
+---
+
+
+### How do I read the output HDF5 file containing the spectra?
+
+*First, let me justify the use of a new file format that might be foriegn to many astronomers.  __pylinear__, unlike the IDL implementation, is capable of "grouping" sources.*
+
+> **grouping:** the process of identifying the sources whose extraction orders overlap in the dispersed images.  
+> 
+> The groups are themselves grouped, and represent the smallest atomic unit to extract and fully encapsulate the contamination present in the data.
+
+*Since the groups are individual sets of extraction, they have their unique metadata and results.  For example, if you do a golden-search optimization, then they will each have a unique values (&chi;<sup>2</sup>, matrix norm, etc.).  Therefore I needed a file format that would allow for this grouped/hierarchical structure.  For quick viewing of this file, please consider the [HDFView](https://www.hdfgroup.org/downloads/hdfview/) produced by the HDF Group (this program is free to download, but does require you register).* 
+
+*Ok, back to the question you asked.  I have a simple class in pylinear.extraction module, called [SEDFile](https://github.com/Russell-Ryan/pyLINEAR/blob/master/pylinear/modules/extraction/sedfile.py).  So here's an example to read every source and make a quick plot:*
+
+```
+import matplotlib.pyplot as plt
+import pylinear.modules.extraction.sedfile as sedfile
+
+myFile='myOutputFile.h5'
+with sedfile.SEDFile(myFile) as sd:
+    for segid in sd.segIDs:
+        data=sd.spectrum(segid)
+        plt.plot(data['lam'],data['flam'],label='{}'.format(segid))
+        plt.tight_layout()
+        plt.show()
+```
+
+*Just change the name of the ```myFile``` variable.  I hope this helps, but if you have more questions, then let me know!*  
+
+
+
+**The grouping can be controled by the ```group``` keyword in the configuration file.**
 
 ---
 
