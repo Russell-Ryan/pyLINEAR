@@ -53,6 +53,17 @@ class SEDFile(object):
     def group(self,grpid,**kwargs):
         return self._getData(grpid,self.h5g,**kwargs)
 
+    @property
+    def segIDs(self):
+        s=[int(k) for k in self.h5s.keys()]
+        return s
+
+    @property
+    def groupIDs(self):
+        g=[int(k) for k in self.h5g.keys()]
+        return g
+    
+        
     def _getData(self,item,h5,return_attrs=False,return_data=True):
         data=None              # default value
         attrs=OrderedDict()    # default value
