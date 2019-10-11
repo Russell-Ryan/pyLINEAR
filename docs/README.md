@@ -77,7 +77,7 @@ with sedfile.SEDFile(myFile) as sd:
 *Just change the name of the ```myFile``` variable.  I hope this helps, but if you have more questions, then let me know!*  
 
 
->**An outro note:** The grouping can be controled by the ```group``` keyword in the configuration file.
+>**An outro note:** The grouping can be controled by the ```group``` keyword in the configuration file.  Setting this to ```False``` will force *pylinear* to use a single group, which is equivalent to the (now former) IDL implementation.
 
 
 [Back to the top](#faqs)
