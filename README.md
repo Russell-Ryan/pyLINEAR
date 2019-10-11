@@ -28,7 +28,7 @@ This will install and compile all of the dependencies for *pylinear*.  Just for 
 
 *Also developed by Russell Ryan.
 
-> **Helpful Tip:** Since *pylinear* outputs the spectroscopy in an HDF5 file, you might want a user-friendly interface to inspect an HDF5 file.  I recommend the [HDF Viewer](https://www.hdfgroup.org/downloads/hdfview/), which is free to download (but you will need to register with HDFgroup).
+> **Helpful Tip:** Since *pylinear* outputs the spectroscopy in an HDF5 file, you might want a user-friendly interface to inspect an HDF5 file.  I recommend [HDFView](https://www.hdfgroup.org/downloads/hdfview/), which is free to download (but you will need to register with HDFgroup).
 
 
 
