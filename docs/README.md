@@ -1,9 +1,9 @@
 # FAQs
-1. [What is the format of the obs.lst file?](#what-is-the-format-of-the-obslst-file)
-2. [What is the format of the sed.lst file?](#what-is-the-format-of-the-sedlst-file)
-3. [What is the format of the wcs.lst file?](#what-is-the-format-of-the-wcslst-file)
-4. [What about noise in the simulated images?](#what-about-noise-in-the-simulated-images)
-5. [How do I read the output HDF5 file containing the spectra?](#how-do-i-read-the-out-hdf5-file-containing-the-spectra)
+[What is the format of the obs.lst file?](#what-is-the-format-of-the-obslst-file)  
+[What is the format of the sed.lst file?](#what-is-the-format-of-the-sedlst-file)  
+[What is the format of the wcs.lst file?](#what-is-the-format-of-the-wcslst-file)  
+[What about noise in the simulated images?](#what-about-noise-in-the-simulated-images)  
+[How do I read the output HDF5 file containing the spectra?](#how-do-i-read-the-out-hdf5-file-containing-the-spectra)
 
 ---
 
