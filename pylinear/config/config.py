@@ -96,6 +96,9 @@ class Config(object):
         self.yaml.dump(self.conf,self.stream)
         return self.stream.getvalue()
 
+    def __contains__(self,k):
+        return k in self.conf
+
     def __setitem__(self,k,v):
         self.conf[k]=v
 

@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.ndimage as sn
+import pdb
 
 from .direct import Direct
 from .extractionparameters import ExtractionParameters
@@ -13,9 +14,10 @@ from pylinear.utilities import convexhull
 class Source(WCS,ExtractionParameters,Direct):
     SEGTYPE=np.uint32           # force SEGIDs to have this type
 
-    def __init__(self,img,seg,zero,segid=None,lamb0=None,lamb1=None,dlamb=None,\
-                 minpix=3,maglim=26,morph={}):
-        
+    def __init__(self,img,seg,zero,segid=None,minpix=3,maglim=26,            
+                 lamb0=None,lamb1=None,dlamb=None,
+                 filtsig=None,eroderad=None,binfact=None):
+
         #get the SEGID
         if segid is None:
             if 'SEGID' in seg.header:
@@ -38,10 +40,12 @@ class Source(WCS,ExtractionParameters,Direct):
 
         # these morphological operations restrict the number of pixels
         # that belong to the SEGmap that will be processed.
-        if morph is not None:
-            operations=[self.smooth,self.erode]
-            for operation in operations:
-                seg,img=operation(seg,img,morph)
+        operations=[(self.smooth,filtsig),
+                    (self.erode,eroderad),
+                    (self.rebin,binfact)]
+        for func,val in operations:
+            seg,img=func(seg,img,val)
+
         
         # get the good pixels
         g=np.where(seg.data == self.segid)
@@ -68,7 +72,6 @@ class Source(WCS,ExtractionParameters,Direct):
         Direct.__init__(self)
 
 
-
         # recall that Python & IDL are inverted
         self.xd=g[1]      # direct image x-coordinates
         self.yd=g[0]      # direct image y-coordinates
@@ -79,9 +82,10 @@ class Source(WCS,ExtractionParameters,Direct):
 
 
         # compute a few brightness measures
+        self.zero=zero
         self.total=np.sum(img.data[g])
         if self.total>0:
-            self.mag=-2.5*np.log10(self.total)+zero
+            self.mag=-2.5*np.log10(self.total)+self.zero
             if self.mag >maglim:
                 #print('[warn]Below mag limit for {}'.format(self.segid))
                 self.valid=False
@@ -139,51 +143,49 @@ class Source(WCS,ExtractionParameters,Direct):
     #------- STUFF FOR THE MORPHOLOGICAL OPERATIONS ------
     
 
-    def getValue(self,seg,morph,key):
-        if key in seg:
-            return seg[key]
-        if key in morph:
-            return morph[key]
-        return None
+    #def getValue(self,seg,morph,key):
+    #    if key in seg:            # first check if it's present in the SEG
+    #        return seg[key]
+    #    if key in morph:          # second check if it's supplied by input
+    #        return morph[key]
+    #    return None               # default to None
     
-    def smooth(self,seg,img,morph):
-        key='FILTSIG'
+    def smooth(self,seg,img,filtsig,key='FILTSIG'):
         
-        sig=self.getValue(seg,morph,key)
-        if sig is None or sig <=0:
+        if filtsig is None or filtsig <=0:
             return seg,img
         
         bad=seg.data != self.segid
         good=seg.data == self.segid
         V=img.data.copy()
         V[bad]=0
-        VV=sn.gaussian_filter(v,sigma=sig)
+        VV=sn.gaussian_filter(V,sigma=filtsig)
 
         W=np.ones_like(img.data)
         W[bad]=0
-        WW=sn.gaussian_filter(W,sigma=sig)
+        WW=sn.gaussian_filter(W,sigma=filtsig)
         Z=VV/WW
-        img.data[good]=z[good]
+        img.data[good]=Z[good]
 
-        seg[key]=sig
+        seg[key]=filtsig
         
         return seg,img
         
-    def erode(self,seg,img,morph):
-        key='ERODERAD'
-        rad=self.getValue(seg,morph,key)
-        if rad is None or rad<=0:
+    def erode(self,seg,img,eroderad,key='ERODERAD'):
+        
+        
+        if eroderad is None or eroderad<=0:
             return seg,img
     
     
-        dim=np.int(2*rad+1)
+        dim=np.int(2*eroderad+1)
         kern=np.ones((dim,dim),dtype=np.int)
 
         good=seg.data == self.segid
 
         flux0=np.sum(img.data[good])
 
-        eroded=sn.binary_erode(good,structure=kern).astype(np.int)
+        eroded=sn.binary_erosion(good,structure=kern).astype(np.int)
     
         b=np.where((seg.data != 0) & (seg.data!=self.segid))
         g=np.where(eroded)
@@ -191,38 +193,81 @@ class Source(WCS,ExtractionParameters,Direct):
         eroded[b]=seg.data[b]
 
 
-        flux1=np.sum(img.data[b])
-        print(flux0/flux1)
+        flux1=np.sum(img.data[g])
+        frat=flux0/flux1
         print('scale the weights by this amount? or apply it post facto?')
 
         
         seg.data=eroded
-        seg[key]=rad
+        seg[key]=eroderad
         return seg,img
 
-    def isophotal(self,seg,img,morph):
+    def isophotal(self,seg,img,sblim):
         key='SBLIM'
-        sblim=self.getValue(seg,morph,key)
         if sblim is None:
             return seg,img
 
-        # will need the zweropoint
+        # will need the zweropoint (now in the self)
 
-    def maxsize(self,seg,img,morph):
+    def maxsize(self,seg,img,maxrad):
         key='MAXRAD'
-        maxrad=self.getValue(seg,morph,key)
         if maxrad is None or maxrad <= 0:
             return seg,img
     
 
-    def rebin(self,seg,img,morph):
+    def rebin(self,seg,img,binfact,function='mean',key='BINFACT'):
         #print('appears to use numpy.reshape and mean.  not sure yet')
         # in IDL, i used any pixel that contains info
 
-        key='BINFACT'
-        binfact=self.getValue(seg,morph,key)
-        if binfact is None or binfact <=0:
+        
+        if binfact is None or binfact <=1:
             return seg,img
         
         binfact=int(binfact)
+        
+        
+        dim=img.shape
+        new=[(dim[0]+1)//binfact,(dim[1]+1)//binfact]
+        bins=np.arange(dim[0]*dim[1]).reshape(dim)+1
+        ones=np.ones((binfact,binfact),dtype=np.int)
+        bins=np.kron(bins,ones)[:dim[0],:dim[1]]
+        b=np.unique(bins)
 
+        flo=function.lower()
+        if flo=='mean': func=sn.mean
+        elif flo=='sum': func=sn.sum
+        elif flo=='median': func=sn.median
+        else: func=sn.mean
+        ave=func(img.data,labels=bins,index=b).reshape(new)
+
+        img.data=ave
+        img.naxis[0]=img.header['NAXIS1']=new[0]
+        img.naxis[1]=img.header['NAXIS2']=new[1]
+        img.crpix[0]=img.header['CRPIX1']=(img.header['CRPIX1']+0.5)/binfact+0.5
+        img.crpix[1]=img.header['CRPIX2']=(img.header['CRPIX2']+0.5)/binfact+0.5
+        img.cd[0,0]=img.header['CD1_1']=img.header['CD1_1']*binfact
+        img.cd[1,0]=img.header['CD2_1']=img.header['CD2_1']*binfact
+        img.cd[0,1]=img.header['CD1_2']=img.header['CD1_2']*binfact
+        img.cd[1,1]=img.header['CD2_2']=img.header['CD2_2']*binfact
+
+        g=np.where((seg.data != self.segid))[0]
+        mx=seg.data
+        mx[g]=0
+        mx=sn.maximum(mx,labels=bins,index=b).reshape(new)
+        zz=sn.maximum(seg.data,labels=bins,index=b).reshape(new)
+        g=np.where(mx==0)[0]
+        mx[g]=zz[g]
+
+        seg.data=mx
+        seg.naxis[0]=seg.header['NAXIS1']=new[0]
+        seg.naxis[1]=seg.header['NAXIS2']=new[1]
+        seg.crpix[0]=seg.header['CRPIX1']=(seg.header['CRPIX1']+0.5)/binfact+0.5
+        seg.crpix[1]=seg.header['CRPIX2']=(seg.header['CRPIX2']+0.5)/binfact+0.5
+        seg.cd[0,0]=seg.header['CD1_1']=seg.header['CD1_1']*binfact
+        seg.cd[1,0]=seg.header['CD2_1']=seg.header['CD2_1']*binfact
+        seg.cd[0,1]=seg.header['CD1_2']=seg.header['CD1_2']*binfact
+        seg.cd[1,1]=seg.header['CD2_2']=seg.header['CD2_2']*binfact
+
+
+        return seg,img
+        

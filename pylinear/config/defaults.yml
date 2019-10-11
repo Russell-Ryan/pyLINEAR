@@ -1,4 +1,4 @@
-# Configuration for pyLINEAR
+# Configuration for pyLINEAR (Oct. 11, 2019)
 
 cpu: &CPU
   ncpu: 1                                # number of processors to use
@@ -8,13 +8,12 @@ calib: &CALIB
   h5conf: hst_wfc3_ir_beams.h5           # HDF5 file for beam info
   h5flat: null                           # HDF5 file for flat field
   h5siaf: hst_wfc3_ir_detector.h5        # HDF5 file for detectors
-  
-  
+    
 tables: &TABLES
-  path: TABLES2/                          # relative path for the tables
-  remake: true
+  path: TABLES2/                         # relative path for the tables
+  remake: true                           # force to remake the tables
   gzip: true                             # gzip the resulting data
-  nsub: 5                                # number of intervals for TrapZ
+  nsub: 5                                # num intervals for trap. integrate
   cpu: *CPU                              # import CPU settings
   
 sources:
@@ -23,23 +22,26 @@ sources:
   detindex: 0                            # detection index in obslst
   maglim: 26.                            # magnitude limit of sources
   minpix: 5                              # minimum number of pixels
+  filtsig: 0                             # sigma of Gaussian filter
+  eroderad: 0                            # num of pix to remove on outer edge
+  binfact: 0                             # num of pix to block ave over
   
 modules:
   simulation:
-    perform: false                        # flag to run the simulation
+    perform: false                       # flag to run the simulation
     beam: A                              # beams to simulate
     grism: G102                          # which grism to simulate
     imgtype: wcs                         # where WCS comes from: wcs or img
     gzip: true                           # gzip the outputs
-    imglst: wcs.lst
-    sedlst: sed.lst
-    noise:
-      perform: false
-      exptime: 700.
-      skyrate: 0.3
-    cpu: *CPU
-    calib: *CALIB
-    tables: *TABLES
+    imglst: wcs.lst                      # list of WCS properties
+    sedlst: sed.lst                      # list of SEDs
+    noise:                               # the noise module
+      perform: false                     # flag to perform noise calculation
+      exptime: 700.                      # effective exposure time
+      skyrate: 0.3                       # background rate in e/s
+    cpu: *CPU                            # import CPU settings
+    calib: *CALIB                        # import calibration settings
+    tables: *TABLES                      # import Tables settings
 
   extraction:
     perform: true 

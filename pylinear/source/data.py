@@ -3,6 +3,7 @@ import numpy as np
 from astropy.io import fits
 from collections import OrderedDict
 import copy
+import pdb
 
 from .source import Source
 from .obslst import ObsLST
@@ -84,20 +85,39 @@ class Data(object):
                 if src.valid:
                     self.sources[self.SEGTYPE(segid)]=src
 
+    def keyword(self,key,hdr,conf):
+        ''' utility to logically get a value from either a header or global '''
 
-    def setExtractionParameter(self,src,conf,extconf,key):
-        if getattr(src,key) is None:
-            val=conf[key]
-            if val is None:
-                val=getattr(extconf,key)
-            setattr(src,key,val)
+        for k in [key,key.lower(),key.upper()]:   # test all combinations
+            if k in hdr:
+                return hdr[k]
+            if k in conf:
+                return conf[k]
+
+        return None
+                    
+
+    #def setExtractionParameter(self,src,conf,extconf,key):
+    #    if getattr(src,key) is None:
+    #        val=conf[key]
+    #        if val is None:
+    #            val=getattr(extconf,key)
+    #        
+    #        setattr(src,key,val)
                 
     def setExtractionParameters(self,conf,extconf):
         print('[info]Setting extraction parameters') 
         keys=['lamb0','lamb1','dlamb']
         for segid,src in self.sources.items():
             for key in keys:
-                self.setExtractionParameter(src,conf,extconf,key)
+                if getattr(src,key) is None:
+                    val=conf[key]
+                    if val is None:
+                        val=getattr(extconf,key)
+                    setattr(src,key,val)
+
+                    
+                #self.setExtractionParameter(src,conf,extconf,key)
                     
     def keys(self):
         return self.sources.keys()
@@ -199,10 +219,13 @@ class Data(object):
             
             # put the segID in the header
             subseg['SEGID']=segid
-
+            
             # create the source
             self[segid]=Source(subimg,subseg,detzpt,segid=segid,\
+                               filtsig=self.keyword('FILTSIG',seg,conf),
+                               eroderad=self.keyword('ERODERAD',seg,conf),
                                maglim=conf['maglim'],minpix=conf['minpix'])
+                               
 
             # update the progress bar
             pb.increment()
@@ -213,10 +236,6 @@ class Data(object):
 
         print('[info]Loading sources from MEF segmentation map')
         
-
-        keyword=lambda key,hdu:hdu.header[key] if key in hdu.header else None
-
-
         # get a progress bar
         pb=progressbar.ProgressBar(len(seglist))
         
@@ -234,9 +253,11 @@ class Data(object):
             seg.loadHDU(seghdu)
             
             src=Source(img,seg,detzpt,
-                       lamb0=keyword('LAMB0',seghdu),\
-                       lamb1=keyword('LAMB1',seghdu),\
-                       dlamb=keyword('DLAMB',seghdu),\
+                       lamb0=self.keyword('LAMB0',seghdu,conf),
+                       lamb1=self.keyword('LAMB1',seghdu,conf),
+                       dlamb=self.keyword('DLAMB',seghdu,conf),
+                       filtsig=self.keyword('FILTSIG',seghdu,conf),
+                       eroderad=self.keyword('ERODERAD',seghdu,conf),
                        maglim=conf['maglim'],minpix=conf['minpix'])
             self[src.segid]=src
 

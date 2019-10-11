@@ -26,6 +26,11 @@ class FitsImage(wcs.WCS):
     @property
     def data(self):
         return self.img
+
+    @data.setter
+    def data(self,dat):
+        self.img=dat
+
     
     @property
     def header(self):
@@ -47,6 +52,10 @@ class FitsImage(wcs.WCS):
     def __getitem__(self,key):
         return self.hdr[key]
 
+    @property
+    def shape(self):
+        return self.img.shape
+    
     def pixelValue(self,x,y):
         return self.dat[y,x]
 
