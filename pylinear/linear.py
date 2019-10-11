@@ -5,6 +5,7 @@ import sys
 import timeit
 import numpy as np
 import pkginfo
+#import pkg_resources as pr
 
 from . import config
 from . import source
@@ -78,8 +79,11 @@ def updateDefaults(defs,user):
 
 def defaultConfig():
     ''' get the name of the default configuration file '''
+    filename=os.path.join('config','defaults.yml')
+    #filename=pr.resource_filename(__package__,filename)
+        
     path=os.path.dirname(os.path.realpath(__file__))
-    defsfile=os.path.join(path,'config','defaults.yml')
+    defsfile=os.path.join(path,filename)
 
     return defsfile
 
