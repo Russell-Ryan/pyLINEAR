@@ -14,7 +14,7 @@ f105w_drz.fits    hst_wfc3_f105w
 f160w_drz.fits    hst_wfc3_f160w
 f125w_drz.fits    hst_wfc3_f125w
 ```
-*If only one row is specified, then the initial guess of the spectrum will be set by assuming f<sub>&lambda;</sub> equal to the brightness measured in the one row.  If multiple rows are specified, then the initial spectrum is interpolated from the collection of photometry.  __In either case, the image in the first row specifies the extraction weights.__*
+*If only one row is specified, then the initial guess of the spectrum will be set by assuming a flat f<sub>&lambda;</sub> equal to the brightness measured in the one row.  If multiple rows are specified, then the initial spectrum is interpolated from the collection of photometry.  __In either case, the image in the first row specifies the extraction weights.__*
 
 *I have provided a few broadband filters commonly used with HST/ACS and HST/WFC3, they are specified in [pylinear/synthphot/filters.py](https://github.com/Russell-Ryan/pyLINEAR/blob/master/pylinear/synthphot/filters.py "filters.py").  It is trivial to update this file and include additional files.*
 
@@ -51,15 +51,15 @@ f125w_drz.fits    hst_wfc3_f125w
 
 ### How do I read the output HDF5 file containing the spectra?
 
-*First, let me justify the use of a new file format that might be foriegn to many astronomers.  __pylinear__, unlike the IDL implementation, is capable of "grouping" sources.*
+*First, let me justify the use of a new file format that might be foriegn to many astronomers.  __pylinear__, unlike the IDL implementation, is capable of "grouping" sources. I define "grouping" as:*
 
 > **grouping:** the process of identifying the sources whose extraction orders overlap in the dispersed images.  
 > 
 > The groups are themselves grouped, and represent the smallest atomic unit to extract and fully encapsulate the contamination present in the data.
 
-*Since the groups are individual sets of extraction, they have their unique metadata and results.  For example, if you do a golden-search optimization, then they will each have a unique values (&chi;<sup>2</sup>, matrix norm, etc.).  Therefore I needed a file format that would allow for this grouped/hierarchical structure.  For quick viewing of this file, please consider the [HDFView](https://www.hdfgroup.org/downloads/hdfview/) produced by the HDF Group (this program is free to download, but does require you register).* 
+*Since the groups are individual sets of spectral extraction, they have their unique metadata and results.  For example, if you do a golden-search optimization, then they will each have a unique values (&chi;<sup>2</sup>, matrix norm, etc.).  Therefore I needed a file format that would allow for this grouped/hierarchical structure, and settled on HDF5 (but perhaps in the future move to something like [ASDF](https://pypi.org/project/asdf/)).  For quick viewing and basic editting of HDF5 files, please consider the [HDFView](https://www.hdfgroup.org/downloads/hdfview/) produced by the HDF Group (this program is free to download, but does require you register).* 
 
-*Ok, back to the question you asked.  I have a simple class in pylinear.extraction module, called [SEDFile](https://github.com/Russell-Ryan/pyLINEAR/blob/master/pylinear/modules/extraction/sedfile.py).  So here's an example to read every source and make a quick plot:*
+*Ok, back to the question you asked.  I have a simple class in pylinear.extraction module, called [SEDFile](https://github.com/Russell-Ryan/pyLINEAR/blob/master/pylinear/modules/extraction/sedfile.py), that facilitates many operations with these files (reading spectra, group metadata, simple plots, etc.).  So here's an example to read every source and make a quick plot:*
 
 ```
 import matplotlib.pyplot as plt
@@ -77,11 +77,10 @@ with sedfile.SEDFile(myFile) as sd:
 *Just change the name of the ```myFile``` variable.  I hope this helps, but if you have more questions, then let me know!*  
 
 
+>**An outro note:** The grouping can be controled by the ```group``` keyword in the configuration file.
 
-**The grouping can be controled by the ```group``` keyword in the configuration file.**
 
 [Back to the top](#faqs)
 
----
 
 
