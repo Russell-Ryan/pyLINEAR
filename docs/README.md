@@ -1,5 +1,5 @@
 # FAQs
-[How does LINEAR/pyLINEAR compare to other tools?](#how-does-linearpylinear-compare-to-other-tools)  
+
 [How to prepare the FLTs for extraction?](#how-to-prepare-the-flts-for-extraction)  
 [What is the format of the obs.lst file?](#what-is-the-format-of-the-obslst-file)  
 [What is the format of the sed.lst file?](#what-is-the-format-of-the-sedlst-file)  
@@ -9,12 +9,7 @@
 
 ---
 
-### How does LINEAR/pyLINEAR compare to other tools?
 
-
-[Back to the top](#faqs)
-
----
 
 ### How to prepare the FLTs for extraction?
 
