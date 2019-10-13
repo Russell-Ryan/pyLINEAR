@@ -1,9 +1,32 @@
 # FAQs
+[How does LINEAR/pyLINEAR compare to other tools?](#how-does-linearpylinear-compare-to-other-tools)  
+[How to prepare the FLTs for extraction?](#how-to-prepare-the-flts-for-extraction)  
 [What is the format of the obs.lst file?](#what-is-the-format-of-the-obslst-file)  
 [What is the format of the sed.lst file?](#what-is-the-format-of-the-sedlst-file)  
 [What is the format of the wcs.lst file?](#what-is-the-format-of-the-wcslst-file)  
 [What about noise in the simulated images?](#what-about-noise-in-the-simulated-images)  
 [How do I read the output HDF5 file containing the spectra?](#how-do-i-read-the-out-hdf5-file-containing-the-spectra)
+
+---
+
+### How does LINEAR/pyLINEAR compare to other tools?
+
+
+[Back to the top](#faqs)
+
+---
+
+### How to prepare the FLTs for extraction?
+
+*The FLTs should have at least two post-processing steps that are __not__ performed by pylinear in any capacity:*
+
+*__1. Background subtraction:__ The standard approach is to subtract "master sky" image(s), which are based on a particular spectral component in the sky spectrum.  For WFC3/IR, [Pirzkal & Ryan (2017)](http://www.stsci.edu/hst/wfc3/documents/ISRs/WFC3-2017-05.pdf). have developed approaches for dealing with multiple spectral components that (potentially vary with time), which is available on [GitHub](https://github.com/npirzkal/HeI_IMA/blob/master/HeI_IMA.py).  But see also [Brammer, Ryan, & Pirzkal (2015)](http://www.stsci.edu/hst/wfc3/documents/ISRs/WFC3-2015-17.pdf), [Pirzkal (2014)](http://www.stsci.edu/hst/wfc3/documents/ISRs/WFC3-2014-11.pdf), and [Brammer,  N. Pirzkal, P. McCullough, J. MacKenty (2014)](http://www.stsci.edu/hst/wfc3/documents/ISRs/WFC3-2014-03.pdf) for a chronological account of this approach.*
+
+*__2. Astrometric refinement:__ You will likely have pre-imaging associated with the grism spectroscopy, which can be used to align to an existing mosiac.  This is most commonly done with [TweakReg](https://drizzlepac.readthedocs.io/en/latest/tweakreg.html).*
+
+
+
+[Back to the top](#faqs)
 
 ---
 
