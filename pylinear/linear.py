@@ -32,26 +32,6 @@ def splashMessage(conf,info):
     print(conf)
 
 
-
-#def applyUser(defs,user):
-#    for k,v in defs.items():
-#        if isinstance(v,dict):
-#            defs[k]=applyUser(v,user[k])
-#        else: #if isinstance(v,(int,bool,str,float)) or (v is None):
-#            if (k in user) and (defs[k]!=user[k]):
-#                defs[k]=user[k]
-#            
-#    return defs#
-
-#def applydefaults(user,defs):
-#    for k in defs:
-#        if isinstance(defs[k], dict): # if the current item is a dict,
-#            applydefaults(user.setdefault(k, {}), defs[k])
-#        else:
-#            user.setdefault(k, defs[k])
-#    return user
-
-
 def updateDefaults(defs,user):
     out=defs.copy()
     for k,v in defs.items():
@@ -65,19 +45,7 @@ def updateDefaults(defs,user):
     
 
 
-
-#def applyUser(user,defs):
-#    for k,v in defs.items():
-#        if isinstance(v,dict):
-#            user=applyUser(user[k],v)
-#        else:
-#            if k not in user:
-#                user[k]=defs[k]
-#    return user
-
-
-
-def defaultConfig():
+def defaultConfigFile():
     ''' get the name of the default configuration file '''
     filename=os.path.join('config','defaults.yml')
     #filename=pr.resource_filename(__package__,filename)
@@ -138,22 +106,10 @@ def runLinear(conf):
     # call the modules
     [method(conf['modules'][key],sources) for (method,key) in items]
     
-    
- 
 
 
-def main():
-    ''' entry point for command-line '''
 
-    # get an initial time
-    t0=timeit.default_timer()
-
-    # get the pkg info
-    info=pkginfo.Installed(__package__)
-    
-    # read the defaults
-    defs=config.Config(conffile=defaultConfig())
-    
+def parseCommandLineArgs(info):
     # parse the input     
     p=ap.ArgumentParser(description=info.name+': '+info.description,
                         formatter_class=ap.ArgumentDefaultsHelpFormatter)
@@ -176,16 +132,34 @@ def main():
 
     # dump the configuration
     if args.dump:
+        defs=config.Config(conffile=defaultConfigFile())
         print(defs)
-        return
+        exit(0)
 
+
+    return args
+
+
+def main():
+    ''' entry point for command-line '''
+
+    # get an initial time
+    t0=timeit.default_timer()
+
+    # get the pkg info
+    info=pkginfo.Installed(__package__)
+
+    # get the command-line Arguments    
+    args=parseCommandLineArgs(info)
+    
     
         
     # open my custom logging utilities
     sys.stdout=Logger(info.name,logfile=args.logfile)
-    
+
+
     # load the configuration with defaults
-    conf=loadConfig(args.config,defs)
+    conf=loadConfig(args.config,config.Config(conffile=defaultConfigFile()))
     
     # if we have a valid config:
     if conf is not None:
