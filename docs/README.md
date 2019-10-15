@@ -5,7 +5,7 @@
 [What is the format of the sed.lst file?](#what-is-the-format-of-the-sedlst-file)  
 [What is the format of the wcs.lst file?](#what-is-the-format-of-the-wcslst-file)  
 [What about noise in the simulated images?](#what-about-noise-in-the-simulated-images)  
-[How do I read the output HDF5 file containing the spectra?](#how-do-i-read-the-out-hdf5-file-containing-the-spectra)
+[How do I read the output HDF5 file containing the spectra?](#how-do-i-read-the-output-hdf5-file-containing-the-spectra)
 
 ---
 
