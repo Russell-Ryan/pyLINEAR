@@ -221,7 +221,6 @@ def simulate(conf,sources):
     print("[info]Simulating FLTs")
 
     # get pkginfo
-    #info=pkginfo('pylinear')
     info=pkginfo.Installed('pylinear')
 
     
