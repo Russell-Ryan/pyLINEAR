@@ -230,6 +230,10 @@ def extract(conf,sources):
         if conf['group']:
             # do the grouping!
             groups=group.makeGroups(conf,grisms,sources,extconf)
+            print(sources)
+
+            
+
             ngrp=len(groups)
             for grpid,grp in enumerate(groups):
                 theseSources=sources.select(grp)
