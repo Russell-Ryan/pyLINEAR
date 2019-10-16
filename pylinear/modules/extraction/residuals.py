@@ -80,7 +80,7 @@ def update(conf,grisms,grismconf,mat,result):
                 g=np.where(imgindex==index)[0]
                 if len(g)!=0:
 
-                    # some stuff for insurance
+                    # some stuff to ensure the file is properly written
                     sciext=3*i+1
                     modext=3*i+2
                     resext=3*i+3
@@ -88,6 +88,8 @@ def update(conf,grisms,grismconf,mat,result):
                     # read the images
                     sci,scihdr=flt.readfits(detconf.sciext,detconf.extver)
                     unc,unchdr=flt.readfits(detconf.uncext,detconf.extver)
+                    dqa,dqahdr=flt.readfits(detconf.dqaext,detconf.extver)
+
                     
                     # get the (x,y) pairs
                     x,y=indices.one2two(pixindex[g],det.naxis)
@@ -97,7 +99,11 @@ def update(conf,grisms,grismconf,mat,result):
                     
                     # update the residual image
                     hdul[resext].data[y,x]=sci[y,x]-hdul[modext].data[y,x]
-                
 
+                    # remove pixels in the DQAs
+                    g=np.where(dqa != 0)[0]
+                    hdul[resext].data[g]=np.nan
+                    
+                    
         # update the counter
         index+=1
