@@ -1,9 +1,11 @@
 import numpy as np
-from astropy.io import fits
-import multiprocessing as mp
+#from astropy.io import fits
+import h5py
+import datetime
 
 import h5axeconfig
 
+from pylinear.utilities import Pool
 from pylinear import grism
 
 
@@ -35,4 +37,5 @@ def cutout(conf,sources):
     args=(grismconf,sources,conf['padding'])
 
     # use my version of the pool
-    pool.pool(cutoutWorker,grisms.values(),*args,ncpu=conf['cpu']['ncpu'])
+    p=Pool(ncpu=conf['cpu']['ncpu'])
+    filenames=p(cutoutWorker,grisms.values,*args,prefix='Cuting images')
