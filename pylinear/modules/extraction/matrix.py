@@ -90,16 +90,18 @@ class Matrix(object):
             #    print("stacked:",py.memory_info()[0]/1024/1024/1024)
 
         # stacking all the data into a 1D numpy array
-        i = np.hstack(i)
-        j = np.hstack(j)
-        aij = np.hstack(aij)
-        #if __RAM__:
-        #    print("finished:",py.memory_info()[0]/1024/1024/1024)
-
-        if len(i)==0:
+        if len(i)>0:
+            i = np.hstack(i)
+            j = np.hstack(j)
+            aij = np.hstack(aij)
+        else:
             print('[alarm]Matrix has no elements.')
             #raise RuntimeError("matrix had no elements")
             return
+        #if __RAM__:
+        #    print("finished:",py.memory_info()[0]/1024/1024/1024)
+
+
         
         # loaded everything
         print("[info]Compressing the indices")
@@ -130,7 +132,7 @@ class Matrix(object):
         # get the reverse indices
         segids=np.array(list(sources.keys()))
         self.ri=indices.reverse(segids[srcind])
-        self.hsrc=np.bincount(srcind).astype(self.UINT)
+        self.hsrc=np.bincount(srcind.astype(np.int64)).astype(self.UINT)
 
         # compute the frobenius norm (to prepare for inversion later)
         self.frob=np.sqrt(np.sum(aij*aij))
@@ -244,10 +246,14 @@ class Matrix(object):
                     
                 # save the memory usage
                 del data
-                
-        i = np.hstack(i)
-        j = np.hstack(j)
-        aij = np.hstack(aij)
+        if len(i)>0:
+            i = np.hstack(i)
+            j = np.hstack(j)
+            aij = np.hstack(aij)
+        else:
+            i=np.array([],dtype=self.UINT)
+            j=np.array([],dtype=self.UINT)
+            aij=np.array([],dtype=self.FLT)
         #if __RAM__:
         #    print("done with loadBeams:",py.memory_info()[0]/1024/1024/1024)
 
@@ -375,11 +381,17 @@ class Matrix(object):
 
 
                         
-                                                
-        i = np.hstack(i)
-        j = np.hstack(j)
-        aij = np.hstack(aij)
-        xyg = np.hstack(xyg)
+        if len(i)>0: 
+            i = np.hstack(i)
+            j = np.hstack(j)
+            aij = np.hstack(aij)
+            xyg = np.hstack(xyg)
+        else:
+            i=np.array([],dtype=self.UINT)
+            j=np.array([],dtype=self.UINT)
+            aij=np.array([],dtype=self.FLT)
+            xyg=np.array([],dtype=self.UINT)
+            
         return i,j,aij,xyg
                         
 
