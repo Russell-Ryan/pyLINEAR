@@ -132,7 +132,7 @@ class Matrix(object):
         # get the reverse indices
         segids=np.array(list(sources.keys()))
         self.ri=indices.reverse(segids[srcind])
-        self.hsrc=np.bincount(srcind.astype(np.int64)).astype(self.UINT)
+        self.hsrc=np.bincount(srcind.astype(np.int)).astype(self.UINT)
 
         # compute the frobenius norm (to prepare for inversion later)
         self.frob=np.sqrt(np.sum(aij*aij))
