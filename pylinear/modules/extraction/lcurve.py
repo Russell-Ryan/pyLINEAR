@@ -197,7 +197,8 @@ class LCurve(object):
         
         plt.tight_layout()
         pdf.savefig(fig)
-                 
+        plt.close()
+        
     @property
     def logfrob(self):
         return np.log10(self.frob)
