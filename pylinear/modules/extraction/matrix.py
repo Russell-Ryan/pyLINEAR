@@ -71,7 +71,7 @@ class Matrix(object):
         #    pid = os.getpid()
         #    py = psutil.Process(pid)
 
-        #nels=0       # a counter for the number possible matrix elements
+        count=0       # a counter for the number possible matrix elements
         for fltindex,(fltfile,flt) in enumerate(grisms):
             # update the progressbar
             pb.increment()
@@ -84,7 +84,7 @@ class Matrix(object):
             #if __RAM__:
             #    print("read loadFLT:",py.memory_info()[0]/1024/1024/1024)
 
-            #nels+=len(data[0])
+            count+=len(data[0])
             i.append(data[0])
             j.append(data[1])
             aij.append(data[2])
@@ -92,8 +92,7 @@ class Matrix(object):
             #    print("stacked:",py.memory_info()[0]/1024/1024/1024)
 
         # stacking all the data into a 1D numpy array
-        nels=sum(len(s) for s in i)
-        if nels>0:
+        if count>0:
             i = np.hstack(i)
             j = np.hstack(j)
             aij = np.hstack(aij)
