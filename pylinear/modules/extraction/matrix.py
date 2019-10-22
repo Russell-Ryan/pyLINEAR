@@ -227,7 +227,7 @@ class Matrix(object):
                     # indices.unique?)
                     xyg=np.sort(xyg)
                     
-                    xg,yg=indices.one2two(xyg,detimg.naxis)
+                    xg,yg=indices.one2two(xyg,detimg.shape)
                     xg=xg.astype(self.UINT)
                     yg=yg.astype(self.UINT)
                     bi=sci[yg,xg]/unc[yg,xg]
@@ -272,13 +272,13 @@ class Matrix(object):
                 for detname,detimg in flt:
                     h5det=h5[detname]              # get the group
                     detconf=mskconf[detname]       # grism config
-                    mask=np.ones(detimg.naxis,dtype=np.bool)
+                    mask=np.ones(detimg.shape,dtype=np.bool)
                     for beam,beamconf in detconf:
 
                         h5beam=h5det[beam]
                         for segid in h5beam:
                             xyg=h5beam[segid][:]
-                            xg,yg=indices.one2two(xyg,detimg.naxis)
+                            xg,yg=indices.one2two(xyg,detimg.shape)
                             mask[yg,xg]=False
                     masks[detname]=mask
         return masks
@@ -323,7 +323,7 @@ class Matrix(object):
                     wav1=np.amax(limits)
                     
                     # remove pixels out of range and/or in GPX
-                    xg,yg=indices.one2two(ddt.xyg,detimg.naxis)
+                    xg,yg=indices.one2two(ddt.xyg,detimg.shape)
                     g=np.where((ddt.wav >=wav0) & (ddt.wav<=wav1) & \
                                (gpx[yg,xg]) & (ddt.val>thresh))[0]
                     if len(g)!=0:

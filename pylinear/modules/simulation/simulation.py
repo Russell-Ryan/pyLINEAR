@@ -132,7 +132,7 @@ def simulateWorker(flt,conf,grismconf,grismflat,sources,info,overwrite=True):
             extver=detconf.extver
         
             # create an empty array
-            sci=np.zeros(np.flip(det.naxis,0),dtype=SCITYPE)
+            sci=np.zeros(np.flip(det.shape,0),dtype=SCITYPE)
 
             for beam,beamconf in detconf:
                 beamgrp=detgrp[beam]
@@ -154,7 +154,7 @@ def simulateWorker(flt,conf,grismconf,grismflat,sources,info,overwrite=True):
                         
 
                         # compute the (x,y) pair for each val in the DDT
-                        xg,yg=indices.one2two(ddt.xyg,det.naxis)
+                        xg,yg=indices.one2two(ddt.xyg,det.shape)
 
                         # get scaling terms
                         s=beamconf.sensitivity(ddt.wav)
@@ -171,7 +171,7 @@ def simulateWorker(flt,conf,grismconf,grismflat,sources,info,overwrite=True):
                         del ddt
                         
                         # get unique coordinates
-                        xg,yg=indices.one2two(xyu,det.naxis)
+                        xg,yg=indices.one2two(xyu,det.shape)
                         del xyu
 
                         # put flux in the image
@@ -205,7 +205,8 @@ def simulateWorker(flt,conf,grismconf,grismflat,sources,info,overwrite=True):
     outfile=flt.filename
     #print('[info]writing simulated image {}'.format(outfile))
     hdul.writeto(outfile,overwrite=overwrite)
-
+    hdul.close()
+    
     # do we gzip?
     if conf['gzip']:
         gzip.gzip(outfile)

@@ -1,6 +1,7 @@
 import numpy as np
 import multiprocessing as mp
 import os
+import pdb
 
 from pylinear import h5table
 from pylinear.h5table import h5utils
@@ -16,20 +17,18 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
     pixfrac=1.0   # DO NOT CHANGE THIS.  NOT YET UNDERSTOOD!
         
     # remake the table?
-    #if not (remake or not os.path.isfile(tab.filename)):
-    #    return tab.filename
-
     if remake:
         if os.path.isfile(tab.filename):
             os.remove(tab.filename)
-        else:
-            return tab.filename
+    else:
+        return tab.filename
     
     # pixel based ------------------------------
     dx=np.array([0,0,1,1])            # HARDCODE
     dy=np.array([0,1,1,0])            # HARDCODE
     #-------------------------------------------
 
+    # open the file
     with tab as h5:
 
         # add some stuff to that header
@@ -39,18 +38,23 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
         h5utils.writeAttr(h5,'detband',sources.obsdata.detName)
         h5utils.writeAttr(h5,'maglimit',np.float32(sources.maglimit))
         
-
         
         # process each detector
-        for det,detconf in grismconf:
-            detgrp=h5.require_group(det)
+        for detname,detconf in grismconf:
+            
+            detgrp=h5.require_group(detname)
+
+            # add some attributes to this
+            detgrp.attrs['naxis1']=np.uint16(detconf.naxis[0])
+            detgrp.attrs['naxis2']=np.uint16(detconf.naxis[1])
             
             # get the center of the detector
             xc,yc=detconf.naxis/2.
             
             # get this grism image
-            thisGrism=grism[det]
+            thisGrism=grism[detname]
 
+            
             # the pixel area of this detector
             detpixelarea=thisGrism.pixelarea
 
@@ -60,7 +64,8 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
                     sourcesDone=[]
                 else:
                     sourcesDone=list(beamgrp.keys())
-                
+
+                    
                 #if beam in detgrp:
                 #    beamgrp=detgrp[beam]
                 #    sourcesDone=list(beamgrp.keys())
@@ -91,6 +96,7 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
                 # process each source
                 for segid,src in sources:
                     if src.name not in sourcesDone:  # only process new sources
+
                         
                         # compute ratio of pixel area between
                         # the FLT and the source
@@ -104,10 +110,12 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
                             # convert the corners of the direct image to the
                             # corresponding grism image
                             xg,yg=src.xy2xy(xd+dx,yd+dy,thisGrism)
-
+                                                        
                             # disperse those corners
                             xyg,lam,val=beamconf.specDrizzle(xg,yg,wav,
                                                              pixfrac=pixfrac)
+
+
                             if len(xyg)!=0:
                                 
                                 # create the PDT
@@ -128,6 +136,7 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
                         if len(odt)!=0:
                             xyc=np.float32(src.xyc-src.ltv)
                             
+
                             if TTYPE=='ODT':
                                 odt.writeH5(beamgrp,RA=src.adc[0],\
                                             Dec=src.adc[1],\
@@ -136,6 +145,8 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
                                             area=np.float32(src.area),\
                                             npix=np.uint32(src.npix))
                             elif TTYPE=='DDT':
+
+                                
                                 ddt=odt.decimate(thisGrism.npix)
                                 ddt.writeH5(beamgrp,RA=src.adc[0],\
                                             Dec=src.adc[1],\
@@ -143,6 +154,8 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
                                             mag=np.float32(src.mag),\
                                             area=np.float32(src.area),\
                                             npix=np.uint32(src.npix))
+
+                                
                             else:
                                 raise NotImplementedError("invalid table type")
                                         
@@ -155,9 +168,13 @@ def makeOMTs(flt,sources,grismconf,path,remake,nsub):
     # create the table
     tab=h5table.H5Table(flt.dataset,'omt',path=path)
 
+
     # remake the table?
-    if remake and os.path.isfile(tab.filename):
-        os.remove(tab.filename)
+    if remake:
+        if os.path.isfile(tab.filename):
+            os.remove(tab.filename)
+    else:
+        return tab.filename
 
     with tab as h5:
 
@@ -169,13 +186,17 @@ def makeOMTs(flt,sources,grismconf,path,remake,nsub):
         h5utils.writeAttr(h5,'maglimit',np.float32(sources.maglimit))
 
 
-        for det,detconf in grismconf:
+        for detname,detconf in grismconf:
 
-            detgrp=h5.require_group(det)
+            detgrp=h5.require_group(detname)
 
+            # add some attributes to this
+            detgrp.attrs['naxis1']=np.uint16(detconf.naxis[0])
+            detgrp.attrs['naxis2']=np.uint16(detconf.naxis[1])
+            
             # get the center of the detector
             xc,yc=detconf.naxis/2.
-            thisGrism=flt[det]
+            thisGrism=flt[detname]
                 
             for beam,beamconf in detconf:
                 beamgrp=detgrp.require_group(beam)
@@ -237,19 +258,14 @@ def tabulate(conf,grisms,sources,grismconf,ttype):
         raise NotImplementedError("Table type ({}) not found.".format(ttype))
 
 
-    # print a message
-    #print('[info]Making '+ttype)
-    
-        
     # arguments that do not change
     args=(sources,grismconf,conf['path'],conf['remake'],conf['nsub'])
 
     # run the code
-    #q=[func(flt,*args) for name,flt in grisms]
-    #pool.pool(func,grisms.values(),*args,ncpu=conf['cpu']['ncpu'])
-    #p=pool.Pool(ncpu=conf['cpu']['ncpu'])
     p=Pool(ncpu=conf['cpu']['ncpu'])
     filenames=p(func,grisms.values,*args,prefix='Making ODTs')
 
+    #filenames=[func(grism,*args) for grism in grisms.values]
+        
     return filenames
     

@@ -1,6 +1,9 @@
 import numpy as np
 import scipy.ndimage as sn
+#from astropy.wcs import WCS
+
 import pdb
+
 
 from .direct import Direct
 from .extractionparameters import ExtractionParameters
@@ -96,6 +99,7 @@ class Source(WCS,ExtractionParameters,Direct):
             # compute the centroids (in pixel and RA,Dec)
             self.xyc=np.array([np.average(self.xd,weights=self.wht), \
                                np.average(self.yd,weights=self.wht)])
+            #self.adc=self.all_pix2world(*self.xyc,0)
             self.adc=np.array(self.xy2ad(self.xyc[0],self.xyc[1]))
 
         elif self.total==0:
@@ -115,6 +119,7 @@ class Source(WCS,ExtractionParameters,Direct):
         xd=self.xd-int(self.ltv[0])
         yd=self.yd-int(self.ltv[1])
         tot=np.sum(img.data[yd,xd])
+
         return tot
 
 

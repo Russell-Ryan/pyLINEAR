@@ -35,7 +35,7 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
                         # collect the points accordingly
                         xyg=ddt.xyg.to_numpy
                         xyg=indices.unique(xyg)
-                        x,y=indices.one2two(xyg,detimg.naxis)
+                        x,y=indices.one2two(xyg,detimg.shape)
                         del xyg
 
                         # get the vertices

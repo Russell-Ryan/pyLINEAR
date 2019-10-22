@@ -92,7 +92,7 @@ def update(conf,grisms,grismconf,mat,result):
 
                     
                     # get the (x,y) pairs
-                    x,y=indices.one2two(pixindex[g],det.naxis)
+                    x,y=indices.one2two(pixindex[g],det.shape)
 
                     # update the model
                     hdul[modext].data[y,x]+=(model[g]*unc[y,x])

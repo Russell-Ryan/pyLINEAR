@@ -3,7 +3,7 @@ from astropy.io import fits
 import numpy as np
 from shapely.geometry import Polygon
 import h5py
-import os
+import os,getpass
 from matplotlib.backends.backend_pdf import PdfPages
 
 import h5axeconfig
@@ -184,7 +184,7 @@ def extract(conf,sources):
     mskconf=h5axeconfig.Camera(conffile,grisms.grism,beams=conf['mask'])
     grismFF=h5axeconfig.FlatField(calconf['h5flat'],grisms.grism)
 
-    
+
     # make the tables, if need-be
     tabulate(conf['tables'],grisms,sources,extconf,'odt')
     #tabulate(conf['tables'],grisms,sources,mskconf,'omt')
@@ -202,6 +202,15 @@ def extract(conf,sources):
     
     with h5py.File(h5file,'w') as h5,PdfPages(pdffile) as pdf:
         now=datetime.datetime.now()
+
+        # set some things in the PDF
+        d=pdf.infodict()
+        d['Title']='Results from PyLINEAR'
+        d['Author']=getpass.getuser()
+        d['Subject']='L-curve results'
+        d['Keywords']='pylinear grism l-curve'
+        d['CreationDate']=now.strftime("%Y-%m-%d")
+
         h5.attrs['date']=np.string_(now.strftime("%Y-%m-%d"))
         h5.attrs['time']=np.string_(now.strftime("%H:%M:%S"))
         h5.attrs['nimage']=np.uint16(len(grisms))

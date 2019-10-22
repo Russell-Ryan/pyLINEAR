@@ -126,8 +126,16 @@ class Data(object):
         return list(self.sources.values())
 
     def select(self,segids):
-        new=copy.deepcopy(self)
+        #keep=set(segids)
+        #has=set(self.sources.keys())
+        #remove=has.difference(keep)
+        #for r in remove:
+        #    del self.sources[r]
+
+
+        new=copy.copy(self)
         new.sources={segid: self.sources[segid] for segid in segids}
+       
         return new
 
     
@@ -205,9 +213,10 @@ class Data(object):
         for segid,ri in revind:
             # set the prefix
             pb.prefix=self.PREFIX.format(segid)            
-                        
+
+            
             # compute (x,y) pairs
-            x,y=indices.one2two(ri,seg.naxis)
+            x,y=indices.one2two(ri,seg.shape)
 
             # get bounding box
             x0,x1=np.amin(x),np.amax(x)
@@ -216,6 +225,7 @@ class Data(object):
             # call something like hextract
             subseg=seg.extract(x0,x1,y0,y1)
             subimg=img.extract(x0,x1,y0,y1)
+
             
             # put the segID in the header
             subseg['SEGID']=segid
@@ -227,6 +237,7 @@ class Data(object):
                                maglim=conf['maglim'],minpix=conf['minpix'])
                                
 
+            
             # update the progress bar
             pb.increment()
             
