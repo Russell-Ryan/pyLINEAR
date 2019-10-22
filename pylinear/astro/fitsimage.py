@@ -1,10 +1,10 @@
 from astropy.io import fits
 import numpy as np
 
-from . import wcs
+from .wcs import WCS
 #import wcs
 
-class FitsImage(wcs.WCS):
+class FitsImage(WCS):
     def __init__(self,*args,extension=0):
         self.img=None
         self.hdr=None
@@ -21,7 +21,7 @@ class FitsImage(wcs.WCS):
     def loadHDU(self,hdu):
         self.img=hdu.data
         self.hdr=hdu.header
-        wcs.WCS.__init__(self,self.hdr)
+        WCS.__init__(self,self.hdr)
         
     @property
     def data(self):
@@ -67,10 +67,10 @@ class FitsImage(wcs.WCS):
         y1+=1
 
         # trim to be in the range
-        x0=np.clip(x0,0,self.naxis[0])
-        x1=np.clip(x1,0,self.naxis[0])
-        y0=np.clip(y0,0,self.naxis[1])
-        y1=np.clip(y1,0,self.naxis[1])
+        x0=np.clip(x0,0,self.shape[0])
+        x1=np.clip(x1,0,self.shape[0])
+        y0=np.clip(y0,0,self.shape[1])
+        y1=np.clip(y1,0,self.shape[1])
 
         # copy over the data and the header
         img=self.img[y0:y1,x0:x1]
@@ -98,7 +98,7 @@ class FitsImage(wcs.WCS):
         # create output in same datatype
         out=FitsImage()
         out.loadHDU(new[0])
-
+        
         return out
 
     def writeto(self,filename,overwrite=True):
