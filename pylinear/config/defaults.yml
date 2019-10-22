@@ -75,12 +75,12 @@ modules:
       perform: true                      # flag to compute residuals
       gzip: false                        # flag to gzip output file
           
-#  cutout:
-#    perform: false
-#    beam: A
-#    #grism: G102
-#    imglst: flt.lst
-#    padding: [0,2]
-#    cpu: *CPU
-#    calib: *CALIB
-
+  cutout:
+    perform: false
+    beam: A
+    #grism: G102
+    imglst: flt.lst
+    padding: [0,2]
+    cpu: *CPU
+    calib: *CALIB
+    tables: *TABLES
