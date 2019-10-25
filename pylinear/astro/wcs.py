@@ -49,18 +49,41 @@ class WCS(astropyWCS):
         else:
             n=len(x)
 
-        i,j=np.where(self.sip.a != 0)
-        dxy=dx.reshape((n,1))**(i-1)*dy.reshape((n,1))**j
-        dadx=np.dot(dxy,self.sip.a[i,j]*i)+1
-        dxy=dx.reshape((n,1))**i*dy.reshape((n,1))**(j-1)
-        dady=np.dot(dxy,self.sip.a[i,j]*j)
+
+        # compute derivatives for A
+        ii,jj=np.where(self.sip.a != 0)
+        dadx=np.ones_like(dx)
+        dady=np.zeros_like(dx)
+        for i,j,v in zip(ii,jj,self.sip.a[ii,jj]):
+            if i!=0:
+                dadx+=(v*i*dx**(i-1)*dy**j)
+            if j!=0:
+                dady+=(v*j*dx**i*dy**(j-1))
+                
+            
+            
+
+        #dxy=dx.reshape((n,1))**(i-1)*dy.reshape((n,1))**j
+        #dadx=np.dot(dxy,self.sip.a[i,j]*i)+1
+        #dxy=dx.reshape((n,1))**i*dy.reshape((n,1))**(j-1)
+        #dady=np.dot(dxy,self.sip.a[i,j]*j)
 
 
-        i,j=np.where(self.sip.b != 0)
-        dxy=dx.reshape((n,1))**(i-1)*dy.reshape((n,1))**j
-        dbdx=np.dot(dxy,self.sip.b[i,j]*i)
-        dxy=dx.reshape((n,1))**i*dy.reshape((n,1))**(j-1)
-        dbdy=np.dot(dxy,self.sip.b[i,j]*j)+1
+        # compute derivatives for B
+        
+        ii,jj=np.where(self.sip.b != 0)
+        dbdx=np.zeros_like(dx)
+        dbdy=np.ones_like(dx)
+        for i,j,v in zip(ii,jj,self.sip.b[ii,jj]):
+            if i!=0:
+                dbdx+=(v*i*dx**(i-1)*dy**j)
+            if j!=0:
+                dbdy+=(v*j*dx**i*dy**(j-1))
+
+        #dxy=dx.reshape((n,1))**(i-1)*dy.reshape((n,1))**j
+        #dbdx=np.dot(dxy,self.sip.b[i,j]*i)
+        #dxy=dx.reshape((n,1))**i*dy.reshape((n,1))**(j-1)
+        #dbdy=np.dot(dxy,self.sip.b[i,j]*j)+1
 
         jacobian = scale*np.abs(dadx * dbdy - dady * dbdx)
         if n==1:
@@ -239,7 +262,7 @@ class WCS(astropyWCS):
 
     def xy2xy(self,x,y,obj):
         a,d=self.all_pix2world(x,y,0)
-        return self.all_world2pix(a,d,0)
+        return obj.all_world2pix(a,d,0)
     
     
         
