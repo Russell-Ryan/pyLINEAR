@@ -110,7 +110,9 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
                             # convert the corners of the direct image to the
                             # corresponding grism image
                             xg,yg=src.xy2xy(xd+dx,yd+dy,thisGrism)
-                                                        
+                           
+
+                            
                             # disperse those corners
                             xyg,lam,val=beamconf.specDrizzle(xg,yg,wav,
                                                              pixfrac=pixfrac)
@@ -164,7 +166,7 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
 
 
 def makeOMTs(flt,sources,grismconf,path,remake,nsub):
-    print("[info]Making the OMTs")
+    #print("[info]Making the OMTs")
     # create the table
     tab=h5table.H5Table(flt.dataset,'omt',path=path)
 
@@ -212,7 +214,7 @@ def makeOMTs(flt,sources,grismconf,path,remake,nsub):
                 #else:
                 #    beamgrp=detgrp.create_group(beam)
                 #    sourcesDone=[]
-                    
+
                 wav=beamconf.wavelengths(xc,yc,1)      # force nsub=1
 
                 # add some stuff to table
@@ -226,8 +228,10 @@ def makeOMTs(flt,sources,grismconf,path,remake,nsub):
                         
                         xd,yd=src.convexHull
                         xg,yg=src.xy2xy(xd,yd,thisGrism)
+                                                
                         xyg,lam,val=beamconf.specDrizzle(xg,yg,wav)
                         if len(xyg)!=0:
+                            xyc=np.float32(src.xyc-src.ltv)
                             omt=h5table.OMT(segid)
                             xyg=indices.unique(np.array(xyg))
                             omt.extend(xyg)
@@ -237,7 +241,7 @@ def makeOMTs(flt,sources,grismconf,path,remake,nsub):
                                         mag=np.float32(src.mag),\
                                         area=np.float32(src.area),\
                                         npix=np.uint32(src.npix))
-                            #omt.writeH5(beamgrp)
+
     return tab.filename
 
 def tabulate(conf,grisms,sources,grismconf,ttype):
@@ -263,9 +267,9 @@ def tabulate(conf,grisms,sources,grismconf,ttype):
 
     # run the code
     p=Pool(ncpu=conf['cpu']['ncpu'])
-    filenames=p(func,grisms.values,*args,prefix='Making ODTs')
+    prefix='Making {}s'.format(ttype.upper())
+    filenames=p(func,grisms.values,*args,prefix=prefix)
 
-    #filenames=[func(grism,*args) for grism in grisms.values]
         
     return filenames
     

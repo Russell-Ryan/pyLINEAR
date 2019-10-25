@@ -33,7 +33,7 @@ class OMT(Base):
         if self.name in grp:
             new=grp[self.name]
             data=h5utils.loadData(new,self.ttype)
-            self.xyg=columns.XYG(data['xyg'])
+            self.xyg=columns.XYG(data)
         else:
             self.notFound()
 

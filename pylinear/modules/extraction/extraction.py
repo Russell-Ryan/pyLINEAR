@@ -8,8 +8,8 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 import h5axeconfig
 
-from pylinear import grism
-from pylinear.utilities import gzip
+from pylinear import grism,h5table
+from pylinear.utilities import gzip,indices
 from . import methods,residuals,mcmcunc
 from .matrix import Matrix
 from . import group
@@ -184,17 +184,38 @@ def extract(conf,sources):
     mskconf=h5axeconfig.Camera(conffile,grisms.grism,beams=conf['mask'])
     grismFF=h5axeconfig.FlatField(calconf['h5flat'],grisms.grism)
 
-
-    # make the tables, if need-be
-    tabulate(conf['tables'],grisms,sources,extconf,'odt')
-    #tabulate(conf['tables'],grisms,sources,mskconf,'omt')
-
     # set extraction values for each source
     sources.setExtractionParameters(conf,extconf)
     
-    print('\n\n')
-    print('[debug]make beam masks here!')
-    print('\n\n')
+    # make the tables, if need-be
+    tabulate(conf['tables'],grisms,sources,extconf,'odt')
+    tabulate(conf['tables'],grisms,sources,mskconf,'omt')
+
+    # make beam masks
+    path=conf['tables']['path']
+    for fltname,flt in grisms:
+        with h5table.H5Table(flt.dataset,'omt',path=path) as h5:
+        
+            for detname,detconf in mskconf:
+                h5det=h5[detname]
+                maskXYG=set()
+                for beamname,beamconf in detconf:
+                    h5beam=h5det[beamname]
+                    for segid,src in sources:
+                        omt=h5table.OMT(segid)
+                        omt.readH5(h5beam)
+                        if len(omt) != 0:
+                            thisXYG=set(omt.xyg)
+                            maskXYG=maskXYG.union(thisXYG)
+                maskXYG=np.array(list(maskXYG),dtype=np.uint32)
+                grisms[fltname][detname].extendBPX(maskXYG)
+
+
+    
+    
+    #print('\n\n')
+    #print('[debug]make beam masks here!')
+    #print('\n\n')
             
     # output file names
     h5file='{}.h5'.format(conf['outroot'])

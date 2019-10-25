@@ -42,6 +42,9 @@ class Data(object):
             t=t+'{:>8} {}\n'.format(v.filetype,v.filename)
         return t
 
+    def __getitem__(self,k):
+        return self.images[k]
+    
     def __iter__(self):
         yield from self.images.items()
 

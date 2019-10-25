@@ -1,4 +1,4 @@
-
+import numpy as np
 from astropy.io import fits
 
 import h5axeconfig
@@ -12,10 +12,12 @@ from .detector import Detector
 class ObservedGrism(GrismImage):
     filetype='observed'
 
+    
 
     # must pass extensions into this
     def __init__(self,fileName,exts):
         GrismImage.__init__(self,fileName,filename=True)
+      
         
         # read the PHDU
         with fits.open(self.filename) as hdul:
@@ -39,8 +41,9 @@ class ObservedGrism(GrismImage):
         out.loadFile(self.filename,(extname,extver))
         return out
 
-              
-        
+    def extendBPX(self,bpx,detname):
+        self.detectors[detname].extendBPX(bpx)
+
 
         #with fits.open(self.filename) as hdul:
         #    hdu=hdul[(extname,extver)]

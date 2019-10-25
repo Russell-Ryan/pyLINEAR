@@ -169,7 +169,9 @@ class Matrix(object):
         i,j,aij=[],[],[]
         
         # make mask for this FLT
-        masks=self.maskBeams(flt,mskconf,path)
+        #print("[debug]REMOVE maskBeams")
+
+        #masks=self.maskBeams(flt,mskconf,path)
         #import pickle,os,psutil      
         #pid = os.getpid()
         #py = psutil.Process(pid)
@@ -193,14 +195,18 @@ class Matrix(object):
                 sci=flt.readfits(detconf.sciext,detconf.extver)
                 unc=flt.readfits(detconf.uncext,detconf.extver)
                 dqa=flt.readfits(detconf.dqaext,detconf.extver)
-                                                
 
+                
+                # make a container for the pixels to come
                 xyg=[]         # a container
 
                 # make a good pixel mask
+                flt[detname].applyBPX(dqa)    # update DQA with the bpx
                 gpx=(dqa == 0) & (unc > 0)
-                if len(masks)!=0:
-                    gpx &= masks[detname]
+
+
+                #if len(masks)!=0:
+                #    gpx &= masks[detname]
                 #del dqa,dqahdr,unchdr      # don't need these anymore
                 
                 #if __RAM__:
