@@ -119,7 +119,7 @@ class Source(WCS,ExtractionParameters,Direct):
         ''' compute the instrumental flux of this source in an image '''
         xd=self.xd-int(self.ltv[0])
         yd=self.yd-int(self.ltv[1])
-        tot=np.sum(img.data[yd,xd])
+        tot=np.sum(img[yd,xd])
 
         return tot
 

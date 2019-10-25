@@ -9,7 +9,7 @@ from fitsimage import FITSImage
 
 from .source import Source
 from .obslst import ObsLST
-from pylinear.astro import fitsimage
+#from pylinear.astro import fitsimage
 from pylinear.utilities import indices,progressbar
 
 
@@ -153,7 +153,8 @@ class Data(object):
 
         for name,filt,zero in self.obsdata:
             lamb.append(filt.photplam)
-            img=fitsimage.FitsImage(name)
+            img=FITSImage(name,0)
+            #img=fitsimage.FitsImage(name)
             f=[]
             for segid,src in self.sources.items():
                 tot=src.instrumentalFlux(img)

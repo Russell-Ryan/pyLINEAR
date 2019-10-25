@@ -5,7 +5,7 @@ import datetime
 
 import h5axeconfig
 
-from pylinear.astro import fitsimage
+#from pylinear.astro import fitsimage
 from pylinear.utilities import indices,Pool
 from pylinear import grism,h5table
 
@@ -41,6 +41,9 @@ def cutoutWorker(flt,conf,grismconf,sources):
                     xg,yg=indices.one2two(ddt.xyg,detimg.shape)
                     if len(ddt)>0:
 
+
+                        print("USE FITSIMAGE TO CUT STAMP")
+                        
                         x0=np.clip(np.amin(xg)-xpad-1,0,detimg.shape[1])
                         x1=np.clip(np.amax(xg)+xpad,0,detimg.shape[1])
                         y0=np.clip(np.amin(yg)-ypad-1,0,detimg.shape[0])

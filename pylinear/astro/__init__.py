@@ -2,5 +2,5 @@
 # make it look and feel like the IDL astrolib, because that worked better
 # for my immediate purposes.
 
-from .fitsimage import FitsImage
+#from .fitsimage import FitsImage
 from .wcs import WCS
