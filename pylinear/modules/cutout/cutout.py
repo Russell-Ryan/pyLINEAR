@@ -26,7 +26,8 @@ def cutoutWorker(flt,conf,grismconf,sources):
             h5detIn=h5In[detname]
             detconf=grismconf[detname]
 
-            sci,scihdr=flt.readfits(detconf.sciext,detconf.extver)
+            #sci,scihdr=flt.readfits(detconf.sciext,detconf.extver)
+            sci=flt.readfits(detconf.sciext,detconf.extver)
             
             for beamname,beamconf in detconf:
                 h5beamOut=h5detOut.require_group(beamname)
@@ -46,7 +47,8 @@ def cutoutWorker(flt,conf,grismconf,sources):
                         y1=np.clip(np.amax(yg)+ypad,0,detimg.shape[0])
 
                         sub=sci[y0:y1,x0:x1]
-                        hdr=scihdr.copy()
+                        #hdr=scihdr.copy()
+                        hdr=sci.header.copy()
                         hdr['NAXIS1']=x1-x0
                         hdr['NAXIS2']=y1-y0
                         hdr['CRPIX1']-=x0

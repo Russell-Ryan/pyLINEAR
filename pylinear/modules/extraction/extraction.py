@@ -201,16 +201,17 @@ def extract(conf,sources):
     pdffile='{}.pdf'.format(conf['outroot'])
     
     with h5py.File(h5file,'w') as h5,PdfPages(pdffile) as pdf:
-        now=datetime.datetime.now()
-
+        
         # set some things in the PDF
         d=pdf.infodict()
-        d['Title']='Results from PyLINEAR'
+        d['Title']='L-Curve Results'
         d['Author']=getpass.getuser()
-        d['Subject']='L-curve results'
-        d['Keywords']='pylinear grism l-curve'
-        d['CreationDate']=now.strftime("%Y-%m-%d")
+        d['Subject']='L-Curve results for grouped data from pyLINEAR.'
+        d['Keywords']='pylinear grism l-curve groups'
+        d['Producer']=__name__
 
+        # update the hdf5 output
+        now=datetime.datetime.now()
         h5.attrs['date']=np.string_(now.strftime("%Y-%m-%d"))
         h5.attrs['time']=np.string_(now.strftime("%H:%M:%S"))
         h5.attrs['nimage']=np.uint16(len(grisms))

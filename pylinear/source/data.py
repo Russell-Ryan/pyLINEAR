@@ -5,6 +5,8 @@ from collections import OrderedDict
 import copy
 import pdb
 
+from fitsimage import FITSImage
+
 from .source import Source
 from .obslst import ObsLST
 from pylinear.astro import fitsimage
@@ -188,16 +190,20 @@ class Data(object):
         ''' load sources via a classic segmentation map '''
         print('[info]Loading sources from CLASSIC segmentation map')
 
+
         # load the images
-        seg=fitsimage.FitsImage()
-        seg.loadHDU(seglist[0])
+        #seg=fitsimage.FitsImage()
+        #seg.loadHDU(seglist[0])
+        #
+        #img=fitsimage.FitsImage()
+        #img.loadHDU(imglist[0])
 
-        img=fitsimage.FitsImage()
-        img.loadHDU(imglist[0])
 
+        seg=FITSImage(seglist,0)
+        img=FITSImage(imglist,0)
         
         # get the reverse indices (is potentially slow)
-        revind=indices.reverse(seg.data.astype(self.SEGTYPE))
+        revind=indices.reverse(seg.image.astype(self.SEGTYPE))
         if revind[0][0]==0:
             del revind[0]     # remove the sky index from the segmentation
 
@@ -257,18 +263,28 @@ class Data(object):
             # set the prefix
             pb.prefix=self.PREFIX.format(segid)            
 
-            img=fitsimage.FitsImage()
-            img.loadHDU(imghdu)
+
+            # read the images
+            seg=FITSImage(seglist,seghdu)
+            img=FITSImage(imglist,imghdu)
+
             
-            seg=fitsimage.FitsImage()
-            seg.loadHDU(seghdu)
+            #img=fitsimage.FitsImage()
+            #img.loadHDU(imghdu)
+            #seg=fitsimage.FitsImage()
+            #seg.loadHDU(seghdu)
             
             src=Source(img,seg,detzpt,
-                       lamb0=self.keyword('LAMB0',seghdu,conf),
-                       lamb1=self.keyword('LAMB1',seghdu,conf),
-                       dlamb=self.keyword('DLAMB',seghdu,conf),
-                       filtsig=self.keyword('FILTSIG',seghdu,conf),
-                       eroderad=self.keyword('ERODERAD',seghdu,conf),
+                       lamb0=self.keyword('LAMB0',seg,conf),
+                       lamb1=self.keyword('LAMB1',seg,conf),
+                       dlamb=self.keyword('DLAMB',seg,conf),
+                       filtsig=self.keyword('FILTSIG',seg,conf),
+                       eroderad=self.keyword('ERODERAD',seg,conf),
+                       #lamb0=self.keyword('LAMB0',seghdu,conf),
+                       #lamb1=self.keyword('LAMB1',seghdu,conf),
+                       #dlamb=self.keyword('DLAMB',seghdu,conf),
+                       #filtsig=self.keyword('FILTSIG',seghdu,conf),
+                       #eroderad=self.keyword('ERODERAD',seghdu,conf),
                        maglim=conf['maglim'],minpix=conf['minpix'])
             self[src.segid]=src
 

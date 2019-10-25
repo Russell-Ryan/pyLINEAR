@@ -51,7 +51,7 @@ class Source(WCS,ExtractionParameters,Direct):
 
         
         # get the good pixels
-        g=np.where(seg.data == self.segid)
+        g=np.where(seg == self.segid)
         self.npix=len(g[0])
 
 
@@ -86,7 +86,8 @@ class Source(WCS,ExtractionParameters,Direct):
 
         # compute a few brightness measures
         self.zero=zero
-        self.total=np.sum(img.data[g])
+        #self.total=np.sum(img.data[g])
+        self.total=np.sum(img[g])
         if self.total>0:
             self.mag=-2.5*np.log10(self.total)+self.zero
             if self.mag >maglim:
@@ -94,7 +95,7 @@ class Source(WCS,ExtractionParameters,Direct):
                 self.valid=False
                 return
             
-            self.wht=img.data[g]/self.total
+            self.wht=img[g]/self.total
 
             # compute the centroids (in pixel and RA,Dec)
             self.xyc=np.array([np.average(self.xd,weights=self.wht), \
@@ -178,33 +179,30 @@ class Source(WCS,ExtractionParameters,Direct):
         
     def erode(self,seg,img,eroderad,key='ERODERAD'):
         
-        
         if eroderad is None or eroderad<=0:
             return seg,img
-    
     
         dim=np.int(2*eroderad+1)
         kern=np.ones((dim,dim),dtype=np.int)
 
-        good=seg.data == self.segid
+        good=seg == self.segid
 
-        flux0=np.sum(img.data[good])
+        flux0=np.sum(img[np.where(good)])
 
         eroded=sn.binary_erosion(good,structure=kern).astype(np.int)
-    
-        b=np.where((seg.data != 0) & (seg.data!=self.segid))
-        g=np.where(eroded)
-        eroded[g]=seg.data[g]
-        eroded[b]=seg.data[b]
-
-
-        flux1=np.sum(img.data[g])
-        frat=flux0/flux1
-        print('scale the weights by this amount? or apply it post facto?')
-
         
-        seg.data=eroded
+        b=np.where((seg != 0) & (seg != self.segid))
+        g=np.where(eroded)
+        eroded[g]=seg[g]
+        eroded[b]=seg[b]
+
+        flux1=np.sum(img[g])
+        frat=flux0/flux1
+        #print('scale the weights by this amount? or apply it post facto?')
+        
+        seg.image=eroded
         seg[key]=eroderad
+
         return seg,img
 
     def isophotal(self,seg,img,sblim):
@@ -228,8 +226,15 @@ class Source(WCS,ExtractionParameters,Direct):
         if binfact is None or binfact <=1:
             return seg,img
         
+
+
+
         binfact=int(binfact)
         
+
+        print("this is all to change with  FITSImage")
+        q=input()
+
         
         dim=img.shape
         new=[(dim[0]+1)//binfact,(dim[1]+1)//binfact]

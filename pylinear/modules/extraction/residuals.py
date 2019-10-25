@@ -38,12 +38,18 @@ def create(conf,grisms,grismconf):
             hdul.append(fits.PrimaryHDU(header=hdr))
 
             # 1st Extensions: the science image
-            sci,scihdr=flt.readfits(detconf.sciext,detconf.extver)
-            hdul.append(fits.ImageHDU(data=sci,header=scihdr))  
+            sci=flt.readfits(detconf.sciext,detconf.extver)
+            hdul.append(sci.ImageHDU())
             dtype=np.dtype(sci.dtype.name)
 
+
+            #sci,scihdr=flt.readfits(detconf.sciext,detconf.extver)
+            #hdul.append(fits.ImageHDU(data=sci,header=scihdr))  
+            #dtype=np.dtype(sci.dtype.name)
+
             # 2nd Extensions: the model image
-            mod=np.zeros_like(sci)
+            #mod=np.zeros_like(sci)
+            mod=np.zeros_like(sci.image)
             modhdr=det.mkhdr(dtype,extname='MOD',extver=detconf.extver)
             hdul.append(fits.ImageHDU(data=mod,header=modhdr))
 
@@ -86,9 +92,14 @@ def update(conf,grisms,grismconf,mat,result):
                     resext=3*i+3
                     
                     # read the images
-                    sci,scihdr=flt.readfits(detconf.sciext,detconf.extver)
-                    unc,unchdr=flt.readfits(detconf.uncext,detconf.extver)
-                    dqa,dqahdr=flt.readfits(detconf.dqaext,detconf.extver)
+                    #sci,scihdr=flt.readfits(detconf.sciext,detconf.extver)
+                    #unc,unchdr=flt.readfits(detconf.uncext,detconf.extver)
+                    #dqa,dqahdr=flt.readfits(detconf.dqaext,detconf.extver)
+                    sci=flt.readfits(detconf.sciext,detconf.extver)
+                    unc=flt.readfits(detconf.uncext,detconf.extver)
+                    dqa=flt.readfits(detconf.dqaext,detconf.extver)
+                    
+                    
 
                     
                     # get the (x,y) pairs

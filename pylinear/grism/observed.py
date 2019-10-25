@@ -2,6 +2,8 @@
 from astropy.io import fits
 
 import h5axeconfig
+import fitsimage
+
 
 from .grismimage import GrismImage
 from .detector import Detector
@@ -33,9 +35,16 @@ class ObservedGrism(GrismImage):
                 
 
     def readfits(self,extname,extver):
-        with fits.open(self.filename) as hdul:
-            hdu=hdul[(extname,extver)]
-            dat,hdr=hdu.data,hdu.header
+        out=fitsimage.FITSImage()
+        out.loadFile(self.filename,(extname,extver))
+        return out
 
-        return dat,hdr
+              
+        
+
+        #with fits.open(self.filename) as hdul:
+        #    hdu=hdul[(extname,extver)]
+        #    dat,hdr=hdu.data,hdu.header
+        #
+        #return dat,hdr
         

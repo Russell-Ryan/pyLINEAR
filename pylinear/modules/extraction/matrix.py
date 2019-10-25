@@ -187,16 +187,21 @@ class Matrix(object):
                 self.npix=detimg.npix
                 
                 # read the images
-                sci,scihdr=flt.readfits(detconf.sciext,detconf.extver)
-                unc,unchdr=flt.readfits(detconf.uncext,detconf.extver)
-                dqa,dqahdr=flt.readfits(detconf.dqaext,detconf.extver)
+                #sci,scihdr=flt.readfits(detconf.sciext,detconf.extver)
+                #unc,unchdr=flt.readfits(detconf.uncext,detconf.extver)
+                #dqa,dqahdr=flt.readfits(detconf.dqaext,detconf.extver)
+                sci=flt.readfits(detconf.sciext,detconf.extver)
+                unc=flt.readfits(detconf.uncext,detconf.extver)
+                dqa=flt.readfits(detconf.dqaext,detconf.extver)
+                                                
+
                 xyg=[]         # a container
 
                 # make a good pixel mask
                 gpx=(dqa == 0) & (unc > 0)
                 if len(masks)!=0:
                     gpx &= masks[detname]
-                del dqa,dqahdr,unchdr      # don't need these anymore
+                #del dqa,dqahdr,unchdr      # don't need these anymore
                 
                 #if __RAM__:
                 #    print("calling loadBeams:",py.memory_info()[0]/1024/1024/1024)
