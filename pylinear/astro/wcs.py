@@ -217,8 +217,20 @@ class WCS(astropyWCS):
         area=-(cdelt[0]*3600)*(cdelt[1]*3600)
         return area
 
+    #def formatter(func):
+    #    def wrapper(*args,**kwargs):
+    #        a,b=func(*args,**kwargs)
+    #        #if a.size==1:
+    #        #    print(a)
+    #        #    a=a[0]
+    #        #    b=b[0]
+    #        return a,b
+    #    return wrapper
+
+    
 
     # convenience functions because that zero is poor design
+    #@formatter
     def xy2ad(self,x,y):
         return self.all_pix2world(x,y,0)
 
@@ -235,5 +247,6 @@ if __name__=='__main__':
     with fits.open('/Users/rryan/icoi3immq_flt.fits') as hdul:
         hdr=hdul[1].header
     x=WCS(hdr)
-    q=x.getrot()
-    print(q)
+    
+    a,d=x.xy2ad(np.array([10]),np.array([20]))
+    print(a[0])
