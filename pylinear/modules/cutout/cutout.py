@@ -45,23 +45,7 @@ def cutoutWorker(flt,conf,grismconf,sources):
 
                         # cut the stamp
                         sub=sci.extract(x0,x1,y0,y1)
-                        
-                        #x0=np.clip(np.amin(xg)-xpad-1,0,detimg.shape[1])
-                        #x1=np.clip(np.amax(xg)+xpad,0,detimg.shape[1])
-                        #y0=np.clip(np.amin(yg)-ypad-1,0,detimg.shape[0])
-                        #y1=np.clip(np.amax(yg)+ypad,0,detimg.shape[0])
-                        #
-                        #sub=sci[y0:y1,x0:x1]
-                        ##hdr=scihdr.copy()
-                        #hdr=sci.header.copy()
-                        #hdr['NAXIS1']=x1-x0
-                        #hdr['NAXIS2']=y1-y0
-                        #hdr['CRPIX1']-=x0
-                        #hdr['CRPIX2']-=y0
-                        #hdr['LTV1']=-x0
-                        #hdr['LTV2']=-y0
-
-                        
+                                                
                         # write the file to disk
                         d=h5beamOut.create_dataset(srcname,data=sub.image,\
                                                    compression='gzip')
