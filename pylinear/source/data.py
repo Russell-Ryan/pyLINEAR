@@ -9,7 +9,6 @@ from fitsimage import FITSImage
 
 from .source import Source
 from .obslst import ObsLST
-#from pylinear.astro import fitsimage
 from pylinear.utilities import indices,progressbar
 
 

@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.ndimage as sn
-#from astropy.wcs import WCS
+
 
 import pdb
 
@@ -9,7 +9,7 @@ from .direct import Direct
 from .extractionparameters import ExtractionParameters
 
 from pylinear.synthphot import SED
-from pylinear.astro import WCS
+from pylinear.wcs import WCS
 from pylinear.utilities import convexhull
 
 

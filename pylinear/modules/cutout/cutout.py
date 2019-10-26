@@ -1,11 +1,9 @@
 import numpy as np
-#from astropy.io import fits
 import h5py
 import datetime
 
 import h5axeconfig
 
-#from pylinear.astro import fitsimage
 from pylinear.utilities import indices,Pool
 from pylinear import grism,h5table
 

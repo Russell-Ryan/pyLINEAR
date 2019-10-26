@@ -1,8 +1,8 @@
 from astropy.io import fits
-#from astropy.wcs import WCS
+
 import numpy as np
 
-from pylinear.astro import WCS
+from pylinear.wcs import WCS
 from pylinear.utilities import indices
 
 class Detector(WCS):
