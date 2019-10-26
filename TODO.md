@@ -33,7 +33,7 @@ if __name__=='__main__':
 
 ~~2. add the masking~~
 
-3. pixfrac in the drizzling
+3. pixfrac in the drizzling.  Started this, but results are not totally understood
 
 ~~4. create residuals~~
 
