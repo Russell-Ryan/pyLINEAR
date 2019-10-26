@@ -4,6 +4,11 @@ This is a python implementation of the LINEAR algorithm for extracting slitless 
 
 For any questions or comments, please contact [Russell Ryan](mailto:rryan@stsci.edu?subject=[GitHub]%20PyLINEAR%20question).
 
+- [ ] test
+- [ ] bad
+- [x] checked
+
+
 ## Requirements
 
 *pylinear* is written for python 3.7.  I recommend installing this with STScI [miniconda](https://astroconda.readthedocs.io/en/latest/).  Let me know if you have questions about this.
