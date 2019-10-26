@@ -4,10 +4,6 @@ This is a python implementation of the LINEAR algorithm for extracting slitless 
 
 For any questions or comments, please contact [Russell Ryan](mailto:rryan@stsci.edu?subject=[GitHub]%20PyLINEAR%20question).
 
-- [ ] test
-- [ ] bad
-- [x] checked
-
 
 ## Requirements
 
