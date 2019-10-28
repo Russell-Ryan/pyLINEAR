@@ -80,5 +80,3 @@ def maskbeams(conf,extconf,grisms,sources=None):
                     grisms[fltname][detname].extendBPX(maskXYG)
 
 
-    print('done.')
-    q=input()
