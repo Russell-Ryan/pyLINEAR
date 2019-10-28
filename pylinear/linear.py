@@ -5,15 +5,12 @@ import sys
 import timeit
 import numpy as np
 import pkginfo
-#import pkg_resources as pr
+
 
 from . import config
 from . import source
 from . import modules
 from .utilities import Logger
-
-
-
 
 
 def splashMessage(conf,info):
@@ -48,6 +45,8 @@ def updateDefaults(defs,user):
 def defaultConfigFile():
     ''' get the name of the default configuration file '''
     filename=os.path.join('config','defaults.yml')
+
+    #import pkg_resources as pr
     #filename=pr.resource_filename(__package__,filename)
         
     path=os.path.dirname(os.path.realpath(__file__))
@@ -101,8 +100,9 @@ def runLinear(conf):
     
     # make a look-up table for the callable methods
     items=[(modules.simulate,'simulation'),
-           (modules.extract,'extraction')]
-    
+           (modules.extract,'extraction'),
+           (modules.cutout,'cutout')]
+
     # call the modules
     [method(conf['modules'][key],sources) for (method,key) in items]
     
@@ -110,6 +110,7 @@ def runLinear(conf):
 
 
 def parseCommandLineArgs(info):
+    
     # parse the input     
     p=ap.ArgumentParser(description=info.name+': '+info.description,
                         formatter_class=ap.ArgumentDefaultsHelpFormatter)
@@ -151,9 +152,7 @@ def main():
 
     # get the command-line Arguments    
     args=parseCommandLineArgs(info)
-    
-    
-        
+            
     # open my custom logging utilities
     sys.stdout=Logger(info.name,logfile=args.logfile)
 
