@@ -52,11 +52,11 @@ def getInitialGuess(mat,sources,grisms,extconf,conf):
 
     return x0
     
-def extractSources(conf,sources,grisms,extconf,mskconf,grismFF,grpid,\
+def extractSources(conf,sources,grisms,extconf,grismFF,grpid,\
                    h5g,h5s,pdf):
 
     # build the matrix and check validity
-    mat=Matrix(conf,grisms,sources,extconf,mskconf,grismFF)
+    mat=Matrix(conf,grisms,sources,extconf,grismFF)
     if not hasattr(mat,'A'):
         print("[warn]Invalid matrix.  Ignoring grpid: {}.".format(grpid))
         return
@@ -246,13 +246,13 @@ def extract(conf,sources):
             ngrp=len(groups)
             for grpid,grp in enumerate(groups):
                 theseSources=sources.select(grp)
-                extractSources(conf,theseSources,grisms,extconf,mskconf,\
+                extractSources(conf,theseSources,grisms,extconf,
                                grismFF,grpid,h5g,h5s,pdf)
         else:
             grpid=0
             ngrp=1
-            extractSources(conf,sources,grisms,extconf,mskconf,grismFF,\
-                           grpid,h5g,h5s,pdf)
+            extractSources(conf,sources,grisms,extconf,
+                           grismFF,grpid,h5g,h5s,pdf)
 
         # put in some data for the groups
         h5g.attrs['ngroup']=np.uint16(ngrp)

@@ -15,7 +15,7 @@ from .fluxunit import FLUXSCALE
 
 class Matrix(object):
     TTYPE='DDT'            # Which type of table to use
-    def __init__(self,conf,grisms,sources,extconf,mskconf,grismFF):
+    def __init__(self,conf,grisms,sources,extconf,grismFF):
         
         # dimensionalities
         self.nimg=len(grisms)
@@ -79,7 +79,7 @@ class Matrix(object):
             #if __RAM__:
             #    print("top:",py.memory_info()[0]/1024/1024/1024)
             
-            data=self.loadFLT(flt,sources,extconf,mskconf,grismFF,pb,path)
+            data=self.loadFLT(flt,sources,extconf,grismFF,pb,path)
             
             #if __RAM__:
             #    print("read loadFLT:",py.memory_info()[0]/1024/1024/1024)
@@ -163,13 +163,13 @@ class Matrix(object):
         return self
     
         
-    def loadFLT(self,flt,sources,extconf,mskconf,grismFF,pb,path):
+    def loadFLT(self,flt,sources,extconf,grismFF,pb,path):
 
         # output stuff
         i,j,aij=[],[],[]
         
         # make mask for this FLT
-        #print("[debug]REMOVE maskBeams")
+        print("[debug]REMOVE maskBeams")
 
         #masks=self.maskBeams(flt,mskconf,path)
         #import pickle,os,psutil      
