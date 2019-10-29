@@ -2,14 +2,16 @@ import os
 import numpy as np
 from astropy.io import fits
 from collections import OrderedDict
+import tqdm
 import copy
 import pdb
+
 
 from fitsimage import FITSImage
 
 from .source import Source
 from .obslst import ObsLST
-from pylinear.utilities import indices,progressbar
+from pylinear.utilities import indices
 
 
 class Data(object):
@@ -208,8 +210,8 @@ class Data(object):
 
 
         # get a progress bar
-        pb=progressbar.ProgressBar(len(revind))
-
+        #pb=progressbar.ProgressBar(len(revind))
+        pb=tqdm.tqdm(total=len(revind))
 
         # get the detection filter
         detzpt=self.obsdata.detZeropoint
@@ -217,8 +219,8 @@ class Data(object):
         # process each index
         for segid,ri in revind:
             # set the prefix
-            pb.prefix=self.PREFIX.format(segid)            
-
+            #pb.prefix=self.PREFIX.format(segid)            
+            pb.desc=self.PREFIX.format(segid)
             
             # compute (x,y) pairs
             x,y=indices.one2two(ri,seg.shape)
@@ -245,8 +247,8 @@ class Data(object):
                                
             
             # update the progress bar
-            pb.increment()
-            
+            #pb.increment()
+            pb.update()
 
     def fromMEF(self,conf,seglist,imglist):
         ''' load sources via a multi-extension fits file '''
@@ -254,16 +256,17 @@ class Data(object):
         print('[info]Loading sources from MEF segmentation map')
         
         # get a progress bar
-        pb=progressbar.ProgressBar(len(seglist))
+        #pb=progressbar.ProgressBar(len(seglist))
+        pb=tqdm.tqdm(total=len(seglist))
         
         detzpt=self.obsdata.detZeropoint
         for seghdu,imghdu in zip(seglist,imglist):
             segid=seghdu.header['SEGID']
             
             # set the prefix
-            pb.prefix=self.PREFIX.format(segid)            
-
-
+            #pb.prefix=self.PREFIX.format(segid)
+            pb.desc=self.PREFIX.format(segid)
+            
             # read the images
             seg=FITSImage(seglist,seghdu)
             img=FITSImage(imglist,imghdu)
@@ -289,8 +292,8 @@ class Data(object):
             self[src.segid]=src
 
             # increment
-            pb.increment()
-                
+            #pb.increment()
+            pb.update()
                 
 
     

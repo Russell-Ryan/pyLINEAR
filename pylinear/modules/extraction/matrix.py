@@ -1,14 +1,17 @@
 import os
 import numpy as np
+import tqdm
 import timeit
+
 import pdb
+
 import scipy.sparse.linalg as ssl
 from scipy.sparse import coo_matrix
 
 
 from . import lcurve,lsqrresult
 from pylinear import h5table
-from pylinear.utilities import progressbar,indices
+from pylinear.utilities import indices
 from .fluxunit import FLUXSCALE
 
 #__RAM__ = False
@@ -63,8 +66,9 @@ class Matrix(object):
         path=conf['tables']['path']
         
         # loop over images
-        pb=progressbar.ProgressBar(self.nimg,prefix='Loading ODTs')
-
+        #pb=progressbar.ProgressBar(self.nimg,prefix='Loading ODTs')
+        pb=tqdm.tqdm(total=self.nimg,desc='Loading ODTs')
+        
         # output values
         #if __RAM__:
         #    import os,psutil      
@@ -74,12 +78,13 @@ class Matrix(object):
         count=0       # a counter for the number possible matrix elements
         for fltindex,(fltfile,flt) in enumerate(grisms):
             # update the progressbar
-            pb.increment()
+            #pb.increment()
+            pb.update()
             
             #if __RAM__:
             #    print("top:",py.memory_info()[0]/1024/1024/1024)
             
-            data=self.loadFLT(flt,sources,extconf,grismFF,pb,path)
+            data=self.loadFLT(flt,sources,extconf,grismFF,path)
             
             #if __RAM__:
             #    print("read loadFLT:",py.memory_info()[0]/1024/1024/1024)
@@ -163,13 +168,13 @@ class Matrix(object):
         return self
     
         
-    def loadFLT(self,flt,sources,extconf,grismFF,pb,path):
+    def loadFLT(self,flt,sources,extconf,grismFF,path):
 
         # output stuff
         i,j,aij=[],[],[]
         
         # make mask for this FLT
-        print("[debug]REMOVE maskBeams")
+        
 
         #masks=self.maskBeams(flt,mskconf,path)
         #import pickle,os,psutil      

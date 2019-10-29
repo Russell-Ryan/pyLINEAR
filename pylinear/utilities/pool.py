@@ -1,7 +1,10 @@
 import multiprocessing as mp
+import tqdm
 import psutil as ps
 
+
 from . import progressbar
+
 
 
 class Pool(object):
@@ -18,17 +21,22 @@ class Pool(object):
             self.ncpu=min(max(ncpu,1),nmax)    # force this to be in range
 
     def callback(self,retval):
-        self.pb.increment()
-                             
+        #self.pb.increment()
+        self.pb.update()
+        
     def __call__(self,func,lis,*args,**kwargs):
-        self.pb=progressbar.ProgressBar(len(lis),**kwargs)
+        #self.pb=progressbar.ProgressBar(len(lis),**kwargs)
+        if 'prefix' in kwargs:
+            self.pb=tqdm.tqdm(total=len(lis),desc=kwargs['prefix'])
+        else:
+            self.pb=tqdm.tqdm(total=len(lis))
         if self.ncpu==1:
             print('[info]Serial processing')
             out=[]
             for l in lis:
                 out.append(func(l,*args))
-                self.pb.increment()
-                #out=[func(l,*args) for l in lis]
+                #self.pb.increment()
+                self.pb.update()
         else:
             print('[info]Parallel processing')
 
@@ -37,6 +45,7 @@ class Pool(object):
             pool=mp.Pool(processes=self.ncpu)
             results=[pool.apply_async(func,(l,*args),callback=self.callback) \
                      for l in lis]
+            
             
             pool.close()
             pool.join()
