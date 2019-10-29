@@ -1,6 +1,6 @@
 # Items To Do.
 
-1. change the way progress bar is dealt with.  use the tqdm as Nor suggested.
+~~1. change the way progress bar is dealt with.  use the tqdm as Nor suggested.~~
 
 ```
  mypool = Pool(10) 
