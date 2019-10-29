@@ -31,6 +31,8 @@ class ProgressBar(object):
         self.count+=1
         self(self.count)
 
+    def update(self):
+        self.increment()
 
     def message(self,iteration):
         percent=float(iteration)/float(self.total)*100
