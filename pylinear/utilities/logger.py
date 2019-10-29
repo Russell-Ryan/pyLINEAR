@@ -6,16 +6,19 @@ class Logger(object):
     ''' class to perform custom logging by overriding print command '''
    
 
-    def __init__(self,name,logfile=None):
+    def __init__(self,name,logfile=None,time=True):
         ''' create a log file that contains the same content as print '''
 
         if logfile is None:
             logfile=name.lower()+'.log'
-        
+
+        self.time=time
+            
         # define the regex search tool
         #self.regex=re.compile('\<(.*?)\>')
         self.regex=re.compile('\[[A-Za-z]+\]')
 
+        
         
         self.stdout=sys.stdout
         try:
@@ -47,31 +50,44 @@ class Logger(object):
     def write(self,text):
         ''' override the print functionality '''
 
-
+        # get the time
+        if self.time:
+            now=datetime.datetime.now().strftime(" %b/%d/%y-%H:%M:%S")
+        else:
+            now=''
+            
         #https://www.geeksforgeeks.org/print-colors-python-terminal/
         #self.stdout.write("\033[91m{}\033[00m".format(text)) 
 
+        # sort out the logging level and print to the screen
         match=self.regex.match(text)
         if match:
             ttype=match.group(0)
-            if ttype=='[info]': f="\033[32;1mInfo>\033[00m\033[32m {}\033[00m"
-            elif ttype=='[warn]':f="\033[33;1mWarning>\033[0m\033[33m {}\033[0m"
-            elif ttype=='[alarm]': f="\033[31;1mAlarm> \033[5m{}\033[00m"
-            elif ttype=='[debug]': f="\033[36;3mDebug> {}\033[00m"
-            elif ttype=='[title]': f="\033[30;1m{}\033[00m"
-            else: f='{}'
-            self.stdout.write(f.format(text[match.end(0):]))
+            if ttype=='[info]': f="\033[32;1mInfo{}>\033[00m\033[32m {}\033[00m"
+            elif ttype=='[warn]':f="\033[33;1mWarning{}>\033[0m\033[33m {}\033[0m"
+            elif ttype=='[alarm]': f="\033[31;1mAlarm{}> \033[5m{}\033[00m"
+            elif ttype=='[debug]': f="\033[36;3mDebug{}> {}\033[00m"
+            #elif ttype=='[title]': f="\033[30;1m{}{}\033[00m"
+            else: f='{}> {}'
+            self.stdout.write(f.format(now,text[match.end(0):]))
         else:
             self.stdout.write(text)
         
         
-        # always print that
+        # print to the log file?
         if self.logging:
-            self.logfile.write(text)
+            if match:
+                ttype=match.group(0)
+                if ttype=='[info]': f="[info{}] {}"
+                elif ttype=='[warn]':f="[warn{}] {}"
+                elif ttype=='[alarm]': f="[alarm{}] {}"
+                elif ttype=='[debug]': f="[debug{}] {}"
+                #elif ttype=='[title]': f="[{}] {}"
+                else: f='[{}] {}'
+                self.logfile.write(f.format(now,text[match.end(0):]))
+            else:
+                self.logfile.write(text)
             self.logfile.flush()
-
-
-        
 
         # original printing
         #self.stdout.write(text)
