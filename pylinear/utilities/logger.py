@@ -63,13 +63,13 @@ class Logger(object):
         match=self.regex.match(text)
         if match:
             ttype=match.group(0)
-            if ttype=='[info]': f="\033[32;1mInfo{}>\033[00m\033[32m {}\033[00m"
-            elif ttype=='[warn]':f="\033[33;1mWarning{}>\033[0m\033[33m {}\033[0m"
-            elif ttype=='[alarm]': f="\033[31;1mAlarm{}> \033[5m{}\033[00m"
-            elif ttype=='[debug]': f="\033[36;3mDebug{}> {}\033[00m"
+            if ttype=='[info]': f="\033[32;1mInfo>\033[00m\033[32m {}\033[00m"
+            elif ttype=='[warn]':f="\033[33;1mWarning>\033[0m\033[33m {}\033[0m"
+            elif ttype=='[alarm]': f="\033[31;1mAlarm> \033[5m{}\033[00m"
+            elif ttype=='[debug]': f="\033[36;3mDebug> {}\033[00m"
             #elif ttype=='[title]': f="\033[30;1m{}{}\033[00m"
-            else: f='{}> {}'
-            self.stdout.write(f.format(now,text[match.end(0):]))
+            else: f='{}'
+            self.stdout.write(f.format(text[match.end(0):]))
         else:
             self.stdout.write(text)
         
