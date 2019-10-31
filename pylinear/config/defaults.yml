@@ -1,4 +1,4 @@
-# Configuration for pyLINEAR (Oct. 11, 2019)
+# Configuration for pyLINEAR (Oct. 30, 2019)
 
 cpu: &CPU
   ncpu: null                             # number of processors to use
