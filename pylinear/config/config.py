@@ -2,6 +2,14 @@ import ruamel.yaml as yaml
 
 class Config(object):
     def __init__(self,*args,conffile=None):
+        """ A class to hold YML configuration data.
+
+        This is meant to look like a dictionary to user, and will contain
+        any comments in the loaded YAML file.
+
+            >>> cnf=Config(*args,conffile=None)
+
+        """
 
         # create the reader
         def represent_none(yml,data):
@@ -26,7 +34,20 @@ class Config(object):
             
             
     def load(self,conffile):
+        """ Load a YAML config file.
 
+        Uses the ruamel.yaml class to store the comments.
+        
+        Parameters
+        ----------
+        conffile : str
+            The full path for a YAML config file.
+
+        Returns
+        -------
+        nothing, but loads into the object.
+        """
+        
         try:
             with open(conffile,'r') as f:
                 self.conf=self.yaml.load(f)
@@ -37,6 +58,20 @@ class Config(object):
             
         
     def items(self):
+        """ Return the dictionary items.
+
+        Just emulates the dictionary functionality.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
+
+        
         return self.conf.items()
 
 
