@@ -93,8 +93,6 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
                     # update the this
                     thispoly=thispoly.union(testpoly)
                     thisid.extend(testid)
-                    #print(i,area,thisid)
-
                     
             groups.append((thisid,thispoly))
         data=groups
@@ -105,11 +103,9 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
     # get just the IDs
     groups=list(zip(*groups))[0]
 
-
     # return a list of sets
     ids=[set(group) for group in groups]
-    #print(len(ids))
-    
+
     return ids
         
 
@@ -161,7 +157,6 @@ def makeGroups(conf,grisms,sources,extconf,sort=True):
     
     # make data for output
     out=[datum for datum in data]
-
     
     # print something for something's sake
     print("[info]Done grouping. Found {} groups.\n".format(len(out)))
