@@ -45,8 +45,6 @@ class Pool(object):
             pool=mp.Pool(processes=self.ncpu)
             results=[pool.apply_async(func,(l,*args),callback=self.callback) \
                      for l in lis]
-            
-            
             pool.close()
             pool.join()
 
@@ -58,7 +56,8 @@ class Pool(object):
                 else:
                     print("[warn]Process failed:")
                     print('[warn]'+val)
-
+            print('')
+            
         return out
 
 
