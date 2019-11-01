@@ -211,7 +211,7 @@ class Data(object):
 
         # get a progress bar
         #pb=progressbar.ProgressBar(len(revind))
-        pb=tqdm.tqdm(total=len(revind))
+        pb=tqdm.tqdm(total=len(revind),dynamic_ncols=True,desc='Classic Segmap')
 
         # get the detection filter
         detzpt=self.obsdata.detZeropoint
@@ -257,7 +257,7 @@ class Data(object):
         
         # get a progress bar
         #pb=progressbar.ProgressBar(len(seglist))
-        pb=tqdm.tqdm(total=len(seglist))
+        pb=tqdm.tqdm(total=len(seglist),dynamic_ncols=True,desc='MEF Segmap')
         
         detzpt=self.obsdata.detZeropoint
         for seghdu,imghdu in zip(seglist,imglist):

@@ -3,7 +3,7 @@ import tqdm
 import psutil as ps
 
 
-from . import progressbar
+#from . import progressbar
 
 
 
@@ -26,10 +26,14 @@ class Pool(object):
         
     def __call__(self,func,lis,*args,**kwargs):
         #self.pb=progressbar.ProgressBar(len(lis),**kwargs)
+        self.pb=tqdm.tqdm(total=len(lis),dynamic_ncols=True)
+
         if 'prefix' in kwargs:
-            self.pb=tqdm.tqdm(total=len(lis),desc=kwargs['prefix'])
-        else:
-            self.pb=tqdm.tqdm(total=len(lis))
+            self.pb.desc=kwargs['prefix']
+        #    self.pb=tqdm.tqdm(total=len(lis),desc=kwargs['prefix'])
+        #else:
+        #    self.pb=tqdm.tqdm(total=len(lis))
+        
         if self.ncpu==1:
             print('[info]Serial processing')
             out=[]

@@ -67,7 +67,7 @@ class Matrix(object):
         
         # loop over images
         #pb=progressbar.ProgressBar(self.nimg,prefix='Loading ODTs')
-        pb=tqdm.tqdm(total=self.nimg,desc='Loading ODTs')
+        pb=tqdm.tqdm(total=self.nimg,desc='Loading ODTs',dynamic_ncols=True)
         
         # output values
         #if __RAM__:
