@@ -4,24 +4,30 @@ from astropy.io import fits
 from astropy.wcs import WCS as astropyWCS
 
 
+def formatter(func):
+    def wrapper(*args,**kwargs):
+        a,b=func(*args,**kwargs)
+        if isinstance(a,np.ndarray) and a.ndim==0:
+            #and (a.ndim==0 or len(a)==1):
+            a=np.asscalar(a)
+            b=np.asscalar(b)
+            
+        return a,b
+    return wrapper
 
 
 
 class WCS(astropyWCS):
     ''' A class to override the astropy.wcs.WCS to do many more things '''
 
-
-    #__RADEG__=180/np.pi
     
     def __init__(self,hdr):
         astropyWCS.__init__(self,hdr)
-
 
         # check some things
         if np.isnan(self.wcs.equinox):
                 self.wcs.equinox=2000.
                 
-
         
         # for reasons, they do not include LTV* in WCS
         self.ltv=np.array([0,0])
@@ -30,15 +36,7 @@ class WCS(astropyWCS):
         if 'LTV2' in hdr:
             self.ltv[1]=hdr['LTV2']
         
-            
-    #def makeSIP(self,sip):
-    #    out={}
-    #    ii,jj=np.where(sip != 0)
-    #    out={(i,j):sip[i,j] for (i,j) in zip(ii,jj)}
-    #    print(out)
-        
-        
-
+   
     def pixelArea(self,x,y,scale=1.):
         ''' compute the pixel area for the distortion '''
         
@@ -63,14 +61,7 @@ class WCS(astropyWCS):
             
             
 
-        #dxy=dx.reshape((n,1))**(i-1)*dy.reshape((n,1))**j
-        #dadx=np.dot(dxy,self.sip.a[i,j]*i)+1
-        #dxy=dx.reshape((n,1))**i*dy.reshape((n,1))**(j-1)
-        #dady=np.dot(dxy,self.sip.a[i,j]*j)
-
-
-        # compute derivatives for B
-        
+        # compute derivatives for B        
         ii,jj=np.where(self.sip.b != 0)
         dbdx=np.zeros_like(dx)
         dbdy=np.ones_like(dx)
@@ -79,11 +70,6 @@ class WCS(astropyWCS):
                 dbdx+=(v*i*dx**(i-1)*dy**j)
             if j!=0:
                 dbdy+=(v*j*dx**i*dy**(j-1))
-
-        #dxy=dx.reshape((n,1))**(i-1)*dy.reshape((n,1))**j
-        #dbdx=np.dot(dxy,self.sip.b[i,j]*i)
-        #dxy=dx.reshape((n,1))**i*dy.reshape((n,1))**(j-1)
-        #dbdy=np.dot(dxy,self.sip.b[i,j]*j)+1
 
         jacobian = scale*np.abs(dadx * dbdy - dady * dbdx)
         if n==1:
@@ -174,7 +160,6 @@ class WCS(astropyWCS):
 
 
     def getrot(self,silent=True):
-        #cd=self.wcs.cd/self.__RADEG__
         cd=np.deg2rad(self.wcs.cd)
 
 
@@ -201,11 +186,11 @@ class WCS(astropyWCS):
 
             
             if rot1 != rot2:
-                if np.rad2deg(np.abs(rot1-rot2))<2: #*self.__RADEG__ < 2:
+                if np.rad2deg(np.abs(rot1-rot2))<2:
                     rot=(rot1+rot2)/2.
-                elif np.rad2deg(np.abs(rot1-rot2-2*np.pi))<2:#*self.__RADEG__ < 2:
+                elif np.rad2deg(np.abs(rot1-rot2-2*np.pi))<2:
                     rot=(rot1+rot2-2*np.pi)/2
-                elif np.rad2deg(np.abs(rot1-rot2+2*np.pi))<2:#*self.__RADEG__ < 2:
+                elif np.rad2deg(np.abs(rot1-rot2+2*np.pi))<2:
                     rot=(rot1+rot2+2*np.pi)/2
                 else:
                     if not silent:
@@ -219,13 +204,11 @@ class WCS(astropyWCS):
             pix=np.array([sgn*np.sqrt(cd[0,0]*cd[0,0]+cd[0,1]*cd[0,1]),\
                           np.sqrt(cd[1,1]*cd[1,1]+cd[1,0]*cd[1,0])])
             
-            #rot=rot*self.__RADEG__
             rot=np.rad2deg(rot)
             
             if self.wcs.lonpole != 180:
                 rot=rot+(180-self.wcs.lonpole)
             
-        #pix=pix*self.__RADEG__
         pix=np.rad2deg(pix)
         return rot,pix
 
@@ -240,26 +223,17 @@ class WCS(astropyWCS):
         area=-(cdelt[0]*3600)*(cdelt[1]*3600)
         return area
 
-    #def formatter(func):
-    #    def wrapper(*args,**kwargs):
-    #        a,b=func(*args,**kwargs)
-    #        #if a.size==1:
-    #        #    print(a)
-    #        #    a=a[0]
-    #        #    b=b[0]
-    #        return a,b
-    #    return wrapper
-
-    
 
     # convenience functions because that zero is poor design
-    #@formatter
+    @formatter
     def xy2ad(self,x,y):
         return self.all_pix2world(x,y,0)
 
+    @formatter
     def ad2xy(self,a,d):
         return self.all_world2pix(a,d,0)
 
+    @formatter
     def xy2xy(self,x,y,obj):
         a,d=self.all_pix2world(x,y,0)
         return obj.all_world2pix(a,d,0)
@@ -269,7 +243,22 @@ class WCS(astropyWCS):
 if __name__=='__main__':
     with fits.open('/Users/rryan/icoi3immq_flt.fits') as hdul:
         hdr=hdul[1].header
-    x=WCS(hdr)
+    wcs=WCS(hdr)
+
     
-    a,d=x.xy2ad(np.array([10]),np.array([20]))
-    print(a[0])
+
+    
+    a,d=wcs.xy2ad(np.array([11]),np.array([21]))
+    
+    print(a,d)
+    x,y=wcs.ad2xy(a,d)
+
+    print(x,y)
+    x,y=wcs.xy2xy(11,21,wcs)
+    print(x,y)
+
+
+
+    h=wcs.to_header(relax=True)
+
+    print(h)
