@@ -73,4 +73,4 @@ def cutout(conf,sources):
 
     # use my version of the pool
     p=Pool(ncpu=conf['cpu']['ncpu'])
-    filenames=p(cutoutWorker,grisms.values,*args,prefix='Making Cutouts')
+    filenames=p(cutoutWorker,grisms.values(),*args,prefix='Making Cutouts')

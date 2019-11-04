@@ -268,7 +268,7 @@ def tabulate(conf,grisms,sources,grismconf,ttype):
     # run the code
     p=Pool(ncpu=conf['cpu']['ncpu'])
     prefix='Making {}s'.format(ttype.upper())
-    filenames=p(func,grisms.values,*args,prefix=prefix)
+    filenames=p(func,grisms.values(),*args,prefix=prefix)
 
         
     return filenames

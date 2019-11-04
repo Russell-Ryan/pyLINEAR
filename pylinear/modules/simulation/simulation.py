@@ -267,6 +267,5 @@ def simulate(conf,sources):
     args=(conf,grismconf,grismflat,sources,info)
     
     # use my version of pool to codify the use of this
-    #pool.pool(simulateWorker,grisms.values(),*args,ncpu=conf['cpu']['ncpu'])
     p=Pool(ncpu=conf['cpu']['ncpu'])
-    filenames=p(simulateWorker,grisms.values,*args,prefix='Simulating FLTs')
+    filenames=p(simulateWorker,grisms.values(),*args,prefix='Simulating FLTs')

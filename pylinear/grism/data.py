@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from collections import OrderedDict
+#from collections import OrderedDict
 import h5py
 
 from h5axeconfig import utils as h5utils
@@ -8,7 +8,7 @@ from h5axeconfig import utils as h5utils
 from pylinear.utilities import asciitable
 from . import simulated,observed
 
-class Data(object):
+class Data(dict):
     ''' a class to hold the grism data info '''
 
     def __init__(self,filename,filetype,conffile):
@@ -17,7 +17,7 @@ class Data(object):
         self.grism=None
         
         # the grism images
-        self.images=OrderedDict()
+        #self.images=OrderedDict()
 
         
         # process the file type
@@ -30,11 +30,11 @@ class Data(object):
         print('[info]Loaded {} grism images.\n'.format(len(self)))
         
         
-    def __contains__(self,key):
-        return key in self.sources 
+    #def __contains__(self,key):
+    #    return key in self.sources 
         
-    def __len__(self):
-        return len(self.images)
+    #def __len__(self):
+    #    return len(self.images)
         
     def __str__(self):
         t='{} grism images: \n'.format(str(len(self.images)))
@@ -42,15 +42,24 @@ class Data(object):
             t=t+'{:>8} {}\n'.format(v.filetype,v.filename)
         return t
 
-    def __getitem__(self,k):
-        return self.images[k]
+    #def __getitem__(self,k):
+    #    return self.images[k]
     
     def __iter__(self):
-        yield from self.images.items()
+        yield from self.items()
 
     @property
-    def values(self):
-        return list(self.images.values())
+    def datasets(self):
+        return list(self.keys())
+
+    @property
+    def images(self):
+        return list(self.values())
+        
+    #@property
+    #def values(self):
+    #    #return list(self.images.values())
+    #    return list(self.values())
         
     def loadObserved(self,filename,conffile):
         print('[info]Loading observed grism images')
@@ -67,7 +76,8 @@ class Data(object):
             grism.append(image.keyword('filter'))
             
             # record the image
-            self.images[image.dataset]=image
+            #self.images[image.dataset]=image
+            self[image.dataset]=image
         if len(set(grism))==1:
             self.grism=grism[0]
         else:
@@ -86,5 +96,5 @@ class Data(object):
             image=simulated.SimulatedGrism(dataset,crvals,orientat,siaffile)
 
             # record the image
-            self.images[dataset]=image
-            
+            #self.images[dataset]=image
+            self[dataset]=image

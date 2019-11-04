@@ -38,3 +38,4 @@ if __name__=='__main__':
 ~~4. create residuals~~
 
 
+5. Refactor data.py codes in grism/ and source/ to be more transparently dictionaries
