@@ -235,9 +235,11 @@ class WCS(astropyWCS):
 
     @formatter
     def xy2xy(self,x,y,obj):
+        assert isinstance(obj,astropyWCS)
         a,d=self.all_pix2world(x,y,0)
         return obj.all_world2pix(a,d,0)
-    
+        
+        
     
         
 if __name__=='__main__':
@@ -257,8 +259,3 @@ if __name__=='__main__':
     x,y=wcs.xy2xy(11,21,wcs)
     print(x,y)
 
-
-
-    h=wcs.to_header(relax=True)
-
-    print(h)
