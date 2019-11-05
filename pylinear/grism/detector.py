@@ -1,3 +1,4 @@
+
 from astropy.io import fits
 
 import numpy as np
@@ -21,7 +22,6 @@ class Detector(WCS):
     
     @property
     def npix(self):
-        #return int(self.naxis[0]*self.naxis[1])
         return self.shape[1]*self.shape[0]
     
 
