@@ -109,9 +109,8 @@ class Data(object):
                 
     def setExtractionParameters(self,conf,extconf):
         print('[info]Setting extraction parameters') 
-        keys=['lamb0','lamb1','dlamb']
         for segid,src in self.sources.items():
-            for key in keys:
+            for key in ('lamb0','lamb1','dlamb'):
                 if getattr(src,key) is None:
                     val=conf[key]
                     if val is None:
@@ -135,7 +134,7 @@ class Data(object):
         #    del self.sources[r]
 
 
-        new=copy.copy(self)
+        new=copy.deepcopy(self)
         new.sources={segid: self.sources[segid] for segid in segids}
        
         return new
@@ -154,7 +153,6 @@ class Data(object):
         for name,filt,zero in self.obsdata:
             lamb.append(filt.photplam)
             img=FITSImage(name,0)
-            #img=fitsimage.FitsImage(name)
             f=[]
             for segid,src in self.sources.items():
                 tot=src.instrumentalFlux(img)
@@ -193,15 +191,9 @@ class Data(object):
 
 
         # load the images
-        #seg=fitsimage.FitsImage()
-        #seg.loadHDU(seglist[0])
-        #
-        #img=fitsimage.FitsImage()
-        #img.loadHDU(imglist[0])
-
-
-        seg=FITSImage(seglist,0)
-        img=FITSImage(imglist,0)
+        exten=0
+        seg=FITSImage(seglist,exten)
+        img=FITSImage(imglist,exten)
         
         # get the reverse indices (is potentially slow)
         revind=indices.reverse(seg.image.astype(self.SEGTYPE))
@@ -270,12 +262,6 @@ class Data(object):
             # read the images
             seg=FITSImage(seglist,seghdu)
             img=FITSImage(imglist,imghdu)
-
-            
-            #img=fitsimage.FitsImage()
-            #img.loadHDU(imghdu)
-            #seg=fitsimage.FitsImage()
-            #seg.loadHDU(seghdu)
             
             src=Source(img,seg,detzpt,
                        lamb0=self.keyword('LAMB0',seg,conf),
@@ -283,11 +269,6 @@ class Data(object):
                        dlamb=self.keyword('DLAMB',seg,conf),
                        filtsig=self.keyword('FILTSIG',seg,conf),
                        eroderad=self.keyword('ERODERAD',seg,conf),
-                       #lamb0=self.keyword('LAMB0',seghdu,conf),
-                       #lamb1=self.keyword('LAMB1',seghdu,conf),
-                       #dlamb=self.keyword('DLAMB',seghdu,conf),
-                       #filtsig=self.keyword('FILTSIG',seghdu,conf),
-                       #eroderad=self.keyword('ERODERAD',seghdu,conf),
                        maglim=conf['maglim'],minpix=conf['minpix'])
             self[src.segid]=src
 
