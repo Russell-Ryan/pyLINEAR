@@ -16,7 +16,7 @@ class Detector(WCS):
         
 
     def __str__(self):
-        return 'grism image detector'
+        return 'grism image detector with {} \u00D7 {}'.format(self.shape[0],self.shape[0]) 
 
     
     @property
