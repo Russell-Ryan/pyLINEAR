@@ -47,7 +47,7 @@ f125w_drz.fits    hst_wfc3_f125w
 
 ### What is the format of the sed.lst file?
 
-*This should be an ascii file with three columns (space delimited).  The first column should be an integer corresponding to a segmentation ID in the specified in the ```segmap``` in the yaml configuration file.  The second column specifies a full path to an ascii file  that contains the spectrum.  These files should also be space-delimited ascii files of &lambda; (in A) and f<sub>&lambda;</sub> (in arbitrary units).  The third column should be redshift.*
+*This should be an ascii file with three columns (space delimited).  The first column should be an integer corresponding to a segmentation ID in the specified in the ```segmap``` in the yaml configuration file.  The second column specifies a full path to an ascii file  that contains the spectrum.  These files should also be space-delimited ascii files of &lambda; (in Å) and f<sub>&lambda;</sub> (in arbitrary units).  The third column should be redshift.*
 
 ```
 # 1: Object ID
