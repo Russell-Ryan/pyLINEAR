@@ -1,0 +1,2 @@
+# Filter Curves
+These are the serialized filters for pyLINEAR.  The files should be in the ascii format and have two columns, wavelength [Å] and transmission.  The transmission is dimensionless, and will be rescaled by pyLINEAR.
