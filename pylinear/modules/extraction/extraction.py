@@ -151,7 +151,8 @@ def extractSources(conf,sources,grisms,extconf,grismFF,grpid,\
 
 
     # update the residuals
-    residuals.update(conf['residuals'],grisms,extconf,mat,result)
+    residuals.update(conf['residuals'],grisms,extconf,mat,result,
+                     conf['dqamask'])
         
             
 

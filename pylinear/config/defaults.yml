@@ -52,6 +52,7 @@ modules:
     imglst: flt.lst                      # input list of FLTs to extract
     beam: A                              # beam(s) to extract
     mask: null                           # beam(s) to mask
+    dqamask: 3583                        # bitmask to apply to the DQA
     lamb0: null                          # starting wavelength in A (optional)
     lamb1: null                          # ending wavelength in A (optional)
     dlamb: null                          # sampling wavelength in A (optional)

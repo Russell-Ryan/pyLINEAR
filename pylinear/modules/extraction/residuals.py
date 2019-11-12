@@ -63,7 +63,7 @@ def create(conf,grisms,grismconf):
 
 
         
-def update(conf,grisms,grismconf,mat,result):
+def update(conf,grisms,grismconf,mat,result,dqamask):
     if not conf['perform']:
         return
     print("[info]Updating residual images")
@@ -71,6 +71,12 @@ def update(conf,grisms,grismconf,mat,result):
     # compute the model
     model=mat.A.matvec(result.x)
 
+    # bits to mask
+    #print('[debug]Hardcoding bitmask for WFC3/IR, omitting 512 bit')
+    #bitmask=0b0000110111111111
+    #dqamask=int(bitmask)
+    #dqamask=1+2+4+8+16+32+64+128+256+1024+2048
+    
     # get the image and xy indices
     imgindex,pixindex=divmod(mat.iuniq,mat.npix)
     index=0        # a counter
@@ -92,15 +98,9 @@ def update(conf,grisms,grismconf,mat,result):
                     resext=3*i+3
                     
                     # read the images
-                    #sci,scihdr=flt.readfits(detconf.sciext,detconf.extver)
-                    #unc,unchdr=flt.readfits(detconf.uncext,detconf.extver)
-                    #dqa,dqahdr=flt.readfits(detconf.dqaext,detconf.extver)
                     sci=flt.readfits(detconf.sciext,detconf.extver)
                     unc=flt.readfits(detconf.uncext,detconf.extver)
                     dqa=flt.readfits(detconf.dqaext,detconf.extver)
-                    
-                    
-
                     
                     # get the (x,y) pairs
                     x,y=indices.one2two(pixindex[g],det.shape)
@@ -112,7 +112,8 @@ def update(conf,grisms,grismconf,mat,result):
                     hdul[resext].data[y,x]=sci[y,x]-hdul[modext].data[y,x]
 
                     # remove pixels in the DQAs
-                    g=np.where(dqa != 0)[0]
+                    #g=np.where(dqa != 0)[0]
+                    g=np.where(np.bitwise_and(dqa,dqamask) != 0)[0]
                     hdul[resext].data[g]=np.nan
                     
                     

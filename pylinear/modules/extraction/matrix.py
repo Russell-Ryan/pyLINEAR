@@ -194,9 +194,6 @@ class Matrix(object):
                 self.npix=detimg.npix
                 
                 # read the images
-                #sci,scihdr=flt.readfits(detconf.sciext,detconf.extver)
-                #unc,unchdr=flt.readfits(detconf.uncext,detconf.extver)
-                #dqa,dqahdr=flt.readfits(detconf.dqaext,detconf.extver)
                 sci=flt.readfits(detconf.sciext,detconf.extver)
                 unc=flt.readfits(detconf.uncext,detconf.extver)
                 dqa=flt.readfits(detconf.dqaext,detconf.extver)
@@ -207,8 +204,9 @@ class Matrix(object):
 
                 # make a good pixel mask
                 flt[detname].applyBPX(dqa)    # update DQA with the bpx
-                gpx=(dqa == 0) & (unc > 0)
-
+                #gpx=(dqa == 0) & (unc > 0)
+                gpx=(np.bitwise_and(dqa,conf['dqamask']) == 0) & (unc > 0)
+                
 
                 #if len(masks)!=0:
                 #    gpx &= masks[detname]
