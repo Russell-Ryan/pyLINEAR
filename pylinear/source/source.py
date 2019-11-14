@@ -197,8 +197,15 @@ class Source(WCS,ExtractionParameters,Direct):
         eroded[b]=seg[b]
 
         flux1=np.sum(img[g])
-        frat=flux0/flux1
-        #print('scale the weights by this amount? or apply it post facto?')
+        
+
+        if flux0<=0 or flux1<=0:
+            print("[warn]Fluxes are <=0: {} {}".format(flux0,flux1))
+            print('scale the weights by this amount? or apply it post facto?')
+            frat=1.
+        else:
+            frat=flux0/flux1
+        
         
         seg.image=eroded
         seg[key]=eroderad
