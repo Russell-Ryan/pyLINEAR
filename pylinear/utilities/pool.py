@@ -1,14 +1,13 @@
-import multiprocessing as mp
 import tqdm
+import multiprocessing as mp
 import psutil as ps
-
-
-#from . import progressbar
-
+from functools import partial
 
 
 class Pool(object):
-    def __init__(self,ncpu=None):
+    def __init__(self,func,ncpu=None,desc=None,quiet=False):
+        ''' instantiate the pool '''
+
         # get some settings for the processing
         ncpus=ps.cpu_count(logical=False)
         ncores=ps.cpu_count(logical=True)
@@ -19,59 +18,69 @@ class Pool(object):
             self.ncpu=nmax
         else:
             self.ncpu=min(max(ncpu,1),nmax)    # force this to be in range
-
-    def callback(self,retval):
-        #self.pb.increment()
-        self.pb.update()
-        
-    def __call__(self,func,lis,*args,**kwargs):
-        #self.pb=progressbar.ProgressBar(len(lis),**kwargs)
-        self.pb=tqdm.tqdm(total=len(lis),dynamic_ncols=True)
-
-        if 'prefix' in kwargs:
-            self.pb.desc=kwargs['prefix']
-        #    self.pb=tqdm.tqdm(total=len(lis),desc=kwargs['prefix'])
-        #else:
-        #    self.pb=tqdm.tqdm(total=len(lis))
-        
-        if self.ncpu==1:
-            print('[info]Serial processing')
-            out=[]
-            for l in lis:
-                out.append(func(l,*args))
-                #self.pb.increment()
-                self.pb.update()
-        else:
-            print('[info]Parallel processing')
-
-
-
-            pool=mp.Pool(processes=self.ncpu)
-            results=[pool.apply_async(func,(l,*args),callback=self.callback) \
-                     for l in lis]
-            pool.close()
-            pool.join()
-
-            out=[]
-            for result in results:
-                val=result.get()
-                if result.successful():
-                    out.append(val)
-                else:
-                    print("[warn]Process failed:")
-                    print('[warn]'+val)
-            print('')
+        self.desc=desc
+        self.func=func
+        self.quiet=quiet
             
-        return out
 
 
-def test(itr):
-    return itr
+    def __zip__(self,itrs,*args):
+        ''' internal generator to zip iterables to scalars '''
+        for itr in itrs:
+            yield (itr,*args)
+        
+    def __worker__(self,args):
+        ''' internal method to unpack arguments '''
+        return self.func(*args)
+            
+    def __call__(self,itrs,*args,**kwargs):
+        ''' call the pool '''
+
+        total=len(itrs)    # number of iterations to do
+        if self.ncpu==1:
+            if not self.quiet:
+                print('[info]Serial Processing')
+            results=[self.func(i,*args,**kwargs) for i in
+                     tqdm.tqdm(itrs,total=total,desc=self.desc)]
+            
+        else:
+            if not self.quiet:
+                print('[info]Parallel Processing')
+            if kwargs is not None:
+                func=self.func
+                self.func=partial(self.func,**kwargs)
+            p=mp.Pool(processes=self.ncpu)
+            imap=p.imap(self.__worker__,self.__zip__(itrs,*args))
+            results=list(tqdm.tqdm(imap,total=total,desc=self.desc))
+            if kwargs is not None:
+                self.func=func
+            
+        return results
 
 
+
+
+
+##################   STUFF FOR TESTING   ##################
+    
+def testWorker(itr,dt,a,test=1):
+    time.sleep(dt)
+    return test*(itr+a)
+   
+    
+    
 if __name__=='__main__':
-    p=Pool(ncpu=2)
+    import time,timeit
 
-    iters=[i for i in range(100)]
-    iters=['hi',1,2,3,4]
-    p(test,iters)
+
+
+    
+    itrs=[0,1,2,3,4,5,6,7,8,9,10,11]
+    dt=0.1
+    a=1
+    t0=timeit.default_timer()
+    p=Pool(testWorker,ncpu=2,desc='test',quiet=True)
+    results=p(itrs,dt,a,test=3)
+    t1=timeit.default_timer()
+    print(t1-t0)
+    
