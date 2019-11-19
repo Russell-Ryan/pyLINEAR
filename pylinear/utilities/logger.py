@@ -102,24 +102,24 @@ class Logger(object):
     def __del__(self):
         ''' magic method to ensure files are closed safely, append outro '''
         
-        sys.stdout=self.stdout    # reset the stdout
+
         if self.logging:
 
-            now=datetime.datetime.now()
-            today=now.strftime("   %a, %b %d, %Y")
-            now=now.strftime("   %I:%M:%S %p")
+            #now=datetime.datetime.now()
+            #today=now.strftime("   %a, %b %d, %Y")
+            #now=now.strftime("   %I:%M:%S %p")
 
             label='finished!'
             self.logfile.write('\n\n')
             self.logfile.write(' +-'+self.num*'-'+'-+\n')
             self.logfile.write(' | '+self.num*' '+' |\n')
             self.logfile.write(' | '+label+' '*(self.num-len(label))+' |\n')
-            self.logfile.write(' | '+today+' '*(self.num-len(today))+' |\n')
-            self.logfile.write(' | '+now+' '*(self.num-len(now))+' |\n')      
+            #self.logfile.write(' | '+today+' '*(self.num-len(today))+' |\n')
+            #self.logfile.write(' | '+now+' '*(self.num-len(now))+' |\n')      
             self.logfile.write(' | '+self.num*' '+' |\n')
             self.logfile.write(' +-'+self.num*'-'+'-+\n')
             self.logfile.close()
-
+        sys.stdout=self.stdout    # reset the stdout
 
 if __name__=='__main__':
     print('testing the logging utility')
