@@ -2,6 +2,8 @@ import numpy as np
 import datetime
 from astropy.io import fits
 from astropy.wcs import WCS as astropyWCS
+import astropy.wcs.utils as wcsutils
+
 
 
 def formatter(func):
@@ -24,18 +26,20 @@ class WCS(astropyWCS):
     def __init__(self,hdr):
         astropyWCS.__init__(self,hdr)
 
+        
         # check some things
         if np.isnan(self.wcs.equinox):
                 self.wcs.equinox=2000.
-                
-        
+                        
         # for reasons, they do not include LTV* in WCS
         self.ltv=np.array([0,0])
         if 'LTV1' in hdr:
             self.ltv[0]=hdr['LTV1']
         if 'LTV2' in hdr:
             self.ltv[1]=hdr['LTV2']
-        
+
+
+            
    
     def pixelArea(self,x,y,scale=1.):
         ''' compute the pixel area for the distortion '''
@@ -128,18 +132,25 @@ class WCS(astropyWCS):
 
             hdr['CTYPE1']=(self.wcs.ctype[0],'the coordinate type for the first axis') 
             hdr['CTYPE2']=(self.wcs.ctype[1],'the coordinate type for the second axis')
-            hdr['CD1_1']=(self.wcs.cd[0,0],'partial of first axis coordinate w.r.t. x') 
-            hdr['CD2_1']=(self.wcs.cd[1,0],'partial of second axis coordinate w.r.t. x')
-            hdr['CD1_2']=(self.wcs.cd[0,1],'partial of first axis coordinate w.r.t. y')
-            hdr['CD2_2']=(self.wcs.cd[1,1],'partial of second axis coordinate w.r.t. y')
-            if hasattr(self,'ltv0'):
-                hdr['LTV1']=(self.ltv0,'x-axis pixel reference')
-            if hasattr(self,'ltv0'):
-                hdr['LTV2']=(self.ltv1,'y-axis pixel reference')
 
-            hdr['EQUINOX']=(self.wcs.equinox,'Equinox of Ref. Coord.')
+            cd=self.cd(unit='deg')
+            hdr['CD1_1']=(cd[0,0],'partial of first axis coordinate w.r.t. x') 
+            hdr['CD2_1']=(cd[1,0],'partial of second axis coordinate w.r.t. x')
+            hdr['CD1_2']=(cd[0,1],'partial of first axis coordinate w.r.t. y')
+            hdr['CD2_2']=(cd[1,1],'partial of second axis coordinate w.r.t. y')
+
+
+            if hasattr(self,'ltv'):
+                hdr['LTV1']=(self.ltv[0],'x-axis pixel reference')
+                hdr['LTV2']=(self.ltv[1],'y-axis pixel reference')
+
+            if np.isnan(self.wcs.equinox):
+                hdr['EQUINOX']=(2000.,'Equinox of Ref. Coord.')
+            else:
+                hdr['EQUINOX']=(self.wcs.equinox,'Equinox of Ref. Coord.')
             hdr['LONGPOLE']=(self.wcs.lonpole,' ')
 
+            
             if self.wcs.ctype[0][9:]==self.wcs.ctype[1][9:]=='SIP':
                 self.putSIP(hdr,self.sip.a,'A')
                 self.putSIP(hdr,self.sip.b,'B')
@@ -159,9 +170,36 @@ class WCS(astropyWCS):
         return hdr
 
 
-    def getrot(self,silent=True):
-        cd=np.deg2rad(self.wcs.cd)
+    def cd(self,unit='deg'):
 
+        try:
+            cd=self.wcs.cd
+        except:
+            #if ~self.wcs.has_cd():
+            cd=self.pixel_scale_matrix
+            cd[0,:]*=self.wcs.cdelt[0]
+            cd[1,:]*=self.wcs.cdelt[1]            
+
+ 
+
+        if unit=='rad':
+            cd=np.deg2rad(cd)
+        elif unit=='arcsec':
+            cd*=3600.
+        elif unit=='arcmin':
+            cd*=60.
+        elif unit=='deg':
+            pass            
+        else:
+            raise NotImplementedError('invalud unit: {}'.format(unit))
+
+        return cd
+        
+
+    
+    def getrot(self,silent=True):
+
+        cd=self.cd(unit='rad')
 
         # astropy throws this as a warning
         #if self.wcs.cdelt[0] != 1:
@@ -208,19 +246,27 @@ class WCS(astropyWCS):
             
             if self.wcs.lonpole != 180:
                 rot=rot+(180-self.wcs.lonpole)
-            
+
+        print('here')
         pix=np.rad2deg(pix)
         return rot,pix
 
     @property
     def pixelscale(self):
-        rot,cdelt=self.getrot()
-        return abs(cdelt)*3600
-    
+        #rot,cdelt=self.getrot()
+        #scales=np.abs(cdelt)
+        scales=wcsutils.proj_plane_pixel_scales(self)
+        
+        return scales*3600.
+
+        
+        
     @property
     def pixelarea(self):
-        rot,cdelt=self.getrot()
-        area=-(cdelt[0]*3600)*(cdelt[1]*3600)
+        #rot,cdelt=self.getrot()
+        #area=-(cdelt[0]*3600)*(cdelt[1]*3600)
+        pscl=self.pixelscale
+        area=pscl[0]*pscl[1]        
         return area
 
 
