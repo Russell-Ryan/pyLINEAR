@@ -1,6 +1,6 @@
 import os
 import numpy as np
-#from collections import OrderedDict
+import pdb
 import h5py
 
 from h5axeconfig import utils as h5utils
@@ -19,7 +19,6 @@ class Data(dict):
         # the grism images
         #self.images=OrderedDict()
 
-        
         # process the file type
         if self.filetype=='img':
             self.loadObserved(self.filename,conffile)
@@ -64,9 +63,9 @@ class Data(dict):
     def loadObserved(self,filename,conffile):
         print('[info]Loading observed grism images')
 
+        beamfile=conffile['h5conf']
+        exts=h5utils.detectorData(beamfile,'science_ext','extver')
         
-        exts=h5utils.detectorData(conffile,'science_ext','extver')
-
         
         # read the data
         table=asciitable.AsciiTable(['filename'],filename=filename)
@@ -84,10 +83,12 @@ class Data(dict):
             raise RuntimeError("Images are of different grisms")
 
             
-    def loadSimulated(self,filename,siaffile):
+    def loadSimulated(self,filename,conffile):
         
         print('[info]Loading simulated grism images')
 
+        siaffile=conffile['h5siaf']
+        
         columns=['dataset','crval1','crval2','orientat']
         table=asciitable.AsciiTable(columns,filename=filename)
         for dataset,crval1,crval2,orientat in table:
