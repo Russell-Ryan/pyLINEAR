@@ -9,25 +9,27 @@ from pylinear.utilities import indices,Pool
 
 TTYPE='DDT'
 
-def makeODTs(grism,sources,grismconf,path,remake,nsub):
+def makeODTs(grism,sources,grismconf,conf):#,path,remake,nsub):
     # create the table
-    tab=h5table.H5Table(grism.dataset,TTYPE,path=path)
+    tab=h5table.H5Table(grism.dataset,TTYPE,path=conf['path'])
 
 
+    
     pixfrac=1.0   # DO NOT CHANGE THIS.  NOT YET UNDERSTOOD!
         
     # remake the table?
-    if remake:
+    if conf['remake']:
         if os.path.isfile(tab.filename):
             os.remove(tab.filename)
     else:
         return tab.filename
     
     # pixel based ------------------------------
-    dx=np.array([0,0,1,1])            # HARDCODE
-    dy=np.array([0,1,1,0])            # HARDCODE
+    dx=np.array([0,0,1,1])-0.5         # HARDCODE
+    dy=np.array([0,1,1,0])-0.5         # HARDCODE
     #-------------------------------------------
 
+    
     # open the file
     with tab as h5:
 
@@ -60,7 +62,7 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
 
             for beam,beamconf in detconf:
                 beamgrp=detgrp.require_group(beam)
-                if remake:
+                if conf['remake']:
                     sourcesDone=[]
                 else:
                     sourcesDone=list(beamgrp.keys())
@@ -85,7 +87,7 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
                 # putting inside loop on sources and take (xc,yc)
                 # from the source.  This is just faster and doesn't
                 # seem to be a problem just yet
-                wav=beamconf.wavelengths(xc,yc,nsub)  
+                wav=beamconf.wavelengths(xc,yc,conf['nsub'])  
                 dwav=wav[1]-wav[0]
 
                 # put some stuff in the table
@@ -168,11 +170,11 @@ def makeODTs(grism,sources,grismconf,path,remake,nsub):
 def makeOMTs(flt,sources,grismconf,path,remake,nsub):
     #print("[info]Making the OMTs")
     # create the table
-    tab=h5table.H5Table(flt.dataset,'omt',path=path)
+    tab=h5table.H5Table(flt.dataset,'omt',path=conf['path'])
 
 
     # remake the table?
-    if remake:
+    if conf['remake']:
         if os.path.isfile(tab.filename):
             os.remove(tab.filename)
     else:
@@ -202,7 +204,7 @@ def makeOMTs(flt,sources,grismconf,path,remake,nsub):
                 
             for beam,beamconf in detconf:
                 beamgrp=detgrp.require_group(beam)
-                if remake:
+                if conf['remake']:
                     sourcesDone=[]
                 else:
                     sourcesDone=list(beamgrp.keys())
@@ -263,13 +265,16 @@ def tabulate(conf,grisms,sources,grismconf,ttype):
 
 
     # arguments that do not change
-    args=(sources,grismconf,conf['path'],conf['remake'],conf['nsub'])
+    args=(sources,grismconf,conf)#['path'],conf['remake'],conf['nsub'])
 
     # run the code
-    p=Pool(ncpu=conf['cpu']['ncpu'])
+    #p=Pool(ncpu=conf['cpu']['ncpu'])
     prefix='Making {}s'.format(ttype.upper())
-    filenames=p(func,grisms.values(),*args,prefix=prefix)
+    #filenames=p(func,grisms.values(),*args,prefix=prefix)
 
+    p=Pool(func,ncpu=conf['cpu']['ncpu'],desc=prefix)
+    filenames=p(grisms.values(),sources,grismconf,conf)
+    
         
     return filenames
     

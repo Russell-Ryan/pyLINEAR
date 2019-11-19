@@ -65,9 +65,12 @@ def mcmcUncertainties(conf,mat,result):
     iters=[(j,sig) for j,sig in enumerate(result.lo)]
     
     # do the processing
-    p=pool.Pool(ncpu=conf['cpu']['ncpu'])
-    unc=p(mcmcStart,iters,mat,resid,conf,prefix='Running MCMC')
+    #p=pool.Pool(ncpu=conf['cpu']['ncpu'])
+    #unc=p(mcmcStart,iters,mat,resid,conf,prefix='Running MCMC')
+    p=pool.Pool(mcmcStart,ncpu=conf['cpu']['ncpu'],desc='Running MCMC')
+    unc=p(iters,mat,resid,conf)
 
+    
     # package the outputs
     unc=list(zip(*unc))
     result.lo=np.array(unc[0])

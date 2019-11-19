@@ -136,10 +136,13 @@ def makeGroups(conf,grisms,sources,extconf,sort=True):
     path=conf['tables']['path']
     
     # use the pool to group the FLTs
-    p=pool.Pool(ncpu=conf['cpu']['ncpu'])
-    ids=p(groupFLT,grisms.values(),sources,extconf,path,\
-          prefix='Grouping FLTs')
+    #p=pool.Pool(ncpu=conf['cpu']['ncpu'])
+    #ids=p(groupFLT,grisms.values(),sources,extconf,path,\
+    #      prefix='Grouping FLTs')
+    p=pool.Pool(groupFLT,ncpu=conf['cpu']['ncpu'],desc='Grouping FLTs')
+    ids=p(grism.values(),sources,extconf,path)
 
+    
     # convert list of lists of sets to list of sets
     sets=[]
     for i in ids:

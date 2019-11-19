@@ -67,8 +67,8 @@ def simulateWorker(flt,conf,grismconf,grismflat,sources,info,overwrite=True):
     now=datetime.datetime.now()
           
     # update the PHDU for the output image
-    hdr.append(('ORIGIN',info.name,'how the file was created'),end=True)
-    hdr.append(('VERSION',info.version,'code version'),end=True)
+    hdr.append(('ORIGIN',info['name'],'how the file was created'),end=True)
+    hdr.append(('VERSION',info['version'],'code version'),end=True)
     hdr.append(('DATE',now.strftime("%Y-%m-%d"),\
                 'date this file was written (yyyy-mm-dd)'),end=True)
 
@@ -223,15 +223,18 @@ def simulate(conf,sources):
 
     # get pkginfo
     info=pkginfo.Installed('pylinear')
+    info={k:getattr(info,k) for k in ['name','version']}
+        
+    # just a short hand
+    calconf=conf['calib']
 
-    
     # get the grism config data
-    grismconf=h5axeconfig.Camera(conf['calib']['h5conf'],conf['grism'],\
+    grismconf=h5axeconfig.Camera(calconf['h5conf'],conf['grism'],\
                                  beams=conf['beam'])
-    grismflat=h5axeconfig.FlatField(conf['calib']['h5flat'],conf['grism'])
+    grismflat=h5axeconfig.FlatField(calconf['h5flat'],conf['grism'])
     
-    # read grisms
-    grisms=grism.Data(conf['imglst'],conf['imgtype'],conf['calib']['h5siaf'])
+    # read grisms  #,calconf['h5siaf'])
+    grisms=grism.Data(conf['imglst'],conf['imgtype'],calconf)
                       
     # make the tables
     tabulate(conf['tables'],grisms,sources,grismconf,'odt')
@@ -246,7 +249,7 @@ def simulate(conf,sources):
         if segid in sources:
             # read the SED
             sed=SED(filename=sedfile)
-
+            
             # apply the redshift
             sed.redshift(z)
 
@@ -258,14 +261,18 @@ def simulate(conf,sources):
             
             # rescale the spectrum
             sed*=(modflam/aveflam)
-
                        
             # reset the spectrum
             sources[segid].sed=sed
     
     # the things that do not change
-    args=(conf,grismconf,grismflat,sources,info)
+    #args=(conf,grismconf,grismflat,sources,info)
+
+
     
     # use my version of pool to codify the use of this
-    p=Pool(ncpu=conf['cpu']['ncpu'])
-    filenames=p(simulateWorker,grisms.values(),*args,prefix='Simulating FLTs')
+    #p=Pool(ncpu=conf['cpu']['ncpu'])
+    #prefix='Simulating FLTs'
+    #filenames=p(simulateWorker,grisms.values(),*args,prefix=prefix)
+    p=Pool(simulateWorker,ncpu=conf['cpu']['ncpu'],desc='Simulating FLTs')
+    filenames=p(grisms.values(),conf,grismconf,grismflat,sources,info)

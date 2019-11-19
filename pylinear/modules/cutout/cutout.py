@@ -60,17 +60,21 @@ def cutout(conf,sources):
     print('[info]Starting Cutouts')
 
     # just a short-hand
-    conffile=conf['calib']['h5conf']
-
+    #conffile=conf['calib']['h5conf']
+    calconf=conf['calib']
+    
     # load the grism images
-    grisms=grism.Data(conf['imglst'],'img',conffile)
+    grisms=grism.Data(conf['imglst'],'img',calconf)#conffile)
 
     # get the grism config data
-    grismconf=h5axeconfig.Camera(conffile,grisms.grism,beams=conf['beam'])
+    grismconf=h5axeconfig.Camera(conffile['h5conf'],grisms.grism,
+                                 beams=conf['beam'])
 
     # pass the arguments that do not change
-    args=(conf,grismconf,sources)
+    #args=(conf,grismconf,sources)
 
     # use my version of the pool
-    p=Pool(ncpu=conf['cpu']['ncpu'])
-    filenames=p(cutoutWorker,grisms.values(),*args,prefix='Making Cutouts')
+    #p=Pool(ncpu=conf['cpu']['ncpu'])
+    #filenames=p(cutoutWorker,grisms.values(),*args,prefix='Making Cutouts')
+    p=Pool(cutoutWorker,ncpu=conf['cpu']['ncpu'],desc='Making Cutouts')
+    filenames=p(grisms.values(),conf,grismconf,sources)

@@ -178,7 +178,7 @@ def extract(conf,sources):
     conffile=calconf['h5conf']
 
     # read grism images
-    grisms=grism.Data(conf['imglst'],'img',conffile)
+    grisms=grism.Data(conf['imglst'],'img',calconf)#,conffile)
     
     # get the grism config data
     extconf=h5axeconfig.Camera(conffile,grisms.grism,beams=conf['beam'])

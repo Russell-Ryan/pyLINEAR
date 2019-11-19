@@ -268,9 +268,17 @@ class Direct(object):
         path=conf['tables']['path']
         
         # load the spectra for each grism
-        p=pool.Pool(ncpu=conf['cpu']['ncpu'])
-        results=p(self.getSpectrum,grisms.values,extconf,path,\
-                  prefix='direct extraction')
+        p=pool.Pool(self.getSpectrum,ncpu=conf['cpu']['ncpu'],
+                    desc='direct extraction')
+        results=p(grisms.values(),extconf,path)
+
+
+        #p=pool.Pool(ncpu=conf['cpu']['ncpu'])
+        #results=p(self.getSpectrum,grisms.values,extconf,path,\
+        #          prefix='direct extraction')
+
+
+
         #results=[self.getSpectrum(g,extconf,conf) for n,g in grisms]
         
         # package the output
