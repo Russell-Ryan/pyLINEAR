@@ -127,7 +127,6 @@ def parseCommandLineArgs(info):
 
     # put the command-line results into the defs
 
-
     # parse the args
     args=p.parse_args()
 
@@ -144,6 +143,12 @@ def parseCommandLineArgs(info):
 def main():
     ''' entry point for command-line '''
 
+
+    # ignore the AstropyWarnings.  
+    import warnings
+    from astropy.utils.exceptions import AstropyWarning
+    warnings.simplefilter('ignore', category=AstropyWarning)
+    
     # get an initial time
     t0=timeit.default_timer()
 
@@ -155,7 +160,7 @@ def main():
             
     # open my custom logging utilities
     sys.stdout=Logger(info.name,logfile=args.logfile)
-
+    
 
     # load the configuration with defaults
     conf=loadConfig(args.config,config.Config(conffile=defaultConfigFile()))
@@ -164,7 +169,7 @@ def main():
     if conf is not None:
         # print a message
         splashMessage(conf,info)
-    
+
         # call linear!
         runLinear(conf)
 
