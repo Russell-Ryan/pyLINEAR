@@ -470,7 +470,7 @@ class Matrix(object):
                 damp=np.power(10.,ldamp)*self.frob
                 
             # run LSQR
-            print("[info]Starting LSQR log(l) = {0:+.3f}".format(ldamp))
+            print("[info]Starting LSQR log(\u2113) = {0:+.3f}".format(ldamp))
             
             '''
             # Using SciPy the way I think it works:
