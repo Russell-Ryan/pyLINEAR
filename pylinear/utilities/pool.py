@@ -45,7 +45,7 @@ class Pool(object):
             
         else:
             if not self.quiet:
-                print('[info]Parallel Processing')
+                print('[info]Parallel Processing: {} processes'.format(self.ncpu))
             if kwargs is not None:
                 func=self.func
                 self.func=partial(self.func,**kwargs)
