@@ -52,10 +52,8 @@ class Data(object):
             self.maglimit=None
         self.applyMagLimit(self.maglimit)
         
-
         # set the default spectra as photometry
         self.loadPhotometry()
-
 
         # verify some things
         if not self.sources:
@@ -127,17 +125,21 @@ class Data(object):
         return list(self.sources.values())
 
     def select(self,segids):
-        #keep=set(segids)
-        #has=set(self.sources.keys())
-        #remove=has.difference(keep)
-        #for r in remove:
-        #    del self.sources[r]
+        ''' return a Data class with new segIDs set. '''
+        
+        out=copy.deepcopy(self)        # create an output class
+        keep=set(segids)               # the IDs we want in the output
+        has=set(self.sources.keys())   # the IDS we have in original
+        remove=has.difference(keep)    # the IDs to remove 
 
+        # remove the IDs
+        for r in remove:
+            del out.sources[r]
 
-        new=copy.deepcopy(self)
-        new.sources={segid: self.sources[segid] for segid in segids}
+        #out=copy.deepcopy(self)
+        #out.sources={segid: self.sources[segid] for segid in segids}
        
-        return new
+        return out
 
     
 
