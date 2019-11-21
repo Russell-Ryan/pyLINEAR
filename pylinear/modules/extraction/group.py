@@ -140,7 +140,7 @@ def makeGroups(conf,grisms,sources,extconf,sort=True):
     #ids=p(groupFLT,grisms.values(),sources,extconf,path,\
     #      prefix='Grouping FLTs')
     p=pool.Pool(groupFLT,ncpu=conf['cpu']['ncpu'],desc='Grouping FLTs')
-    ids=p(grism.values(),sources,extconf,path)
+    ids=p(grisms.values(),sources,extconf,path)
 
     
     # convert list of lists of sets to list of sets
