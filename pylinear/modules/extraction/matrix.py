@@ -24,6 +24,10 @@ class Matrix(object):
         self.nimg=len(grisms)
         self.nsrc=len(sources)
 
+        # do some quick error checking
+        assert (self.nsrc > 0),'Must have non-zero number of sources.'
+        assert (self.nimg > 0),'Must have non-zero number of images.'
+
         # print a message
         msg="[info]Building the matrix: {} images, {} sources"
         print(msg.format(self.nimg,self.nsrc))
@@ -40,11 +44,9 @@ class Matrix(object):
         if self.maxiter is not None:
             self.maxiter=int(self.maxiter)
 
-
-        
-
         # get number of wavelengths to use
-        nwav=[src.nwav for segid,src in sources]
+        #nwav=[src.nwav for segid,src in sources]
+        nwav=[src.nwav for segid,src in sources.items()]
         cwav=np.cumsum(nwav)    # get cumulative indices
         self.npar=cwav[-1]
         self.cwav=np.array([0,*cwav],dtype=cwav.dtype)
@@ -61,9 +63,6 @@ class Matrix(object):
         # this was like 'i' before.  but now we need to increment for
         # each FLT and detector
         self.imgindex=0
-
-        # just a short hand
-        path=conf['tables']['path']
         
         # loop over images
         #pb=progressbar.ProgressBar(self.nimg,prefix='Loading ODTs')
@@ -76,7 +75,7 @@ class Matrix(object):
         #    py = psutil.Process(pid)
 
         count=0       # a counter for the number possible matrix elements
-        for fltindex,(fltfile,flt) in enumerate(grisms):
+        for fltindex,(fltfile,flt) in enumerate(grisms.items()):
             # update the progressbar
             #pb.increment()
             pb.update()
@@ -84,7 +83,7 @@ class Matrix(object):
             #if __RAM__:
             #    print("top:",py.memory_info()[0]/1024/1024/1024)
             
-            data=self.loadFLT(flt,sources,extconf,grismFF,path)
+            data=self.loadFLT(flt,sources,extconf,grismFF,conf)
             
             #if __RAM__:
             #    print("read loadFLT:",py.memory_info()[0]/1024/1024/1024)
@@ -168,7 +167,7 @@ class Matrix(object):
         return self
     
         
-    def loadFLT(self,flt,sources,extconf,grismFF,path):
+    def loadFLT(self,flt,sources,extconf,grismFF,conf):
 
         # output stuff
         i,j,aij=[],[],[]
@@ -182,6 +181,7 @@ class Matrix(object):
         #py = psutil.Process(pid)
         
         # open the H5Table
+        path=conf['tables']['path']
         with h5table.H5Table(flt.dataset,self.TTYPE,path=path) as h5:
             #if __RAM__:
             #    print("start loadFLT:",py.memory_info()[0]/1024/1024/1024)
@@ -205,7 +205,7 @@ class Matrix(object):
                 # make a good pixel mask
                 flt[detname].applyBPX(dqa)    # update DQA with the bpx
                 #gpx=(dqa == 0) & (unc > 0)
-                gpx=(np.bitwise_and(dqa,conf['dqamask']) == 0) & (unc > 0)
+                gpx=(np.bitwise_and(dqa.image,conf['dqamask']) == 0) & (unc > 0)
                 
 
                 #if len(masks)!=0:
@@ -315,7 +315,7 @@ class Matrix(object):
             h5beam=h5det[beam]
             
             # loop over the sources
-            for srcindex,(segid,src) in enumerate(sources):
+            for srcindex,(segid,src) in enumerate(sources.items()):
 
                 if self.TTYPE=='ODT':                 # Read the ODT
                     odt=h5table.ODT(src.segid)

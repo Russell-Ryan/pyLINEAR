@@ -24,7 +24,7 @@ def getInitialGuess(mat,sources,grisms,extconf,conf):
     x0=np.zeros(mat.shape[1])
     segids=mat.segids
 
-    for j,(segid,src) in enumerate(sources):
+    for j,(segid,src) in enumerate(sources.items()):
         try:
             index=segids.index(segid)
         except ValueError:
@@ -55,6 +55,12 @@ def getInitialGuess(mat,sources,grisms,extconf,conf):
 def extractSources(conf,sources,grisms,extconf,grismFF,grpid,\
                    h5g,h5s,pdf):
 
+    # check something
+    if len(sources)==0:
+        print('[warn]This group has no valid sources.')
+        return
+
+    
     # build the matrix and check validity
     mat=Matrix(conf,grisms,sources,extconf,grismFF)
     if not hasattr(mat,'A'):
@@ -112,7 +118,8 @@ def extractSources(conf,sources,grisms,extconf,grismFF,grpid,\
     mcmcconf=conf['mcmcunc']       # something for easier access later  
     dtype=[('lam',np.float32),('flam',np.float32),\
            ('flo',np.float32),('fhi',np.float32)]
-    for segid,src in sources:
+    #for segid,src in sources:
+    for segid,src in sources.items():
         lam=src.waves
         flam=np.full_like(lam,np.nan)
         flo=np.full_like(lam,np.nan)

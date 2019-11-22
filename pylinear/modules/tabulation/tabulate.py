@@ -12,8 +12,6 @@ TTYPE='DDT'
 def makeODTs(grism,sources,grismconf,conf):#,path,remake,nsub):
     # create the table
     tab=h5table.H5Table(grism.dataset,TTYPE,path=conf['path'])
-
-
     
     pixfrac=1.0   # DO NOT CHANGE THIS.  NOT YET UNDERSTOOD!
         
@@ -24,11 +22,10 @@ def makeODTs(grism,sources,grismconf,conf):#,path,remake,nsub):
     else:
         return tab.filename
     
-    # pixel based ------------------------------
-    dx=np.array([0,0,1,1])-0.5         # HARDCODE
-    dy=np.array([0,1,1,0])-0.5         # HARDCODE
-    #-------------------------------------------
-
+    # pixel based --------------------------------+
+    dx=np.array([0,0,1,1])-0.5         # HARDCODE |
+    dy=np.array([0,1,1,0])-0.5         # HARDCODE |
+    #---------------------------------------------+
     
     # open the file
     with tab as h5:
@@ -39,8 +36,7 @@ def makeODTs(grism,sources,grismconf,conf):#,path,remake,nsub):
         h5utils.writeAttr(h5,'detimage',sources.obsdata.detImage)
         h5utils.writeAttr(h5,'detband',sources.obsdata.detName)
         h5utils.writeAttr(h5,'maglimit',np.float32(sources.maglimit))
-        
-        
+                
         # process each detector
         for detname,detconf in grismconf:
             
@@ -55,7 +51,6 @@ def makeODTs(grism,sources,grismconf,conf):#,path,remake,nsub):
             
             # get this grism image
             thisGrism=grism[detname]
-
             
             # the pixel area of this detector
             detpixelarea=thisGrism.pixelarea
@@ -96,7 +91,8 @@ def makeODTs(grism,sources,grismconf,conf):#,path,remake,nsub):
                 h5utils.writeAttr(beamgrp,'dwav',np.float32(dwav))
 
                 # process each source
-                for segid,src in sources:
+                #for segid,src in sources:
+                for segid,src in sources.items():
                     if src.name not in sourcesDone:  # only process new sources
 
                         

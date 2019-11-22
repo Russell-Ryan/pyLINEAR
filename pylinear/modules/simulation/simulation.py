@@ -138,7 +138,8 @@ def simulateWorker(flt,conf,grismconf,grismflat,sources,info,overwrite=True):
                 beamgrp=detgrp[beam]
 
                 
-                for segid,src in sources:
+                #for segid,src in sources:
+                for segid,src in sources.items():
                     if TTYPE=='odt':
                         odt=h5table.ODT(segid)
                         odt.readH5(beamgrp)

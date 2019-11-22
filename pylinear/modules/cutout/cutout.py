@@ -31,7 +31,7 @@ def cutoutWorker(flt,conf,grismconf,sources):
                 h5beamOut=h5detOut.require_group(beamname)
                 h5beamIn=h5detIn[beamname]
                 
-                for segid,src in sources:
+                for segid,src in sources.items():
                     srcname=str(segid)
                     ddt=h5table.DDT(src.segid)
                     ddt.readH5(h5beamIn)

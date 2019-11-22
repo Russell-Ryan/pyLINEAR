@@ -9,7 +9,7 @@ def gzip(conf,grisms):
         return
     if conf['gzip']:
         print('[info]Zipping residual images')
-        for fltfile,flt in grisms:
+        for fltfile,flt in grisms.items():
             gzip.gzip(filename(flt))
         
 
@@ -25,7 +25,7 @@ def create(conf,grisms,grismconf):
     print('[info]Preparing residual images')
 
 
-    for fltfile,flt in grisms:
+    for fltfile,flt in grisms.items():
         # make some output array
         hdul=fits.HDUList()
 
@@ -80,7 +80,7 @@ def update(conf,grisms,grismconf,mat,result,dqamask):
     # get the image and xy indices
     imgindex,pixindex=divmod(mat.iuniq,mat.npix)
     index=0        # a counter
-    for fltfile,flt in grisms:
+    for fltfile,flt in grisms.items():
 
         with fits.open(filename(flt),mode='update') as hdul:
 
@@ -112,8 +112,8 @@ def update(conf,grisms,grismconf,mat,result,dqamask):
                     hdul[resext].data[y,x]=sci[y,x]-hdul[modext].data[y,x]
 
                     # remove pixels in the DQAs
-                    #g=np.where(dqa != 0)[0]
-                    g=np.where(np.bitwise_and(dqa,dqamask) != 0)[0]
+                    #g=np.where(np.bitwise_and(dqa,dqamask) != 0)[0]
+                    g=np.where(np.bitwise_and(dqa.image,dqamask) != 0)[0]
                     hdul[resext].data[g]=np.nan
                     
                     

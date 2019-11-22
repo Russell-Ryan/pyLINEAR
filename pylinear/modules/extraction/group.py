@@ -10,9 +10,7 @@ from pylinear.utilities import indices,pool,convexhull
 TTYPE='DDT'
 
 def groupFLT(flt,sources,extconf,path,minarea=0.1):
-    
-    #print('loading the polygons for {}'.format(flt.dataset))
-    
+        
     # get the polygons for this FLT:
     with h5table.H5Table(flt.dataset,TTYPE,path=path) as h5:
         for detname,detimg in flt:
@@ -26,7 +24,8 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
                 polys=[]
 
                 
-                for segid,src in sources:
+                #for segid,src in sources:
+                for segid,src in sources.items():
                     # read the DDT
                     ddt=h5table.DDT(src.segid)
                     ddt.readH5(h5beam)
@@ -50,8 +49,12 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
                         # save the results
                         ids.append([segid])
                         polys.append(poly)
+
+
     # At this point, we've made shapely.Polygons out of a given DDT
-        
+    # so now we will gropu the polygons using polygon intersection
+    # methods in shapely.
+    
     #print('grouping the polygons for {}'.format(flt.dataset))
                         
     # group those sources with Shapely math
@@ -105,7 +108,7 @@ def groupFLT(flt,sources,extconf,path,minarea=0.1):
 
     # return a list of sets
     ids=[set(group) for group in groups]
-
+    
     return ids
         
 

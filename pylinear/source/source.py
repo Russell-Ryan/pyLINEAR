@@ -54,7 +54,6 @@ class Source(WCS,ExtractionParameters,Direct):
         g=np.where(seg == self.segid)
         self.npix=len(g[0])
 
-
         # check the number of pixels is large enough
         if self.npix<=minpix:
             #print('[warn]Too few pixels for {}.'.format(self.segid))
@@ -79,6 +78,7 @@ class Source(WCS,ExtractionParameters,Direct):
         self.xd=g[1]      # direct image x-coordinates
         self.yd=g[0]      # direct image y-coordinates
         
+
         
         # compute the area of this source
         self.area=self.npix*self.pixelarea

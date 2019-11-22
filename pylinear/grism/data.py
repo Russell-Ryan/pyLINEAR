@@ -36,16 +36,16 @@ class Data(dict):
     #    return len(self.images)
         
     def __str__(self):
-        t='{} grism images: \n'.format(str(len(self.images)))
-        for k,v in self.images.items():
+        t='{} grism images: \n'.format(str(len(self)))
+        for k,v in self.items():
             t=t+'{:>8} {}\n'.format(v.filetype,v.filename)
         return t
 
     #def __getitem__(self,k):
     #    return self.images[k]
     
-    def __iter__(self):
-        yield from self.items()
+    #def __iter__(self):
+    #    yield from self.items()
 
     @property
     def datasets(self):
