@@ -1,6 +1,10 @@
 # pylinear
 
-[![Build Status](https://travis-ci.org/Russell-Ryan/pyLINEAR.svg?branch=master)](https://travis-ci.org/Russell-Ryan/pyLINEAR)
+[![Build Status](https://travis-ci.org/Russell-Ryan/pyLINEAR.svg?branch=master)](https://travis-ci.org/Russell-Ryan/pyLINEAR) [![DOI](https://zenodo.org/badge/193565310.svg)](https://zenodo.org/badge/latestdoi/193565310)
+
+
+
+
 
 This is a python implementation of the LINEAR algorithm for extracting slitless spectroscopy from HST/WFC3-IR as developed by [Ryan, R. E., Jr.; Casertano, S.; Pirzkal, N. 2018, PASP, 130, 4501](https://ui.adsabs.harvard.edu/abs/2018PASP..130c4501R/abstract).  The LINEAR software was originally developed in IDL and C, but had several limitations that were remedied in the porting to Python.
 
