@@ -45,7 +45,7 @@ class Config(object):
 
         Returns
         -------
-        nothing, but loads into the object.
+        None, just loads an object.
         """
         
         try:
