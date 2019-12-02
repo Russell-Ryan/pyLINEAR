@@ -270,33 +270,35 @@ class Data(dict):
         print('[info]Loading sources from MEF segmentation map')
         
         # get a progress bar
-        #pb=progressbar.ProgressBar(len(seglist))
         pb=tqdm.tqdm(total=len(seglist),dynamic_ncols=True,desc='MEF Segmap')
         
         detzpt=self.obsdata.detZeropoint
-        for seghdu,imghdu in zip(seglist[1:],imglist[1:]):
-            segid=seghdu.header['SEGID']
+        for seghdu,imghdu in zip(seglist,imglist):
+            # check that the header has the required keyword before proceeding
+            if 'SEGID' in seghdu.header:
+                segid=seghdu.header['SEGID']
             
-            # set the prefix
-            #pb.prefix=self.PREFIX.format(segid)
-            pb.desc=self.PREFIX.format(segid)
+                # set the prefix
+                pb.desc=self.PREFIX.format(segid)
             
-            # read the images
-            seg=FITSImage(seglist,seghdu)
-            img=FITSImage(imglist,imghdu)
-            
-            src=Source(img,seg,detzpt,
-                       lamb0=self.getKeyword('LAMB0',seg,conf),
-                       lamb1=self.getKeyword('LAMB1',seg,conf),
-                       dlamb=self.getKeyword('DLAMB',seg,conf),
-                       filtsig=self.getKeyword('FILTSIG',seg,conf),
-                       eroderad=self.getKeyword('ERODERAD',seg,conf),
-                       maglim=conf['maglim'],minpix=conf['minpix'])
-            if src.valid:
-                self[src.segid]=src
+                # read the images
+                seg=FITSImage(seglist,seghdu)
+                img=FITSImage(imglist,imghdu)
+
+                # create the source
+                src=Source(img,seg,detzpt,
+                           lamb0=self.getKeyword('LAMB0',seg,conf),
+                           lamb1=self.getKeyword('LAMB1',seg,conf),
+                           dlamb=self.getKeyword('DLAMB',seg,conf),
+                           filtsig=self.getKeyword('FILTSIG',seg,conf),
+                           eroderad=self.getKeyword('ERODERAD',seg,conf),
+                           maglim=conf['maglim'],minpix=conf['minpix'])
+                
+                # if it's valid, then keep it
+                if src.valid:
+                    self[src.segid]=src
 
             # increment
-            #pb.increment()
             pb.update()
                 
 
