@@ -77,8 +77,7 @@ class Source(WCS,ExtractionParameters,Direct):
         # recall that Python & IDL are inverted
         self.xd=g[1]      # direct image x-coordinates
         self.yd=g[0]      # direct image y-coordinates
-        
-
+                
         
         # compute the area of this source
         self.area=self.npix*self.pixelarea
@@ -88,6 +87,7 @@ class Source(WCS,ExtractionParameters,Direct):
         self.zero=zero
         #self.total=np.sum(img.data[g])
         self.total=np.sum(img[g])
+
         if self.total>0:
             self.mag=-2.5*np.log10(self.total)+self.zero
             if self.mag >maglim:
@@ -117,10 +117,12 @@ class Source(WCS,ExtractionParameters,Direct):
         
     def instrumentalFlux(self,img):
         ''' compute the instrumental flux of this source in an image '''
+       
+
         xd=self.xd-int(self.ltv[0])
         yd=self.yd-int(self.ltv[1])
         tot=np.sum(img[yd,xd])
-
+        
         return tot
 
 

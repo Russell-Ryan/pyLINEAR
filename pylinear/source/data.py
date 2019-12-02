@@ -42,8 +42,10 @@ class Data(dict):
 
             # load according to how many extensions
             if len(hdus)==1:
+                mef=False
                 self.fromClassic(conf,hdus,hdui)
             else:
+                mef=True
                 self.fromMEF(conf,hdus,hdui)
 
         # rmeove sources below the magnitude limit
@@ -55,7 +57,7 @@ class Data(dict):
         #self.applyMagLimit(self.maglimit)
         
         # set the default spectra as photometry
-        self.loadPhotometry()
+        self.loadPhotometry(mef=mef)
 
         # verify some things
         #if not self.sources:
@@ -161,7 +163,7 @@ class Data(dict):
 
     
 
-    def loadPhotometry(self):
+    def loadPhotometry(self,mef=False):
         ''' load photometry for each source as a crude SED '''
         print('[info]Loading broadband phototmetry')
 
@@ -172,13 +174,34 @@ class Data(dict):
 
         for name,filt,zero in self.obsdata:
             lamb.append(filt.photplam)
-            img=FITSImage(name,0)
-            f=[]
-            #for segid,src in self.sources.items():
-            for segid,src in self.items():
-                tot=src.instrumentalFlux(img)
-                f.append(tot*(filt.photflam/fluxunit))
-            flam.append(f)
+            if mef:
+                data={}
+                with fits.open(name) as hdul:
+                    for ext,hdu in enumerate(hdul):
+                        if 'SEGID' in hdu.header:
+                            data[hdu.header['SEGID']]=ext
+                    if len(data) ==0:
+                        print('[warn]No valid SEGIDs')
+
+                    f=[]
+                    for segid,src in self.items():
+                        if segid in data:
+                            img=FITSImage(hdul,data[segid])
+                            tot=src.instrumentalFlux(img)
+                            f.append(tot*(filt.photflam/fluxunit))
+                                 
+                        else:
+                            print('[warn]Invalid SEGID')
+                flam.append(f)
+                        
+            else:                
+                img=FITSImage(name,0)
+                f=[]
+                #for segid,src in self.sources.items():
+                for segid,src in self.items():
+                    tot=src.instrumentalFlux(img)
+                    f.append(tot*(filt.photflam/fluxunit))
+                flam.append(f)
 
         lamb=np.array(lamb)
         flam=list(zip(*flam))
@@ -226,9 +249,6 @@ class Data(dict):
         # get a progress bar
         #pb=progressbar.ProgressBar(len(revind))
         pb=tqdm.tqdm(total=len(revind),dynamic_ncols=True,desc='Classic Segmap')
-
-        # get the detection filter
-        detzpt=self.obsdata.detZeropoint
             
         # process each index
         for segid,ri in revind:
@@ -253,7 +273,7 @@ class Data(dict):
 
             
             # create the source
-            src=Source(subimg,subseg,detzpt,segid=segid,\
+            src=Source(subimg,subseg,self.obsdata.detZeropoint,segid=segid,\
                        filtsig=self.getKeyword('FILTSIG',seg,conf),
                        eroderad=self.getKeyword('ERODERAD',seg,conf),
                        maglim=conf['maglim'],minpix=conf['minpix'])
@@ -272,7 +292,6 @@ class Data(dict):
         # get a progress bar
         pb=tqdm.tqdm(total=len(seglist),dynamic_ncols=True,desc='MEF Segmap')
         
-        detzpt=self.obsdata.detZeropoint
         for seghdu,imghdu in zip(seglist,imglist):
             # check that the header has the required keyword before proceeding
             if 'SEGID' in seghdu.header:
@@ -284,9 +303,9 @@ class Data(dict):
                 # read the images
                 seg=FITSImage(seglist,seghdu)
                 img=FITSImage(imglist,imghdu)
-
+                
                 # create the source
-                src=Source(img,seg,detzpt,
+                src=Source(img,seg,self.obsdata.detZeropoint,
                            lamb0=self.getKeyword('LAMB0',seg,conf),
                            lamb1=self.getKeyword('LAMB1',seg,conf),
                            dlamb=self.getKeyword('DLAMB',seg,conf),
