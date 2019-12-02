@@ -274,7 +274,7 @@ class Data(dict):
         pb=tqdm.tqdm(total=len(seglist),dynamic_ncols=True,desc='MEF Segmap')
         
         detzpt=self.obsdata.detZeropoint
-        for seghdu,imghdu in zip(seglist,imglist):
+        for seghdu,imghdu in zip(seglist[1:],imglist[1:]):
             segid=seghdu.header['SEGID']
             
             # set the prefix
