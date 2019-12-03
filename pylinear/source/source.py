@@ -17,7 +17,8 @@ from pylinear.utilities import convexhull
 class Source(WCS,ExtractionParameters,Direct):
     SEGTYPE=np.uint32           # force SEGIDs to have this type
 
-    def __init__(self,img,seg,zero,segid=None,minpix=3,maglim=26,            
+    def __init__(self,img,seg,zero,verbose=False,boolean=False,
+                 segid=None,minpix=3,maglim=26,            
                  lamb0=None,lamb1=None,dlamb=None,
                  filtsig=None,eroderad=None,binfact=None):
 
@@ -26,7 +27,8 @@ class Source(WCS,ExtractionParameters,Direct):
             if 'SEGID' in seg.header:
                 segid=seg.header['SEGID']
             else:
-                #print('[warn]Segmentation ID is missing from header.')
+                if verbose:
+                    print('[warn]Segmentation ID is missing from header.')
                 self.valid=False
                 return
         self.segid=self.SEGTYPE(segid)
@@ -37,7 +39,8 @@ class Source(WCS,ExtractionParameters,Direct):
               'CD1_1','CD1_2','CD2_1','CD2_2','CTYPE1','CTYPE2']
         for key in keys:
             if img[key]!=seg[key]:
-                #print('[warn]Incompatible headers for {}'.format(self.segid))
+                if verbose:
+                    print('[warn]Incompatible headers for {}'.format(self.segid))
                 self.valid=False
                 return
 
@@ -51,12 +54,16 @@ class Source(WCS,ExtractionParameters,Direct):
 
         
         # get the good pixels
-        g=np.where(seg == self.segid)
+        if boolean:
+            g=np.where(seg == 1)
+        else:
+            g=np.where(seg == self.segid)
         self.npix=len(g[0])
 
         # check the number of pixels is large enough
         if self.npix<=minpix:
-            #print('[warn]Too few pixels for {}.'.format(self.segid))
+            if verbose:
+                print('[warn]Too few pixels for {}.'.format(self.segid))
             self.valid=False
             return
                 
@@ -91,7 +98,8 @@ class Source(WCS,ExtractionParameters,Direct):
         if self.total>0:
             self.mag=-2.5*np.log10(self.total)+self.zero
             if self.mag >maglim:
-                #print('[warn]Below mag limit for {}'.format(self.segid))
+                if verbose:
+                    print('[warn]Below mag limit for {}'.format(self.segid))
                 self.valid=False
                 return
             
@@ -104,11 +112,13 @@ class Source(WCS,ExtractionParameters,Direct):
             self.adc=np.array(self.xy2ad(self.xyc[0],self.xyc[1]))
 
         elif self.total==0:
-            #print('[warn]Zero flux for {}'.format(self.segid))
+            if verbose:
+                print('[warn]Zero flux for {}'.format(self.segid))
             self.valid=False
             return
         else:                
-            #print('[warn]Negative flux for {}'.format(self.segid))
+            if verbose:
+                print('[warn]Negative flux for {}'.format(self.segid))
             self.valid=False
             return
 

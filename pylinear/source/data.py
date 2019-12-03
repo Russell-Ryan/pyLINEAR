@@ -181,7 +181,7 @@ class Data(dict):
                         if 'SEGID' in hdu.header:
                             data[hdu.header['SEGID']]=ext
                     if len(data) ==0:
-                        print('[warn]No valid SEGIDs')
+                        print('[warn]No valid SEGIDs in MEF loading.')
 
                     f=[]
                     for segid,src in self.items():
@@ -191,7 +191,7 @@ class Data(dict):
                             f.append(tot*(filt.photflam/fluxunit))
                                  
                         else:
-                            print('[warn]Invalid SEGID')
+                            print('[warn]SEGID not found in the MEF dict')
                 flam.append(f)
                         
             else:                
@@ -305,7 +305,7 @@ class Data(dict):
                 img=FITSImage(imglist,imghdu)
                 
                 # create the source
-                src=Source(img,seg,self.obsdata.detZeropoint,
+                src=Source(img,seg,self.obsdata.detZeropoint,boolean=True,
                            lamb0=self.getKeyword('LAMB0',seg,conf),
                            lamb1=self.getKeyword('LAMB1',seg,conf),
                            dlamb=self.getKeyword('DLAMB',seg,conf),
