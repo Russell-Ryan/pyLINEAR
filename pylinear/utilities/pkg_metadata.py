@@ -1,9 +1,27 @@
 import pkg_resources
 import re
 
-
+''' A simple script to get the meta data for a package by reading the EGGs. '''
 
 def pkg_metadata(name):
+    ''' return the meta data as a dict
+
+    This will append like keywords.  For example, you may have multiple 
+    `Classifiers`, which will be appended into a list.  All values of the 
+    dictionary will be strings.
+
+    Parameters
+    ----------
+    name : str 
+        the name of the package
+
+    Returns
+    -------
+    meta : dict
+        dictionary of the package data
+    '''
+
+
     meta={}     # output metadata struct
 
     # a generator of the meta data
@@ -30,8 +48,7 @@ def pkg_metadata(name):
     
 
 
-
-
 if __name__=='__main__':
+    ''' Simple testing script '''
     m=pkg_metadata('pylinear')
     print(m)
