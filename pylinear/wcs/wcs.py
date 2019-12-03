@@ -53,27 +53,29 @@ class WCS(astropyWCS):
 
 
         # compute derivatives for A
-        ii,jj=np.where(self.sip.a != 0)
         dadx=np.ones_like(dx)
         dady=np.zeros_like(dx)
-        for i,j,v in zip(ii,jj,self.sip.a[ii,jj]):
-            if i!=0:
-                dadx+=(v*i*dx**(i-1)*dy**j)
-            if j!=0:
-                dady+=(v*j*dx**i*dy**(j-1))
+        if hasattr(self.sip,'a'):
+            ii,jj=np.where(self.sip.a != 0)
+            for i,j,v in zip(ii,jj,self.sip.a[ii,jj]):
+                if i!=0:
+                    dadx+=(v*i*dx**(i-1)*dy**j)
+                if j!=0:
+                    dady+=(v*j*dx**i*dy**(j-1))
                 
             
             
 
-        # compute derivatives for B        
-        ii,jj=np.where(self.sip.b != 0)
+        # compute derivatives for B         
         dbdx=np.zeros_like(dx)
         dbdy=np.ones_like(dx)
-        for i,j,v in zip(ii,jj,self.sip.b[ii,jj]):
-            if i!=0:
-                dbdx+=(v*i*dx**(i-1)*dy**j)
-            if j!=0:
-                dbdy+=(v*j*dx**i*dy**(j-1))
+        if hasattr(self.sip,'b'):
+            ii,jj=np.where(self.sip.b != 0)
+            for i,j,v in zip(ii,jj,self.sip.b[ii,jj]):
+                if i!=0:
+                    dbdx+=(v*i*dx**(i-1)*dy**j)
+                if j!=0:
+                    dbdy+=(v*j*dx**i*dy**(j-1))
 
         jacobian = scale*np.abs(dadx * dbdy - dady * dbdx)
         if n==1:
