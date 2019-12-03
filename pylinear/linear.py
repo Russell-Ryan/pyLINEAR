@@ -4,25 +4,25 @@ import shutil
 import sys
 import timeit
 import numpy as np
-import pkginfo
+#import pkginfo
 
 
 from . import config
 from . import source
 from . import modules
-from .utilities import Logger
+from .utilities import Logger,pkg_metadata
 
 
 def splashMessage(conf,info):
     ''' display a splash message when the pipeline is called '''
     txt=['','', \
-         '    '+info.description,\
+         '    '+info['Summary'],
          '', \
-         '           by: '+info.author,\
+         '           by: '+info['Author'],
          '', \
          '     citation: http://adsabs.harvard.edu/abs/2018PASP..130c4501R',
-         '      version: '+info.version, \
-         '      contact: '+info.author_email, \
+         '      version: '+info['Version'],
+         '      contact: '+info['Author-email'], \
          '']
     for t in txt:
         print(t)
@@ -99,20 +99,19 @@ def runLinear(conf):
     sources=source.Data(conf['sources'])
     
     # make a look-up table for the callable methods
-    items=[(modules.simulate,'simulation'),
-           (modules.extract,'extraction'),
-           (modules.cutout,'cutout')]
-
-    # call the modules
-    [method(conf['modules'][key],sources) for (method,key) in items]
+    mods=[(modules.simulate,'simulation'),
+          (modules.extract,'extraction'),
+          (modules.cutout,'cutout')]
     
-
+    # call the modules
+    for (method,key) in mods:
+        method(conf['modules'][key],sources)
 
 
 def parseCommandLineArgs(info):
     
     # parse the input     
-    p=ap.ArgumentParser(description=info.name+': '+info.description,
+    p=ap.ArgumentParser(description=info['Name']+': '+info['Summary'],
                         formatter_class=ap.ArgumentDefaultsHelpFormatter)
     p.add_argument('config',help='YAML configuration file',nargs='?',\
                    default='{}.yml'.format(__package__))
@@ -153,13 +152,15 @@ def main():
     t0=timeit.default_timer()
 
     # get the pkg info
-    info=pkginfo.Installed(__package__)
+    #info=pkginfo.Installed(__package__)
+    info=pkg_metadata(__package__)
 
+    
     # get the command-line Arguments    
     args=parseCommandLineArgs(info)
             
     # open my custom logging utilities
-    sys.stdout=Logger(info.name,logfile=args.logfile)
+    sys.stdout=Logger(info['Name'],logfile=args.logfile)
     
 
     # load the configuration with defaults

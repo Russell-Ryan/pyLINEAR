@@ -5,7 +5,7 @@ import datetime
 import pkginfo
 
 import h5axeconfig
-from pylinear.utilities import asciitable,indices,gzip,Pool
+from pylinear.utilities import asciitable,indices,gzip,Pool,pkg_metadata
 from pylinear.synthphot import SED
 from pylinear import grism,h5table
 from ..tabulation import tabulate
@@ -67,8 +67,8 @@ def simulateWorker(flt,conf,grismconf,grismflat,sources,info,overwrite=True):
     now=datetime.datetime.now()
           
     # update the PHDU for the output image
-    hdr.append(('ORIGIN',info['name'],'how the file was created'),end=True)
-    hdr.append(('VERSION',info['version'],'code version'),end=True)
+    hdr.append(('ORIGIN',info['Name'],'how the file was created'),end=True)
+    hdr.append(('VERSION',info['Version'],'code version'),end=True)
     hdr.append(('DATE',now.strftime("%Y-%m-%d"),\
                 'date this file was written (yyyy-mm-dd)'),end=True)
 
@@ -223,9 +223,10 @@ def simulate(conf,sources):
     print("[info]Simulating FLTs")
 
     # get pkginfo
-    info=pkginfo.Installed('pylinear')
-    info={k:getattr(info,k) for k in ['name','version']}
-        
+    #info=pkginfo.Installed('pylinear')
+    #info={k:getattr(info,k) for k in ['name','version']}
+    info=pkg_metadata('pylinear')
+    
     # just a short hand
     calconf=conf['calib']
 
