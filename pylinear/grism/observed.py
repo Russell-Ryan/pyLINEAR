@@ -12,8 +12,6 @@ from .detector import Detector
 class ObservedGrism(GrismImage):
     filetype='observed'
 
-    
-
     # must pass extensions into this
     def __init__(self,fileName,exts):
         GrismImage.__init__(self,fileName,filename=True)
