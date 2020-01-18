@@ -218,11 +218,11 @@ class Direct(object):
                 # open the detector
                 h5det=h5[detname]
                 detconf=extconf[detname]
-                
+
                 # read the images
-                sci,scihdr=grism.readfits(detconf.sciext,detconf.extver)
-                unc,unchdr=grism.readfits(detconf.uncext,detconf.extver)
-                dqa,dqahdr=grism.readfits(detconf.dqaext,detconf.extver)
+                sci=grism.readfits(detconf.sciext,detconf.extver)
+                unc=grism.readfits(detconf.uncext,detconf.extver)
+                dqa=grism.readfits(detconf.dqaext,detconf.extver)
                 
                 # load the beamsy
                 for beam,beamconf in detconf:
@@ -234,6 +234,8 @@ class Direct(object):
                     ddt.readH5(h5beam)
                     
                     # apply flat, pam, etc. to sci/unc
+
+
 
                     
                     # fit the sky
@@ -279,6 +281,7 @@ class Direct(object):
 
 
 
+
         #results=[self.getSpectrum(g,extconf,conf) for n,g in grisms]
         
         # package the output
@@ -288,8 +291,7 @@ class Direct(object):
             fvars.extend(r[1])
             waves.extend(r[2])
             chi2s.extend(r[3])
-            results.remove(r)
-                                                
+
         # recast
         fluxs=np.array(fluxs)
         fvars=np.array(fvars)
@@ -307,6 +309,7 @@ class Direct(object):
             g=np.where((waves> wav-extconf.dlamb/2.) & \
                        (waves<=wav+extconf.dlamb/2.))[0]
 
+            
             if len(g)!=0:
                 w=1./fvars[g]
                 f=fluxs[g]
@@ -317,7 +320,7 @@ class Direct(object):
         #import matplotlib.pyplot as plt
         #plt.scatter(wave,flam/1e-17)
         #plt.show()
-        
+                
         return wave,flam,func
 
 

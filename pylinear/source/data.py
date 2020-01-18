@@ -257,13 +257,15 @@ class Data(dict):
             pb.desc=self.PREFIX.format(segid)
             
             # compute (x,y) pairs
-            x,y=indices.one2two(ri,seg.shape)
+            x,y=indices.one2two(ri,np.flip(seg.shape))
 
             # get bounding box
             x0,x1=np.amin(x),np.amax(x)
             y0,y1=np.amin(y),np.amax(y)
 
-                        
+
+
+            
             # call something like hextract
             subseg=seg.extract(x0,x1,y0,y1)
             subimg=img.extract(x0,x1,y0,y1)
@@ -277,7 +279,9 @@ class Data(dict):
                        filtsig=self.getKeyword('FILTSIG',seg,conf),
                        eroderad=self.getKeyword('ERODERAD',seg,conf),
                        maglim=conf['maglim'],minpix=conf['minpix'])
-                               
+
+            print(src.valid)
+            
             if src.valid:
                 self[segid]=src
             # update the progress bar
