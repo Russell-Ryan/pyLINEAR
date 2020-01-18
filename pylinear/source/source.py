@@ -17,11 +17,12 @@ from pylinear.utilities import convexhull
 class Source(WCS,ExtractionParameters,Direct):
     SEGTYPE=np.uint32           # force SEGIDs to have this type
 
-    def __init__(self,img,seg,zero,verbose=False,boolean=False,
+    def __init__(self,img,seg,zero,verbose=True,boolean=False,
                  segid=None,minpix=3,maglim=26,            
                  lamb0=None,lamb1=None,dlamb=None,
                  filtsig=None,eroderad=None,binfact=None):
 
+        
         #get the SEGID
         if segid is None:
             if 'SEGID' in seg.header:
@@ -60,6 +61,7 @@ class Source(WCS,ExtractionParameters,Direct):
             g=np.where(seg == self.segid)
         self.npix=len(g[0])
 
+        
         # check the number of pixels is large enough
         if self.npix<=minpix:
             if verbose:
