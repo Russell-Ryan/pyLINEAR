@@ -10,11 +10,11 @@ def gzip(conf,grisms):
     if conf['gzip']:
         print('[info]Zipping residual images')
         for fltfile,flt in grisms.items():
-            gzip.gzip(filename(flt))
+            gzip.gzip(residualName(flt))
         
 
 
-def filename(flt):
+def residualName(flt):
     outfile='{}_res.fits'.format(flt.dataset)
     return outfile
 
@@ -58,8 +58,8 @@ def create(conf,grisms,grismconf):
             res=sci-mod
             reshdr=det.mkhdr(dtype,extname='RES',extver=detconf.extver)
             hdul.append(fits.ImageHDU(data=res,header=reshdr))            
-            
-        hdul.writeto(filename(flt),overwrite=True)
+
+        hdul.writeto(residualName(flt),overwrite=True)
 
 
         
@@ -82,7 +82,7 @@ def update(conf,grisms,grismconf,mat,result,dqamask):
     index=0        # a counter
     for fltfile,flt in grisms.items():
 
-        with fits.open(filename(flt),mode='update') as hdul:
+        with fits.open(residualName(flt),mode='update') as hdul:
 
             # process each detector within the FLT
             for i,(detname,det) in enumerate(flt):
@@ -110,12 +110,15 @@ def update(conf,grisms,grismconf,mat,result,dqamask):
                     
                     # update the residual image
                     hdul[resext].data[y,x]=sci[y,x]-hdul[modext].data[y,x]
-
+                    
                     # remove pixels in the DQAs
                     #g=np.where(np.bitwise_and(dqa,dqamask) != 0)[0]
                     g=np.where(np.bitwise_and(dqa.image,dqamask) != 0)[0]
-                    hdul[resext].data[g]=np.nan
-                    
-                    
+                    #hdul[resext].data[g]=np.nan
+                    print("[warn]MUST FIX BITMASKING")
+
+            print(hdul[resext].data[y,x])
+            print(residualName(flt))
+            hdul.writeto(residualName(flt),overwrite=True)      
         # update the counter
         index+=1
