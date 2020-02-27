@@ -113,12 +113,14 @@ def update(conf,grisms,grismconf,mat,result,dqamask):
                     
                     # remove pixels in the DQAs
                     #g=np.where(np.bitwise_and(dqa,dqamask) != 0)[0]
-                    g=np.where(np.bitwise_and(dqa.image,dqamask) != 0)[0]
-                    #hdul[resext].data[g]=np.nan
+                    #g=np.where(np.bitwise_and(dqa.image,dqamask) != 0)[0]
+                    DQ = np.bitwise_and(dqa.image,np.zeros(np.shape(dqa.image),np.int)+ dqamask)
+                    bad = DQ > 0 
+                    hdul[resext].data[g]=np.nan
                     print("[warn]MUST FIX BITMASKING")
 
-            print(hdul[resext].data[y,x])
-            print(residualName(flt))
-            hdul.writeto(residualName(flt),overwrite=True)      
+            #print(hdul[resext].data[y,x])
+            #print(residualName(flt))
+            #hdul.writeto(residualName(flt),overwrite=True)      
         # update the counter
         index+=1
