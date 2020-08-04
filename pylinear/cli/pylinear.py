@@ -1,4 +1,4 @@
-import pylinear3 as pylinear
+import pylinear
 import argparse as ap
 import os
 
