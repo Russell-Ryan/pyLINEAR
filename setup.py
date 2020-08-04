@@ -20,8 +20,6 @@ reqs=['numpy>1.16','scipy','astropy','emcee','h5py',
 
 
 
-
-
 #https://docs.python.org/2/distutils/setupscript.html
 setup(name='pylinear',
       version='2.0',
@@ -35,13 +33,13 @@ setup(name='pylinear',
       url='https://github.com/Russell-Ryan/pyLINEAR',
       platforms='posix',
       install_requires=reqs,
-      entry_points={'console_scripts':['pylinear3=pylinear3.cli.pylinear:main']}, 
+      entry_points={'console_scripts':['pylinear=pylinear.cli.pylinear:main']}, 
       classifiers=['Development Status :: 5 Production/Stable',
                    'Intended Audience :: Science/Research',
                    'Topic :: Scientific/Engineering :: Astronomy',],
       packages=find_packages(),
-      package_data={'pylinear3':['sedphot/filters/*filt',
-                                 'grism/instruments/instruments.xml']})
+      package_data={'pylinear':['sedphot/filters/*filt',
+                                'grism/instruments/instruments.xml']})
 
                                  
 #'grism/siaf/siaf.h5']})
