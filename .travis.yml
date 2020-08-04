@@ -9,4 +9,4 @@ python:
 install:
   - python3 -m pip install .
 
-script: cd /tmp && export PYLINEAR_CONFIG = . && python3 -c 'import pylinear'
+script: cd /tmp && export PYLINEAR_CONFIG=. && python3 -c 'import pylinear'
