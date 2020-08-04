@@ -1,5 +1,4 @@
 from .info import __author__,__code__,__email__,__ref__,__version__
-#from .cli import pylinear
 from . import modules
 from . import source
 from . import grism
@@ -8,15 +7,13 @@ from .config import Config
 import os
 
 
-
+# set the logging utility
 import colorlog
 log=colorlog.ColorLog(root='{}_v{}'.format(__code__,__version__))
 
 
-
-try:
-    _=os.environ['PYLINEAR_CONFIG']
-except:
+# check that the configuration data is present
+if 'PYLINEAR_CONFIG' not in os.environ:
     raise RuntimeError("You must specify 'PYLINEAR_CONFIG' in the environment")
     
 
