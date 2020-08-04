@@ -1,6 +1,6 @@
 import numpy as np
 from shapely.geometry import Polygon
-from scipy.spatial import ConvexHull
+#from scipy.spatial import ConvexHull
 import matplotlib.pyplot as plt
 
 from pylinear import h5table

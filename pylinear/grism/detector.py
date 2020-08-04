@@ -17,7 +17,7 @@ class Detector(WCS):
         
 
     def __str__(self):
-        return 'grism image detector with {} \u00D7 {}'.format(self.shape[0],self.shape[0]) 
+        return 'grism image detector with {} \u00D7 {}'.format(self.shape[0],self.shape[1]) 
 
     
     @property
@@ -28,7 +28,7 @@ class Detector(WCS):
     def extendBPX(self,bpx):
         self.bpx.extend(bpx)
 
-    def applyBPX(self,img,DQAval=1):
+    def applyBPX(self,img):
         if len(self.bpx) != 0:
             xg,yg=indices.one2two(self.bpx,self.shape)
             img[yg,xg]=1

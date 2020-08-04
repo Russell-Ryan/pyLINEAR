@@ -41,7 +41,7 @@ class Source(WCS,ExtractionParameters,Direct):
         for key in keys:
             if img[key]!=seg[key]:
                 if verbose:
-                    print('[warn]Incompatible headers for {}'.format(self.segid))
+                    print('[warn]Incompatible headers: {}'.format(self.segid))
                 self.valid=False
                 return
 

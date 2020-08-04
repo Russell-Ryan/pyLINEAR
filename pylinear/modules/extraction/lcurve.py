@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.colors as mc
 from matplotlib.backends.backend_pdf import PdfPages
-import colorsys
+#import colorsys
 import numpy as np
 import datetime
 
@@ -22,13 +22,17 @@ class LCurve(object):
         self.y.append(np.log10(y))    #=log(xnorm)
         self.l.append(l)
 
-    def values(self):
+    def values(self,sort=True):
         x=np.array(self.x)
         y=np.array(self.y)
         l=np.array(self.l)
-        i=np.argsort(x)
-        
-        return x[i],y[i],l[i]
+        if sort:
+            i=np.argsort(x)
+            x=x[i]
+            y=y[i]
+            l=l[i]
+            
+        return x,y,l
 
     def load(self,filename,comments=['#','%',';']):
         with open(filename,'r') as fp:

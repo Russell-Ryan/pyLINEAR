@@ -1,6 +1,8 @@
 import sys
 import datetime
 import re
+import timeit
+
 
 class Logger(object):
     ''' class to perform custom logging by overriding print command '''
@@ -9,11 +11,13 @@ class Logger(object):
     def __init__(self,name,logfile=None,time=True):
         ''' create a log file that contains the same content as print '''
 
+        self.t0=timeit.default_timer()
         if logfile is None:
             logfile=name.lower()+'.log'
 
         self.time=time
-            
+
+        
         # define the regex search tool
         #self.regex=re.compile('\<(.*?)\>')
         self.regex=re.compile('\[[A-Za-z]+\]')
@@ -46,10 +50,13 @@ class Logger(object):
             self.logfile.write(' +-'+self.num*'-'+'-+\n\n\n')
             self.logfile.flush()
 
-            
+        sys.stdout=self
+        sys.stderr=self
+        
     def write(self,text):
         ''' override the print functionality '''
 
+        
         # get the time
         if self.time:
             now=datetime.datetime.now().strftime(" %b/%d/%y-%H:%M:%S")
@@ -86,6 +93,7 @@ class Logger(object):
                 else: f='[{}] {}'
                 self.logfile.write(f.format(now,text[match.end(0):]))
             else:
+
                 self.logfile.write(text)
             self.logfile.flush()
 
@@ -114,24 +122,29 @@ class Logger(object):
             self.logfile.write(' +-'+self.num*'-'+'-+\n')
             self.logfile.write(' | '+self.num*' '+' |\n')
             self.logfile.write(' | '+label+' '*(self.num-len(label))+' |\n')
+            self.logfile.write(' | '+str(timeit.default_timer()-self.t0)+'\n')
             #self.logfile.write(' | '+today+' '*(self.num-len(today))+' |\n')
             #self.logfile.write(' | '+now+' '*(self.num-len(now))+' |\n')      
             self.logfile.write(' | '+self.num*' '+' |\n')
             self.logfile.write(' +-'+self.num*'-'+'-+\n')
             self.logfile.close()
         sys.stdout=self.stdout    # reset the stdout
-
+        sys.stderr=self.stderr
+        
 if __name__=='__main__':
     print('testing the logging utility')
 
     import numpy as np
+
     
-    sys.stdout=Logger('Test',logfile='test.log')
+    t=Logger('Test',logfile='test.log')
+    #sys.stdout=Logger('Test',logfile='test.log')
     
     print('[info]This is informational')
     print('[warn]This is slightly more worrisome')
     print('[alarm]This is alarming')
     print('[debug]a debugging message')
     print('[title]A title message')
-    print('this is a standard')
+    print('this is a standard message')
     print('[warn]',[1,2,34])
+    raise RuntimeError("this is just a test")
