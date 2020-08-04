@@ -1,0 +1,14 @@
+numpy>1.16
+scipy
+astropy
+emcee
+h5py
+pysiaf
+pkginfo
+shapely
+tqdm
+psutil
+matplotlib
+fitsimage @ git+https://github.com/russell-ryan/fitsimage
+colorlog @ git+https://github.com/russell-ryan/colorlog
+polyclip @ git+https://github.com/russell-ryan/polyclip
