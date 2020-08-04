@@ -2,14 +2,6 @@ from setuptools import setup,find_packages
 #import os
 
 
-# check some things
-#for key in ['PYLINEAR_CONFIG']:
-#    if key not in os.environ:        
-#        print("Unable to setup pyLINEAR: must set '{}'".format(key))
-#        exit(1)
-
-
-
 
 
 ld='The python implementation of the LINEAR algorithm as developed Ryan, Casertano, & Pirzkal 2018: https://ui.adsabs.harvard.edu/abs/2018PASP..130c4501R/abstract'
