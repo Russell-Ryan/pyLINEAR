@@ -31,7 +31,7 @@ reqs=['numpy>1.16','scipy','astropy','emcee','h5py',
 
 
 #https://docs.python.org/2/distutils/setupscript.html
-setup(name='pylinear3',
+setup(name='pylinear',
       version='2.0',
       author='Russell Ryan',
       author_email='rryan@stsci.edu',
