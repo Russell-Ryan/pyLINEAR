@@ -15,10 +15,10 @@ log=colorlog.ColorLog(root='{}_v{}'.format(__code__,__version__))
 
 
 try:
-    x=os.environ['PYLINEAR_CONFIG']
+    _=os.environ['PYLINEAR_CONFIG']
 except:
-    #raise RuntimeError("You must specify 'PYLINEAR_CONFIG' in the environment")
-    print('[warn]You must specify pylinear_config')
+    raise RuntimeError("You must specify 'PYLINEAR_CONFIG' in the environment")
+    
 
 
 
