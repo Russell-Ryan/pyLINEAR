@@ -17,9 +17,13 @@ ld='The python implementation of the LINEAR algorithm as developed Ryan, Caserta
 rryan='git+https://github.com/russell-ryan/'
 #rryan='git+ssh://git@github.com/russell-ryan/'
        
-reqs=['numpy>1.16','scipy','astropy','emcee','h5py','colorlog',
+reqs=['numpy>1.16','scipy','astropy','emcee','h5py',
       'pysiaf','pkginfo','shapely','tqdm','psutil','matplotlib',
-      'fitsimage @ git+https://github.com/russell-ryan/fitsimage'.format(rryan)]
+      'fitsimage @ {}fitsimage'.format(rryan),
+      'colorlog @ {}colorlog'.format(rryan),
+      'polyclip @ {}polyclip'.format(rryan)]
+      
+      
 #'h5axeconfig @ git+https://github.com/russell-ryan/h5axeconfig'.format(rryan),
 
 
