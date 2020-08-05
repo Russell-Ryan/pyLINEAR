@@ -64,4 +64,4 @@ If you find this code useful, then we kindly ask that you cite our work: [Ryan, 
 
 ### Frequently-Asked Questions:
 
-I am trying to keep and collate frequently asked questions: [FAQ in the docs/](https://github.com/Russell-Ryan/pyLINEAR/tree/master/docs).  Have a look there; but if that doesn't help, then please email me: [rryan@stsci.edu](mailto:rryan@stsci.edu?subject=[GitHub]%20PyLINEAR%20question).
+I am trying to keep and collate frequently asked questions: [FAQ in the docs](https://github.com/Russell-Ryan/pyLINEAR/tree/master/docs).  Have a look there; but if that doesn't help, then please email me: [rryan@stsci.edu](mailto:rryan@stsci.edu?subject=[GitHub]%20PyLINEAR%20question).
