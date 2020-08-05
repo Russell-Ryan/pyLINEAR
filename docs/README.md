@@ -100,7 +100,7 @@ f125w_drz.fits    hst_wfc3_f125w
 
 > astropy.wcs.wcs.NoConvergence: 'WCS.all_world2pix' failed to converge to the requested accuracy. After 1 iterations, the solution is diverging at least for one input point. 
 
-*The likely explanation is that your segmentation map and direct image(s) are very far (in angular distance) from the FLTs you wish to extract.  If that doesn't help, let me know*
+*The likely explanation is that your segmentation map and direct image(s) are very far (in angular distance) from the FLTs you wish to extract.  If that doesn't help, let me know.*
 
 [Back to the top](#faqs)
 
