@@ -103,6 +103,3 @@ f125w_drz.fits    hst_wfc3_f125w
 *The likely explanation is that your segmentation map and direct image(s) are very far (in angular distance) from the FLTs you wish to extract.  If that doesn't help, let me know.*
 
 [Back to the top](#faqs)
-
----
-
