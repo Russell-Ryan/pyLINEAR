@@ -5,7 +5,7 @@
 [What is the format of the sed.lst file?](#what-is-the-format-of-the-sedlst-file)  
 [What is the format of the wcs.lst file?](#what-is-the-format-of-the-wcslst-file)  
 [What about noise in the simulated images?](#what-about-noise-in-the-simulated-images)  
-[How do I read the output HDF5 file containing the spectra?](#how-do-i-read-the-output-hdf5-file-containing-the-spectra)
+[astropy.wcs.wcs Convergence error?](#astropywcswcs-convergence-error)
 
 ---
 
@@ -52,11 +52,10 @@ f125w_drz.fits    hst_wfc3_f125w
 ```
 # 1: Object ID
 # 2: spectrum file
-# 3: redshift
 
-1   sed1.ascii       0.0
-2   another.ascii    0.2
-541 final_sed.ascii  0.221244211
+1   sed1.ascii      
+2   another.ascii    
+541 final_sed.ascii  
 ```
 *The spectra will be normalized based on the brightness measured in the obs.lst file above.*
 
@@ -66,13 +65,13 @@ f125w_drz.fits    hst_wfc3_f125w
 
 ### What is the format of the wcs.lst file?
 
-*The wcs.lst file specifies the basic properties of an observation that you wish to simulate.  We have tried to make this very user-friendly, by thinking "like an astronomer."  Therefore, this is an ascii file with four columns: (1) the base name of the file, (2) the CRVAL1 (in deg), (3) the CRVAL2 (in deg), and (4) the ORIENTAT (just the traditional position angle in deg as E of N).  For example:*
+*The wcs.lst file specifies the basic properties of an observation that you wish to simulate.  We have tried to make this very user-friendly, by thinking "like an astronomer."  Therefore, this is an ascii file with five columns: (1) the base name of the file, (2) the CRVAL1 (in deg), (3) the CRVAL2 (in deg), (4) the ORIENTAT (just the traditional position angle in deg as E of N), and (5) grism.  But there are four required header keywords that specify the Telescope, Instrument, Detector, and Blocking filter (**NOTE** the blocking-filter concept is mostly for JWST and HST/Roman instruments will have ```BLOCKING = ```).  For example, for WFC3-IR:*
 
 ```
-# 1: ROOT
-# 2: CRVAL1
-# 3: CRVAL2
-# 4: ORIENTAT (ranges from -180 to 180)
+# TELESCOPE = HST
+# INSTRUMENT = WFC3
+# DETECTOR = IR
+# BLOCKING = 
 
 1    53.122751   -27.805089    0.
 2    53.122751   -27.805089    10.
@@ -92,43 +91,15 @@ f125w_drz.fits    hst_wfc3_f125w
 
 *The simulated images will have an uncertainty array set to unity (floating-point) and a data-quality array set to zero (unsigned integer).  These can be simply modified by whatever noise strategy you see fit; I would recommend this for the (re-)extraction to make sense. __Stay tuned if you want my noise strategies.__*
 
+### astropy.wcs.wcs Convergence error?
+
+*You probably got an error like this:*
+
+> astropy.wcs.wcs.NoConvergence: 'WCS.all_world2pix' failed to converge to the requested accuracy. After 1 iterations, the solution is diverging at least for one input point. 
+
+*The likely explanation is that your segmentation map and direct image(s) are very far (in angular distance) from the FLTs you wish to extract.  If that doesn't help, let me know*
+
 [Back to the top](#faqs)
 
 ---
-
-
-### How do I read the output HDF5 file containing the spectra?
-
-*First, let me justify the use of a new file format that might be foriegn to many astronomers.  __pylinear__, unlike the IDL implementation, is capable of "grouping" sources. I define "grouping" as:*
-
-> **grouping:** the process of identifying the sources whose extraction orders overlap in the dispersed images.  
-> 
-> The groups are themselves grouped, and represent the smallest atomic unit to extract and fully encapsulate the contamination present in the data.
-
-*Since the groups are individual sets of spectral extraction, they have their unique metadata and results.  For example, if you do a golden-search optimization, then they will each have a unique values (&chi;<sup>2</sup>, matrix norm, etc.).  Therefore I needed a file format that would allow for this grouped/hierarchical structure, and settled on HDF5 (but perhaps in the future move to something like [ASDF](https://pypi.org/project/asdf/)).  For quick viewing and basic editting of HDF5 files, please consider the [HDFView](https://www.hdfgroup.org/downloads/hdfview/) produced by the HDF Group (this program is free to download, but does require you register).* 
-
-*Ok, back to the question you asked.  I have a simple class in pylinear.extraction module, called [SEDFile](https://github.com/Russell-Ryan/pyLINEAR/blob/master/pylinear/modules/extraction/sedfile.py), that facilitates many operations with these files (reading spectra, group metadata, simple plots, etc.).  So here's an example to read every source and make a quick plot:*
-
-```
-import matplotlib.pyplot as plt
-import pylinear.modules.extraction.sedfile as sedfile
-
-myFile='myOutputFile.h5'
-with sedfile.SEDFile(myFile) as sd:
-    for segid in sd.segIDs:
-        data=sd.spectrum(segid)
-        plt.plot(data['lam'],data['flam'],label='{}'.format(segid))
-        plt.tight_layout()
-        plt.show()
-```
-
-*Just change the name of the ```myFile``` variable.  I hope this helps, but if you have more questions, then let me know!*  
-
-
->**An outro note:** The grouping can be controled by the ```group``` keyword in the configuration file.  Setting this to ```False``` will force *pylinear* to use a single group, which is equivalent to the (now former) IDL implementation.
-
-
-[Back to the top](#faqs)
-
-
 
