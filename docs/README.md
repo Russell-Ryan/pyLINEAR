@@ -79,8 +79,6 @@ f125w_drz.fits    hst_wfc3_f125w
 
 *This would create two images (1_flt.fits and 2_flt.fits) whose centers are given by the middle two columns and a position angle by the final column.*
 
-
-
 [Back to the top](#faqs)
 
 ---
@@ -90,6 +88,11 @@ f125w_drz.fits    hst_wfc3_f125w
 *We made the decision to omit the noise calculations, figuring that each instrument would be sufficiently different and we were not experts on every instrument.  I am tinkering with some general noising strategies, but they are extremely experimental at this point.*
 
 *The simulated images will have an uncertainty array set to unity (floating-point) and a data-quality array set to zero (unsigned integer).  These can be simply modified by whatever noise strategy you see fit; I would recommend this for the (re-)extraction to make sense. __Stay tuned if you want my noise strategies.__*
+
+[Back to the top](#faqs)
+
+---
+
 
 ### astropy.wcs.wcs Convergence error?
 
