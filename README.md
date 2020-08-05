@@ -16,7 +16,21 @@ For any questions or comments, please contact [Russell Ryan](mailto:rryan@stsci.
 *pylinear* is developed with python 3.7.  I recommend installing this with STScI [miniconda](https://astroconda.readthedocs.io/en/latest/).  Let me know if you have questions about this.
 
 
+### Reference Files
+You will need to get the reference files from: [my Box link](https://stsci.app.box.com/folder/119486568677).  Unpack these files in separate directory and set the environment variable:
+
+``` export PYLINEAR_CONFIG=/FULL/PATH/TO/THE/DIRECTORY/ ```
+
+
+
+
+
 ### Python Dependencies
+
+
+
+``` pip install . -r requirements.txt ```
+
 
 The installation is now down entirely via pip.
 
@@ -31,14 +45,6 @@ The installation is now down entirely via pip.
 
 
 > **Helpful Tip:** Since *pylinear* outputs intermediate data prodcuts in HDF5 files, you might want a user-friendly interface to inspect an HDF5 file.  I recommend [HDFView](https://www.hdfgroup.org/downloads/hdfview/), which is free to download (but you will need to register with HDFgroup).
-
-
-``` pip install . -r requirements.txt ```
-
-### Reference Files
-You will need to get the reference files from: [my Box link](https://stsci.app.box.com/folder/119486568677).  Unpack these files in separate directory and set the environment variable:
-
-``` export PYLINEAR_CONFIG=/FULL/PATH/TO/THE/DIRECTORY/ ```
 
 
 
