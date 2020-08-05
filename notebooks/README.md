@@ -39,7 +39,7 @@ The ```setup.py``` should install all of the python requirements, however there 
 
 After having gone through the notebooks, many of these variables should be familiar.  Broadly speaking, the functionality illustrated in the notebooks is  implemented by a single call to the CLI.  
 
-The inputs to the CLI can be given one-by-one, or by a configuration file.  Instead of describing the file, it's maybe easier to just dump the config file and look at it.  If you have questions, email me: [rryan@stsci.edu](mailto:rryan@stsci.edu?subject=Question about pyLINEAR).
+The inputs to the CLI can be given one-by-one, or by a configuration file.  Instead of describing the file, it's maybe easier to just dump the config file and look at it.  If you have questions, email me: [rryan@stsci.edu](mailto:rryan@stsci.edu?subject=[GitHub]%20PyLINEAR%20notebooks).
 
 
 ```prompt> pylinear -d pylinear_example.cfg```
