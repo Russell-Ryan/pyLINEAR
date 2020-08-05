@@ -62,11 +62,6 @@ The installation is now down entirely via pip.
 If you find this code useful, then we kindly ask that you cite our work: [Ryan, R. E., Jr.; Casertano, S.; Pirzkal, N. 2018, PASP, 130, 4501](https://ui.adsabs.harvard.edu/abs/2018PASP..130c4501R/abstract)
 
 
-### Frequent Errors:
+### Frequently-Asked Questions:
 
-Error message:
-> astropy.wcs.wcs.NoConvergence: 'WCS.all_world2pix' failed to converge to the requested accuracy.
-After 1 iterations, the solution is diverging at least for one input point.
-Likely explanation:
-
-*The segmentation map is likely far (in angular distance) from the FLTs in question.*
+I am trying to keep and collate frequently asked questions: [FAQ in the docs/](https://github.com/Russell-Ryan/pyLINEAR/tree/master/docs).  Have a look there; but if that doesn't help, then please email me: [rryan@stsci.edu](mailto:rryan@stsci.edu?subject=[GitHub]%20PyLINEAR%20question).
