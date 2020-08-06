@@ -1,7 +1,30 @@
 <?xml version="1.0" encoding='UTF-8' ?>
 <!-- Notes on this file.
-    
--->
+   
+There is a stanza for each telescope, which is named with "name=". 
+For example, this would be HST vs. JWST.
+
+Within each telescope, there are instrument stanzas, each named with "name="  
+For example, this would be WFC3 vs. ACS for HST.
+
+Within each instrument, there are multiple detectors, each named with "name=". 
+But one also must specify which device within the detector which of the 
+devices is to be the reference point.  For example, this would be WFC3/IR vs. 
+WFC3UVIS for WFC3.
+
+within each detector, there can be multiple devices.  For exmple, this would 
+be WFC3/UVIS CCD1 vs. CCD2.
+
+within each device, there are a host of entries for the grisms that work with 
+that device, ways of encoding all the possible extensions, and the siaf info. 
+The SIAF info may or may not have SIP coefficeints (if they're known, and 
+you ahve them, please put them in.  If not just open and close the stanza 
+for "siaf".
+
+Last updated Aug 6, 2020 by RER
+
+
+ -->
 
 <configuration comment="Instrument configurations for pyLINEAR">
   <telescope name='HST'>
@@ -113,6 +136,22 @@
       </detector>
     </instrument>
   </telescope>
+
+  <telescope name='Roman'>
+    <instrument name='WFI'>
+      <detector name='WFI' refsiaf='SCA09'>
+	<device name='SCA09'>      <!--bitmask='15807'>-->
+	  <grism grism='G150' path='RomanWFI' lamb0='9500.' lamb1='19000.' dlamb='10.'>g150.conf</grism>
+	  <extension type='science' name='SCI' ver='1' dtype="float64">1</extension>
+	  <extension type='uncertainty' name='ERR' ver='1' dtype="float32">2</extension>
+	  <extension type='dataquality' name='DQ' ver='1' dtype="int16">3</extension>
+	  <siaf v2="0.0" v3="0.0" v3y="0.0" xscl="0.110" yscl="0.110" naxis1='4096' naxis2='4096' crpix1='2048' crpix2='2048'>
+	  </siaf>
+	</device>
+      </detector>
+    </instrument>
+  </telescope>
+  
   <telescope name='JWST'>
     <instrument name="NIRISS">
       <detector name="NIRISS" refsiaf='NIRISS'>
@@ -136,7 +175,7 @@
 	  </siaf>
 	</device>
       </detector>
-    </instrument>
+    </instrument>    
     <!--
     <instrument name='NIRCAM'>
       <detector name='LONG'>
