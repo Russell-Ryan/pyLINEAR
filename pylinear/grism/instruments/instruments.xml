@@ -141,7 +141,7 @@ Last updated Aug 6, 2020 by RER
     <instrument name='WFI'>
       <detector name='WFI' refsiaf='SCA09'>
 	<device name='SCA09'>      <!--bitmask='15807'>-->
-	  <grism grism='G150' path='RomanWFI' lamb0='9500.' lamb1='19000.' dlamb='10.'>g150.conf</grism>
+	  <grism grism='G150' path='Roman' lamb0='9500.' lamb1='19000.' dlamb='10.'>Roman_WFI_G150_grismconf.v0.1.conf</grism>
 	  <extension type='science' name='SCI' ver='1' dtype="float64">1</extension>
 	  <extension type='uncertainty' name='ERR' ver='1' dtype="float32">2</extension>
 	  <extension type='dataquality' name='DQ' ver='1' dtype="int16">3</extension>
