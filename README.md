@@ -5,7 +5,7 @@
 
 ## Abstract
 
-his is a python implementation of the LINEAR algorithm for extracting slitless spectroscopy from HST/WFC3-IR as developed by [Ryan, R. E., Jr.; Casertano, S.; Pirzkal, N. 2018, PASP, 130, 4501](https://ui.adsabs.harvard.edu/abs/2018PASP..130c4501R/abstract).  The LINEAR software was originally developed in IDL and C, but had several limitations that were remedied in the porting to Python.
+This is a python implementation of the LINEAR algorithm for extracting slitless spectroscopy from HST/WFC3-IR as developed by [Ryan, R. E., Jr.; Casertano, S.; Pirzkal, N. 2018, PASP, 130, 4501](https://ui.adsabs.harvard.edu/abs/2018PASP..130c4501R/abstract).  The LINEAR software was originally developed in IDL and C, but had several limitations that were remedied in the porting to Python.
 
 For any questions or comments, please contact [Russell Ryan](mailto:rryan@stsci.edu?subject=[GitHub]%20PyLINEAR%20question).
 
