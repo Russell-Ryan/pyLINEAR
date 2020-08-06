@@ -70,7 +70,25 @@ class Tabulate(object):
                 # create the table
                 pdt=h5table.PDT(pix,x,y,l,v*pixrat*dwav)
                 #,lamb0=wav[0],lamb1=wav[1],dlamb=dwav)
-                                          
+
+
+
+                # create a dummy kernel              
+                #from collections import namedtuple
+                #Kernel=namedtuple('Kernel',['dx','dy','value'])
+                #kernel=Kernel(np.array([-1,-1,-1,0,0,0,1,1,1]),
+                #              np.array([-1,0,1,-1,0,1,-1,0,1]),
+                #              np.array([0.0751136,0.123841,0.0751136,
+                #                        0.1238410,0.204180,0.1238410,
+                #                        0.0751136,0.123841,0.0751136]))
+                #
+                ## apply convolution kernel to PDT
+                #pdt.convolve(kernel,device)
+
+
+
+
+                
                 # save to the table
                 #pdts.extend(pdt)
                 pdts.append(pdt)

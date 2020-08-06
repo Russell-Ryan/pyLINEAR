@@ -88,3 +88,64 @@ class PDT(H5TableBase):
         data=cls.load_data(h5,pixel)
         pdt=cls(pixel,data['x'],data['y'],data['lam'],data['val'])
         return pdt
+
+
+
+    def convolve(self,kernel,device):
+        dim=(device.npixel,1)   # the 1 here is just a dummy variable
+        
+        xyl=[]
+        val=[]
+        for x,y,l,v in self:
+
+            # apply the kernel in real space
+            xx=x+kernel.dx
+            yy=y+kernel.dy
+            vv=v*kernel.value
+            
+            # only get pixels that are within the image
+            g=np.where((xx >= 0) & (xx < device.naxis1) and
+                       (yy >= 0) & (yy < device.naxis2))[0]
+
+            # only keep the good ones
+            if len(g) > 0:
+                # keep the good values
+                xx,yy,vv=xx[g],yy[g],vv[g]
+            
+                # create a dummy wavelength array
+                ll=np.full_like(xx,l)
+
+                # join the (x,y) into a pixel index
+                xy=indices.two2one(xx,yy,device.shape)
+
+                # join pixel indices with wavelength into single triplet 
+                cc=indices.two2one(xy,ll,dim)
+                
+                # save the results
+                xyl.extend(cc)
+                val.extend(vv)
+
+
+
+        # clear and refill the data
+        self.clear()
+
+        # now refill the self if there is valid data
+        if len(xyl)>0:
+
+            # sum over the repeated indices.  This is the sum as part of
+            # a numerical convolution
+            val,xyl=indices.decimate(xyl,val)
+
+            # decompose the positions back into (x,y,wavelength)
+            xy,ll=indices.one2two(xyl,dim)
+            xx,yy=indices.one2two(xy,device.shape)
+            
+
+            # refill the object with the appropriate data
+            self.extend(xx,yy,ll,val)
+
+            # or create a new PDT?
+            #pdt=PDT(self.pixel,xx,yy,ll,val)
+            
+            
