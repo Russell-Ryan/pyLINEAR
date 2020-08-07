@@ -140,6 +140,7 @@ class Config(object):
             cls.cfg['logdamp']=Keyword('logdamp',[-5.,-1.,0.1],'log-damping values')
             cls.cfg['beams']=Keyword('beams',['+1'],'beams to process')
             cls.cfg['mskbeams']=Keyword('mskbeams',[],'beams to mask in extraction')
+            cls.cfg['group']=Keyword('group',True,'flag to group objects before extracting')
             cls.cfg['root']=Keyword('root','pylinear','output files start with this name')
             cls.cfg['usehdf5']=Keyword('usehdf5',False,'flag to load from HDF5 matrix file')
             cls.cfg['hdf5file']=Keyword('hdf5file','matrix.h5','HDF5 matrix file',write=True)

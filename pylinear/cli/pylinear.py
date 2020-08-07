@@ -39,7 +39,7 @@ def parse_args():
 
     
     parser.add_argument('conffile', nargs='?',help='Configuration File',
-                        type=pylinear.utilities.argparse.readable)
+                        type=str)#pylinear.utilities.argparse.readable)
                         
     
     modesgrp = parser.add_argument_group('Running Modes')
@@ -114,12 +114,17 @@ def extract():
     tabulate.nsub=1
     omtnames=[tabulate.run(grisms,sources,beam) for beam in conf['mskbeams']]
 
+
+    import pdb
+    pdb.set_trace()
+    
     # step 4.  do the 1d extraction
     pylinear.modules.extract.extract1d(grisms,sources,conf['beams'],
                                        conf['logdamp'],conf['method'],
                                        conf['root'],conf['path'],
                                        inverter=conf['inverter'],
-                                       mskbeams=conf['mskbeams'])
+                                       mskbeams=conf['mskbeams'],
+                                       group=conf['group'])
                                         
 def extract_fluxcube():
     print('[info]Running pyLINEAR Extract_Fluxcube')
@@ -221,6 +226,8 @@ def main():
     # get the inputs
     args = parse_args()
 
+
+    print(args)
     
     # test if there were steps to run
     run=any(v is not None and v!=False for v in args.values())
