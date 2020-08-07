@@ -9,6 +9,7 @@ from .menger import menger
 from .matrix import Matrix
 from .fluxunit import FLUXSCALE,FLUXUNIT
 from .mcmc import MCMC
+from .result import Result
 
 class Extract(object):
     PHI=(1.+np.sqrt(5.))/2.    # DEFINE THE GOLDEN RATIO
@@ -24,6 +25,8 @@ class Extract(object):
         self.method=method
         
         self.mcmc=MCMC(**kwargs)
+
+
         
     @property
     def method(self):
@@ -52,21 +55,29 @@ class Extract(object):
         indices=[i for i,ri in self.matrix.ri]
         for source in self.sources:
 
-            index=indices.index(source.segid)
-            s,g1=self.matrix.ri[index]
-            if s==source.segid:
-                g2=self.matrix.lam[g1]
-                waves=source.wavelengths()
-                targ[g1]=source.sed.interpolate(waves[g2])/FLUXSCALE
+
+            if source.segid in indices:
+                index=indices.index(source.segid)
+                s,g1=self.matrix.ri[index]
+                if s==source.segid:
+                    g2=self.matrix.lam[g1]
+                    waves=source.wavelengths()
+                    targ[g1]=source.sed.interpolate(waves[g2])/FLUXSCALE
 
         return targ
 
     def build_matrix(self,grisms,sources,beams,path,mskbeams=None,target=True):
+
+
         # build the matrix into the self
         self.matrix=Matrix(grisms,sources,beams,path=path,mskbeams=mskbeams,
                            inverter=self.inverter)
         self.sources=sources
-
+        self.optimized=False     # set a default value
+        if len(self.matrix)==0:
+            print('[alarm]Matrix has no elements. Cannot set damping target.')
+            return
+        
         # apply a damping target
         if target:
             target_spectra=self.get_damping_target()
@@ -195,70 +206,80 @@ class Extract(object):
 
    
     def run(self,logdamp,group=0,pdf=None,mcmc=False,residuals=None):
+
         t1=default_timer()
-        
-        # iteratively call LSQR to maximize the curvature
-        res=self._method(logdamp)
-
-        # compute model and update residuals
-        if residuals is not None:
-            residuals.update_model(self.matrix,res.x)
 
 
-        # simple uncertainty propagation
-        #for j,xj in enumerate(res.x):
-            # this should give the smae results as the MCMC, but here I've
-            # done the calculus to show the MCMC result.  If consider a
-            # single point (x_j), and don't do regularization,
-            # chi2 = sum_i(Ai*x-bi)^2
-            # dchi2/dx = 2 sum_i (Ai*x-bi)*Ai = 0
-            # sum(Ai^2)*x = sum(Ai*bi)
-            # x = sum(Ai*bi)/sum(Ai*Ai)
-            # now do propagation of errors, but recall that sigma_i^2
-            # should be in the den of all terms above.  then get
-            # dx = 1/sqrt(sum_i (A_i/sigma_i)^2)
-            #
-            # this gives very good approximation of the MCMC result.
-            # this should be the same as computing the diagonal elements
-            # to the matrix representation for (AT*A)_ii.  But we do this
-            # in the loop because AT*A is not necessarily sparse and
-            # can require too much memory.
-            #
-            # the original MCMC approach is still valid, as it will provide
-            # asymmetric error bars, which is probably better at low fluxes
-
-            #print('[debug]Update simple error estimate')
-            #mat,bi=self.matrix.sub_matrix(j,res.x)
-            #tot=np.sum(mat.A.data*mat.A.data)
-            #res.lo[j]=res.hi[j]=1./np.sqrt(tot)
-            #pass
-
-        # Do the analytic uncertainty propagation
-        unc=self.matrix.estimate_uncertainty()
-        if len(unc)!=len(res.lo):
-            print('[warn]Un-fixable error in computing uncertainty')
-        res.lo=np.copy(unc)
-        res.hi=np.copy(unc)
-
-        
-            
-        # if making a plot:
-        if pdf is not None:
-            self.matrix.lcurve.write_pdf(pdf)
-            
-        # do the MCMC simulation
-        if mcmc:
-            unc=self.mcmc.run(self.matrix,res)
-
-        
-        # make the flux unit variable
+        # make the flux unit variable for outputting
         fluxunit='{} {}'.format(FLUXSCALE,FLUXUNIT)
 
 
-        # get indices to unpack matrix below (this shoudl really be in matrix)
-        # this is because they are sorted in ri
-        indices=[i for i,ri in self.matrix.ri]
 
+
+        if len(self.matrix)>0:
+        
+            # iteratively call LSQR to maximize the curvature
+            res=self._method(logdamp)
+
+            # compute model and update residuals
+            if residuals is not None:
+                residuals.update_model(self.matrix,res.x)
+
+
+            # simple uncertainty propagation
+            #for j,xj in enumerate(res.x):
+               # this should give the smae results as the MCMC, but here I've
+               # done the calculus to show the MCMC result.  If consider a
+               # single point (x_j), and don't do regularization,
+               # chi2 = sum_i(Ai*x-bi)^2
+               # dchi2/dx = 2 sum_i (Ai*x-bi)*Ai = 0
+               # sum(Ai^2)*x = sum(Ai*bi)
+               # x = sum(Ai*bi)/sum(Ai*Ai)
+               # now do propagation of errors, but recall that sigma_i^2
+               # should be in the den of all terms above.  then get
+               # dx = 1/sqrt(sum_i (A_i/sigma_i)^2)
+               #
+               # this gives very good approximation of the MCMC result.
+               # this should be the same as computing the diagonal elements
+               # to the matrix representation for (AT*A)_ii.  But we do this
+               # in the loop because AT*A is not necessarily sparse and
+               # can require too much memory.
+               #
+               # the original MCMC approach is still valid, as it will provide
+               # asymmetric error bars, which is probably better at low fluxes
+               
+               #print('[debug]Update simple error estimate')
+               #mat,bi=self.matrix.sub_matrix(j,res.x)
+               #tot=np.sum(mat.A.data*mat.A.data)
+               #res.lo[j]=res.hi[j]=1./np.sqrt(tot)
+            #pass
+
+            # Do the analytic uncertainty propagation
+            unc=self.matrix.estimate_uncertainty()
+            if len(unc)!=len(res.lo):
+                print('[warn]Un-fixable error in computing uncertainty')
+            res.lo=np.copy(unc)
+            res.hi=np.copy(unc)
+
+        
+            
+            # if making a plot:
+            if pdf is not None:
+                self.matrix.lcurve.write_pdf(pdf)
+            
+            # do the MCMC simulation
+            if mcmc:
+                unc=self.mcmc.run(self.matrix,res)
+
+        
+            # get indices to unpack matrix below (this shoudl really be in
+            # matrix) this is because they are sorted in ri
+            indices=[i for i,ri in self.matrix.ri]
+
+        else:
+            # invalid matrix.  making dummy data
+            res=Result("None. Invalid matrix.")
+            
         # package the outputs
         hdus={}
         for source in self.sources:
@@ -270,26 +291,29 @@ class Extract(object):
             fhi=np.full_like(wave,np.nan)
                                     
             # parse the matrix to get the spectrum for each source
-            if source.segid in self.matrix.segids:
+            if len(self.matrix)>0:# and source.segid in self.matrix.segids:
 
                 # original thing sseemed to break with 2d flux cube. not sure?
                 #index=self.matrix.segids.index(source.segid)
                 #s,g1=self.matrix.ri[index]
 
                 # new thing requires an auxillary variable (indices)
-                index=indices.index(source.segid)
-                s,g1=self.matrix.ri[index]
-
-                
-                if s==source.segid:
-                    if len(g1)!=0:
-                        g2=self.matrix.lam[g1]
-                        flam[g2]=res.x[g1]
-                        flo[g2]=res.lo[g1]
-                        fhi[g2]=res.hi[g1]
+                if source.segid in indices:
+                    index=indices.index(source.segid)
+                    s,g1=self.matrix.ri[index]
+                    
+                    if s==source.segid:
+                        if len(g1)!=0:
+                            g2=self.matrix.lam[g1]
+                            flam[g2]=res.x[g1]
+                            flo[g2]=res.lo[g1]
+                            fhi[g2]=res.hi[g1]
                 else:
-                    print('[alarm]Unknown error occurred parsing the matrix')
-                        
+                    print('[warn]{} was not measured.'.format(source.segid))
+            else:
+                print('[alarm]Matrix has no elements.')
+
+                    
             # make the FITS table columns
             col1=fits.Column(name='wavelength',format='1D',unit='A',array=wave)
             col2=fits.Column(name='flam',format='1D',unit=fluxunit,array=flam)
@@ -335,9 +359,15 @@ class Extract(object):
             hdus[source.segid]=hdu
             
         #set the group data
-        x,y,l,i=self.matrix.lcurve.values()
-        c=self.matrix.lcurve.compute_curvature()
-
+        if len(self.matrix)>0:
+            x,y,l,i=self.matrix.lcurve.values()
+            c=self.matrix.lcurve.compute_curvature()
+        else:
+            # an empty matrix.  so make dummy data
+            x=np.array([])
+            y=np.array([])
+            l=np.array([])
+            c=np.array([])
         # make the fits table columns
         col1=fits.Column(name='logdamp',format='1D',array=l)
         col2=fits.Column(name='logr1norm',format='1D',array=x)
@@ -368,7 +398,12 @@ class Extract(object):
                        comment='was curvature optimized')
         hdu.header.set('LOGDAMP',value=res.logdamp,after='OPTIMIZE',
                        comment='log(damping parameter) unscaled')
-        hdu.header.set('NLCURVE',value=len(self.matrix.lcurve),after='LOGDAMP',
+
+        try:
+            nlcurve=len(self.matrix.lcurve)
+        except:
+            nlcurve=0
+        hdu.header.set('NLCURVE',value=nlcurve,after='LOGDAMP',
                        comment='number of L-curve steps')
         header_utils.add_stanza(hdu.header,'L-Curve Results',before='METHOD')
     

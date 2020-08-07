@@ -17,12 +17,12 @@ from .fluxunit import FLUXSCALE
 class Matrix(object):
     INT=np.uint64
     FLOAT=np.float64
-
+    MINUNC=1e-10
     
     def __init__(self,grisms,sources,extbeams,inverter='lsqr',
                  mskbeams=None,path='tables',
                  usehdf5=False,hdf5file='matrix.h5'):
-
+        
         # set some defaults        
         self.path=os.path.join(path)
         self.target=None
@@ -155,6 +155,12 @@ class Matrix(object):
         self.lcurve=LCurve(norm=self.frob)
 
 
+    def __len__(self):
+        if hasattr(self,'A'):
+            return self.A.A.nnz
+        else:
+            return 0
+        
     def load_from_hdf5(self,grisms,sources,extbeams,mskbeams,hdf5file):
         msg='[info]Loading the matrix from {}'
         #print(msg.format(hdf5file))
@@ -335,10 +341,12 @@ class Matrix(object):
 
                 # container for the xy pairs
                 xygp=[]
-                    
+
+
+                
                 # process each source
                 for kk,source in enumerate(sources):
-
+                    
                     # this takes ODTs, decimates, scales by detector
                     # effects, and joins them over beams
                     ddt=self.load_ddts(source,unc,device,h5tab,config)
@@ -456,6 +464,7 @@ class Matrix(object):
         # this is the thing that is the output
         source_ddt=h5table.DDT(source.segid)
 
+        
         # this is to join the DDTs for all the beams
         for beam,(beamconf,flatfield) in config.items():
             h5tab.open_table(device.name,beam,'pdt')
@@ -505,7 +514,7 @@ class Matrix(object):
                 
                            
                 # scale the matrix elements by the uncertainties
-                ddt/=unc[y,x]
+                ddt/=np.maximum(unc[y,x],self.MINUNC)
                                                     
                 # join the DDT
                 source_ddt.extend_with_ddt(ddt)
@@ -643,9 +652,7 @@ class Matrix(object):
     
 
     def sub_matrix(self,j,resid):
-        
-        
-
+      
         g=np.where(self.A.A.col == j)[0]
         
         if len(g)==0:
@@ -701,23 +708,43 @@ class Matrix(object):
 
         return out
 
+    
     def update_header(self,hdr):
+        getint = lambda k: int(getattr(self,k)) if hasattr(self,k) else int(0)
+        getflt = lambda k: float(getattr(self,k)) if hasattr(self,k) else 0.0
+        getnan = lambda k: getattr(self,k) if hasattr(self,k) else 'NaN'
+        
         after=header_utils.get_last_keyword(hdr)
                 
-        hdr.set('NNZ',value=self.A.A.nnz,after=after,
+        hdr.set('NNZ',value=len(self),after=after,#self.A.A.nnz,after=after,
                 comment='total number of non-zero matrix elements')
-        hdr.set('NPIXEL',value=self.npix,after='NNZ',
+        hdr.set('NPIXEL',value=getint('npix'),after='NNZ',
                 comment='total number of pixels analyzed')
-        hdr.set('NSOURCE',value=self.nsrc,after='NPIXEL',
+        hdr.set('NSOURCE',value=getint('nsrc'),after='NPIXEL',
                 comment='total number of sources analyzed')
-        hdr.set('NWAVE',value=self.npar,after='NSOURCE',
+        hdr.set('NWAVE',value=getint('npar'),after='NSOURCE',
                 comment='total number of wavelengths extracted')
-        hdr.set('DENSITY',value=self.density,after='NWAVE',
+        hdr.set('DENSITY',value=getnan('density'),after='NWAVE',
                 comment='fraction of non-zero elements')
-        hdr.set('FROBNORM',value=self.frob,after='DENSITY',
+        hdr.set('FROBNORM',value=getflt('frob'),after='DENSITY',
                 comment='Frobenius norm')
-        hdr.set('NDOF',int(self.npix)-int(self.npar),after='FROBNORM',
+        hdr.set('NDOF',getint('npix')-getint('npar'),after='FROBNORM',
                 comment='number of degrees of freedom (=NPIXEL-NWAVE)')
+        
+
+    
+        #hdr.set('NPIXEL',value=self.npix,after='NNZ',
+        #        comment='total number of pixels analyzed')
+        #hdr.set('NSOURCE',value=self.nsrc,after='NPIXEL',
+        #        comment='total number of sources analyzed')
+        #hdr.set('NWAVE',value=self.npar,after='NSOURCE',
+        #        comment='total number of wavelengths extracted')
+        #hdr.set('DENSITY',value=self.density,after='NWAVE',
+        #        comment='fraction of non-zero elements')
+        #hdr.set('FROBNORM',value=self.frob,after='DENSITY',
+        #        comment='Frobenius norm')
+        #hdr.set('NDOF',int(self.npix)-int(self.npar),after='FROBNORM',
+        #        comment='number of degrees of freedom (=NPIXEL-NWAVE)')
         header_utils.add_stanza(hdr,'Matrix Properties',before='NNZ')
 
         

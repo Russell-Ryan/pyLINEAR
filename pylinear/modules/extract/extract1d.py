@@ -15,7 +15,7 @@ from .group import make_groups
 def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,
               inverter='lsqr',mskbeams=None,group=True):
               
-              
+    
 
     # record the starting time
     t1=default_timer()    
@@ -84,7 +84,8 @@ def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,
 
             # build a matrix
             extract.build_matrix(grisms,sources,beams,path,mskbeams=mskbeams)
-                
+
+
             # run the extraction method
             sres,gres=extract.run(logdamp,group=group,pdf=pdf,mcmc=False,
                                   residuals=residuals)
