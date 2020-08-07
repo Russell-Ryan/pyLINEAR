@@ -34,12 +34,14 @@ class Parametric(object):
         self.name=name
         self.polys=[]
         self.order=-1
-        
+        self.inverse_function=None
         
     def append(self,p):
         self.polys.append(p)
         self.order+=1
-        
+
+        #if self.order==0:
+        #    print('0th order',p)
         if self.order==1:
             self.inverse_function=self._first
         elif self.order==2:
@@ -47,6 +49,9 @@ class Parametric(object):
         else:
             self.inverse_function=self._nth
 
+    #def _zeroth(self,f,coefs):
+    #    print('hi')
+            
             
     def _first(self,f,coefs):
         ''' analytically invert a 1st order polynomial '''
@@ -83,6 +88,13 @@ class Parametric(object):
 
     def invert(self,xy,f):
         ''' invert the polynomial at some position (x,y) and function value '''
+
+        #if self.inverse_function is None:
+        #    print("ERROR!")
+        #    print(self.polys)
+
+            
+
         coefs=[poly.evaluate(xy) for poly in self.polys]
         t=self.inverse_function(f,coefs)
         return t
