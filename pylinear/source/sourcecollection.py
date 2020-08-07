@@ -77,6 +77,8 @@ class SourceCollection(dict):
         #     but would require considerable more file I/O.  
         self.load_photometry(mef)
 
+
+        print('[info]Loaded {} sources'.format(len(self)))       
         print()
 
 
