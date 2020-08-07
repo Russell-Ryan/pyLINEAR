@@ -86,7 +86,10 @@ class PDT(H5TableBase):
     def load(cls,pixel,h5):
         pixel='({},{})'.format(*pixel)
         data=cls.load_data(h5,pixel)
-        pdt=cls(pixel,data['x'],data['y'],data['lam'],data['val'])
+        if data is None:
+            pdt=cls(pixel)
+        else:
+            pdt=cls(pixel,data['x'],data['y'],data['lam'],data['val'])
         return pdt
 
 

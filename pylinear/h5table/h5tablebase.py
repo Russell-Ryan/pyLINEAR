@@ -64,7 +64,9 @@ class H5TableBase(object):
     @staticmethod
     def load_data(h5,name,ptype=None,attrs=None):
         ''' load the data and grab the attributes '''
-
+        if name not in h5:
+            return None
+            
         dset=h5[name]
             
         # make a list for the output

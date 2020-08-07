@@ -80,22 +80,26 @@ class ODT(H5TableBase,dict):
             xy=[]
             for pdt in self:
                 xy.extend(list(zip(pdt.x,pdt.y)))
-            xy=np.array(xy)
 
-            # make the hull
-            hull=ConvexHull(xy)
+            if len(xy)>0:
             
-            # get the vertices
-            #xyh=xy[hull.vertices]
+                xy=np.array(xy)
 
-            # make into a polygon
-            #p=Polygon(xyh)
+            
+                # make the hull
+                hull=ConvexHull(xy)
+                
+                # get the vertices
+                #xyh=xy[hull.vertices]
 
-            # get the coordiantes
-            xh=xy[hull.vertices][:,0]
-            yh=xy[hull.vertices][:,1]
+                # make into a polygon
+                #p=Polygon(xyh)
 
-            ovt.extend(xh,yh)
+                # get the coordiantes
+                xh=xy[hull.vertices][:,0]
+                yh=xy[hull.vertices][:,1]
+                
+                ovt.extend(xh,yh)
 
         return ovt
 
@@ -115,25 +119,29 @@ class ODT(H5TableBase,dict):
                 xy=pdt.x.astype(np.uint64)+nx*pdt.y.astype(np.uint64)
                 xyl.extend(xy+npix*pdt.lam.astype(np.uint64))
                 val.extend(pdt.val.astype(np.float64))
-            xyl=np.array(xyl)
-            val=np.array(val)
+            if len(xyl)>0:
+                xyl=np.array(xyl)
+                val=np.array(val)
             
-            # find unique indices & compress
-            xylu=np.unique(xyl)
-            xylc=np.digitize(xyl,xylu)-1
+                # find unique indices & compress
+                xylu=np.unique(xyl)
+                xylc=np.digitize(xyl,xylu)-1
+                
+                # sum over repeated indices
+                vu=np.bincount(xylc,weights=val)
 
-            # sum over repeated indices
-            vu=np.bincount(xylc,weights=val)
+                # go back to 1d indices
+                lamu,xygu=np.divmod(xylu,npix)
+                yu,xu=np.divmod(xygu,nx)
+                
+                # get the wavelengths
+                wu=self.wav[lamu]
 
-            # go back to 1d indices
-            lamu,xygu=np.divmod(xylu,npix)
-            yu,xu=np.divmod(xygu,nx)
-
-            # get the wavelengths
-            wu=self.wav[lamu]
-
-            # return the DDT            
-            ddt=DDT(self.segid,xu,yu,wu,vu)
+                # return the DDT            
+                ddt=DDT(self.segid,xu,yu,wu,vu)
+            else:
+                # a null table
+                ddt=DDT(self.segid)
         else:
             # a null table
             ddt=DDT(self.segid)
