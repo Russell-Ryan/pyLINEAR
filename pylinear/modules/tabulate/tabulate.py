@@ -33,7 +33,6 @@ class Tabulate(object):
         # record the CPU usage
         self.ncpu=ncpu
 
-    
 
     def make_pdts(self,src,wav,beamconf,device,pixfrac=1.0):
         dwav=wav[1]-wav[0]    # compute bandwidth
@@ -129,6 +128,11 @@ class Tabulate(object):
         pixfrac=1.0    # DO NOT CHANGE THIS VALUE
         dataset=grism.dataset
 
+        # skip if not remaking
+        if not self.remake:
+            return
+
+        
         ttype=self.ttype.lower()
         if ttype=='pdt':
             tabfunc=self.make_pdts
