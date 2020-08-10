@@ -11,6 +11,11 @@ import os
 import colorlog
 log=colorlog.ColorLog(root='{}_v{}'.format(__code__,__version__))
 
+# to support the logging utility
+import tqdm
+import inspect
+inspect.builtins.print=tqdm.tqdm.write   # need to do this :(
+
 
 # check that the configuration data is present
 if 'PYLINEAR_CONFIG' not in os.environ:
