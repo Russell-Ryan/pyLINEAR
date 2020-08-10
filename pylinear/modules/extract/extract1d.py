@@ -29,6 +29,11 @@ def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,
     if not isinstance(beams,(tuple,list)):
         beams=[beams]
 
+    # fix the masking of beams
+    if mskbeams is not None and not isinstance(mskbeams,(tuple,list)):
+        mskbeams=[mskbeams]
+        
+
     
     
     # build the groups
