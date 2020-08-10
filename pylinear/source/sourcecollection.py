@@ -82,7 +82,6 @@ class SourceCollection(dict):
 
 
         print('[info]Loaded {} sources'.format(len(self)))       
-        print()
 
 
     
