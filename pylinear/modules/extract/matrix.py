@@ -90,11 +90,11 @@ class Matrix(object):
         self.npar=dim[1]
         
         if self.npar>=self.npix:            
-            print()
+            print('')
             print('[alarm]Underdetermined matrix!!!')
             print('[alarm]There are {} measurments and {} unknowns.'.format(*dim))
             print('[alarm]pyLINEAR can invert, but results will be suspect.')
-            print()
+            print('')
             
         
         # compute some things for the ragged arrays
