@@ -4,7 +4,9 @@
 *.gz
 *.tar
 *.fits
+*.conf
 notes
+pylinear/grism/OLD/*
 .DS_Store
 __pycache__/
 dist/
