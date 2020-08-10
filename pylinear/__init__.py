@@ -17,7 +17,7 @@ import inspect
 builtin_print=print
 def pylinear_print(*args,**kwargs):
     try:
-        tqdm.tqdm.write(*args,**kwargs):
+        tqdm.tqdm.write(*args,**kwargs)
     except:
         print(*args,**kwargs)
 inspect.builtins.print=pylinear_print  # need to do this :(
