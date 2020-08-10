@@ -97,6 +97,7 @@ class Source(WCS,ExtractionParameters):
         # check the flux
         if self.total>0:
             self.mag=-2.5*np.log10(self.total)+zero
+
             
             # check the mag limit
             if maglim is not None and self.mag > maglim:

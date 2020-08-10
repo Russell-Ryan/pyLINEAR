@@ -133,6 +133,7 @@ def extract_fluxcube():
     # Step 1.  Load sources
     sources=pylinear.source.SourceCollection(conf['segfile'],conf['obslst'],
                                              detindex=conf['detindex'],
+                                             maglim=conf['maglim'],
                                              cubeid=conf['cubeid'])
         
     
@@ -171,6 +172,7 @@ def simulate():
     
     # Step 1.  Load sources
     sources=pylinear.source.SourceCollection(conf['segfile'],conf['obslst'],
+                                             maglim=conf['maglim'],
                                              detindex=conf['detindex'])
 
     # get the detection filter
@@ -198,6 +200,7 @@ def tabulate():
     
     # Step 1.  Load sources
     sources=pylinear.source.SourceCollection(conf['segfile'],conf['obslst'],
+                                             maglim=conf['maglim'],
                                              detindex=conf['detindex'])
     # get the detection filter
     #detfilt=sources.obscat.detband.filt

@@ -13,7 +13,7 @@ from ..utilities import indices
 
 class SourceCollection(dict):
     PREFIX='{:6d}'
-    def __init__(self,segfile,obscat,detindex=0,cubeid=0,maglim=20):
+    def __init__(self,segfile,obscat,detindex=0,cubeid=0,maglim=26):
         print('[info]Loading source catalog')
         
         # load the observation catalog
@@ -26,7 +26,7 @@ class SourceCollection(dict):
         self.maglim = maglim
         
         # get the magnitude limit
-        #print('[debug]implement magnitude limit and source filtering')
+        print('[debug]implement source filtering')
 
         # record something for flux cubes
         self.cubeid=cubeid
@@ -48,10 +48,13 @@ class SourceCollection(dict):
             else:
                 self.from_classic(hdus,hdui)
 
+
+                
         # now remove sources outside the valid magnitude limit
         if self.maglim is not None:
-            delete = [segid for segid in self.keys() if self[segid].mag>self.maglim]
-            for segid in delete:
+            to_delete = [segid for segid in self.keys()
+                         if self[segid].mag>self.maglim]
+            for segid in to_delete:
                 del self[segid]
 
             
