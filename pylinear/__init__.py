@@ -14,7 +14,13 @@ log=colorlog.ColorLog(root='{}_v{}'.format(__code__,__version__))
 # to support the logging utility
 import tqdm
 import inspect
-inspect.builtins.print=tqdm.tqdm.write   # need to do this :(
+builtin_print=print
+def pylinear_print(*args,**kwargs):
+    try:
+        tqdm.tqdm.write(*args,**kwargs):
+    except:
+        print(*args,**kwargs)
+inspect.builtins.print=pylinear_print  # need to do this :(
 
 
 # check that the configuration data is present
