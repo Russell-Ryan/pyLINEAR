@@ -255,10 +255,7 @@ class Matrix(object):
         
     def make_beam_mask(self,h5tab,sources,device,mskbeams,min_rate=1e-2):
         ''' compute a mask to exclude pixels associated with other beams '''
-        
-        print(mskbeams)
-
-        
+                
         # get the photflam
         photflam=sources.obscat.detband.photflam
         
@@ -443,7 +440,7 @@ class Matrix(object):
                 yg=yg.astype(self.INT)
                 
                 # update the vector values
-                bi.extend(sci[yg,xg]/unc[yg,xg])
+                bi.extend(sci[yg,xg]/np.maximum(unc[yg,xg],self.MINUNC))
                 ########################################################
                         
                 # close the device (could avoid this by restructuring h5table)
