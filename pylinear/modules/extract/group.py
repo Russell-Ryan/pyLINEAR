@@ -18,7 +18,7 @@ def group_polygons(data,minarea=0.1):
             for i,(testid,testpoly) in enumerate(data):
                 inter=thispoly.intersection(testpoly)
                 if inter.area > 0.:
-                    print(inter.area,testpoly.area,thispoly.area)
+                    
                 
                     r1=inter.area/testpoly.area
                     r2=inter.area/thispoly.area
