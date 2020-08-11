@@ -4,6 +4,7 @@
 *.gz
 *.tar
 *.fits
+*.cfg
 *.conf
 notes
 pylinear/grism/OLD/*
