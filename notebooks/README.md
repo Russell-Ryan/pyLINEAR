@@ -17,6 +17,9 @@ The notebooks have been constructed with a certain goal and to be done in a spec
 | 4  | ```pylinear_composite.ipynb``` | Simulate and Extract composite sources. |
 | 5  | ```pylinear_wfc3ir_data.ipynb``` | Extract real WFC3/IR observations in G102. |
 
+However please see my notebook prepared for the *astrogrism* sprint by STScI:
+[https://github.com/spacetelescope/astrogrism_sandbox/tree/contamination_notebook/contaminate/contamination.ipynb](https://github.com/spacetelescope/astrogrism_sandbox/tree/contamination_notebook/contaminate/contamination.ipynb) for a demonstration of how ```shapely.Polygon``` can be used to quickly identify pixels that belong to multiple sources. 
+
 
 ## Requirements
 
