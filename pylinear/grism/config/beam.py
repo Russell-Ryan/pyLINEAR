@@ -35,22 +35,19 @@ class Parametric(object):
         self.polys=[]
         self.order=-1
         self.inverse_function=None
+
+
         
     def append(self,p):
         self.polys.append(p)
         self.order+=1
 
-        #if self.order==0:
-        #    print('0th order',p)
         if self.order==1:
             self.inverse_function=self._first
         elif self.order==2:
             self.inverse_function=self._second
         else:
             self.inverse_function=self._nth
-
-    #def _zeroth(self,f,coefs):
-    #    print('hi')
             
             
     def _first(self,f,coefs):
@@ -198,7 +195,13 @@ class Beam(object):
                         
         # get a polygon clipper
         self.polyclip=polyclip.Polyclip(self.naxis)
-                        
+
+
+        # just some quick error checking
+        okay=(len(self.dispx)>0 and len(self.dispy)>0 and len(self.displ)>0)
+        assert okay,'{} order is not present in the config file.'.format(beam)
+
+        
     def __str__(self):
         return "Grism beam for {}".format(self.beam)
         
