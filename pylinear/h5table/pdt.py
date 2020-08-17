@@ -95,7 +95,9 @@ class PDT(H5TableBase):
 
 
     def convolve(self,kernel,device):
-        dim=(device.npixel,1)   # the 1 here is just a dummy variable
+
+
+        dim=(device.npixel,1)      # the 1 here is just a dummy variable
         
         xyl=[]
         val=[]
@@ -109,7 +111,7 @@ class PDT(H5TableBase):
             # only get pixels that are within the image
             g=np.where((xx >= 0) & (xx < device.naxis1) and
                        (yy >= 0) & (yy < device.naxis2))[0]
-
+            
             # only keep the good ones
             if len(g) > 0:
                 # keep the good values

@@ -68,10 +68,30 @@ class Tabulate(object):
                 
                 # create the table
                 pdt=h5table.PDT(pix,x,y,l,v*pixrat*dwav)
-                #,lamb0=wav[0],lamb1=wav[1],dlamb=dwav)
+              
 
+                sigma=None
+                # maybe apply a convolution kernel
+                if isinstance(sigma,(float,int)):
+                    # ok... so this should implement a basic Gaussian
+                    # kernel that does not vary with wavelength or
+                    # with detector (or detector position).  The next
+                    # step would be to get ```device``` and
+                    # ```beamconf``` to work together
+                    # to build the Kernel.  ```beamconf``` should record
+                    # aspects that change with dispersion order
+                    # and ```device``` should record aspects that
+                    # change with detector (and position).  When they
+                    # work together, they should also return a
+                    # ```GaussianKernel``` of the appropriate size
+                    # (say something that is ~3x the expected sigma, here
+                    #  I call that factor ```nsigma```.).
+                    nsigma=3.5                    
+                    size=np.ceil(sigma*nsigma)
+                    kern = kernel.GaussianKernel(sigma,size)
+                    pdt.convolve(kern,device.shape)
 
-
+                
                 # create a dummy kernel              
                 #from collections import namedtuple
                 #Kernel=namedtuple('Kernel',['dx','dy','value'])
