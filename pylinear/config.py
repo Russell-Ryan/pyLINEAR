@@ -10,7 +10,19 @@ COMMENT='#'
 
 
 def list_type(lst):
-    ''' method to determine the datatype of a list '''
+    ''' method to determine the datatype of a list 
+    
+    Parameters
+    ----------
+    lst : list
+       A list whose sub-element datatypes will be returned
+   
+    Returns
+    -------
+    typ : type 
+       the datatype of the first element of the list.
+
+    '''
     if len(lst)==0:
         return str
     else:
@@ -19,7 +31,32 @@ def list_type(lst):
 
     
 class Keyword(object):
-    ''' Class to hold a keyword, value, comment triplet '''
+    ''' Class to hold a keyword, value, comment triplet 
+
+    Parameters
+    ----------
+    key : str
+       A header keyword name.
+    val : Any
+       A header keyword value.
+    com : str
+       A header keyword comment card
+
+    Optional Parameters
+    -------------------
+    choices : list (default: None)
+       A string list of possible values 
+
+    read : boolean (default: False)
+       A flag that the keyword should be readable
+
+    write : boolean (default: False)
+       A flag that the keyword should be writeable
+    '''
+
+
+    LEN = 36    # the length of an ascii formatted string
+    
     def __init__(self,k,v,c,choices=None,read=False,write=False):
         self.keyword=k
         self.value=v
@@ -34,9 +71,25 @@ class Keyword(object):
                           
 
     def reset(self):
+        ''' Reset the keyword to the default value '''
+        
         self.value=self.default
 
     def update_header(self,hdr,after=None):
+        ''' Put the keyword into a FITS header 
+
+        Parameters
+        ----------
+        hdr : `astropy.io.fits.header.Header`
+           Header to update in place
+
+        Optional Parameters
+        -------------------
+        after : str (default: None)
+           Last existing header keyword
+        '''
+        
+        
         if isinstance(self.value,(list,tuple)):
             val=str(self.value)[1:-1].replace(' ','')
             val=val.replace("'","").replace('"','')
@@ -50,6 +103,14 @@ class Keyword(object):
 
         
     def to_argparse(self,parser):
+        ''' Convert the keyword for argparse 
+        
+        Parameters
+        ----------
+        parser : `argumentparser.ArgumentParser`
+           The parser object to update with this keyword.
+
+        '''        
         if isinstance(self.value,bool):
             #parser.add_argument('--'+self.keyword,help=self.comment,
             #                    const=True,default=False,nargs='?',
@@ -82,6 +143,19 @@ class Keyword(object):
                                 type=type(self.value),help=self.comment,
                                 choices=self.choices)
     def as_ascii(self):
+        ''' Convert the keyword, value, comment to an ascii format 
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        formatted_str : str
+           A formatted string of the keyword,value,comment triplet
+        '''
+
+        
         if isinstance(self.value,list):
             val=str(self.value)[1:-1].replace(' ','')
             val=val.replace("'","").replace('"','')
@@ -92,7 +166,7 @@ class Keyword(object):
         else:
             val=str(self.value)
         
-        val=val.ljust(36-len(self.keyword))
+        val=val.ljust(self.LEN-len(self.keyword))
 
 
         return '{0} {1} {2}'.format(val,COMMENT,self.comment)
