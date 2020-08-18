@@ -9,4 +9,7 @@ python:
 install:
   - python3 -m pip install .
 
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+
 script: cd /tmp && export PYLINEAR_CONFIG=. && python3 -c 'import pylinear'
