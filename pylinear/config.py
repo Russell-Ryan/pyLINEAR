@@ -107,7 +107,7 @@ class Keyword(object):
         
         Parameters
         ----------
-        parser : `argumentparser.ArgumentParser`
+        parser : `argparser.ArgumentParser`
            The parser object to update with this keyword.
 
         '''        
@@ -175,10 +175,23 @@ class Keyword(object):
     
 
 class Config(object):
+    ''' A singleton class to hold the configuration
+
+    Optional Parameters
+    -------------------
+    parser = `argparser.ArgumentParser` (default: None)
+        
+    
+    '''
+    
+
+
+
     _instance=None    # To make this a singleton
 
     # these variables specify which keywords belong to which modules
-    _extract1d=['segfile','obslst','imglst','detindex','path','remake','inverter',
+    _extract1d=['segfile','obslst','imglst','detindex','path','remake',
+                'inverter',
                 'method','logdamp','usehdf5','hdf5file','ncpu','nsub']
     
 
@@ -252,16 +265,28 @@ class Config(object):
         return '\n'.join(out)
 
     def reset(self):
+        ''' Reset all keyword values to their defaults'''
+
         for k,v in self:
             v.reset()
 
 
     def update_argparse(self,parser):
+        ''' add these keyword to an existing argparse object
+
+        Parameters
+        ----------
+        parser : `argparse.ArgumentParser`
+           command-line parser to update
+        '''
+
         for v in self.cfg.values():
             v.to_argparse(parser)
 
     def update_from_commandline(self,conf,remove=True):        
+        
 
+        
         # update config
         for k in list(conf.keys()):
             if k in self:
@@ -271,6 +296,9 @@ class Config(object):
             
     @classmethod
     def from_commandline(cls,parser):
+        ''' Create a new config object from the command-line arguments '''
+
+        
         cls=cls.__new__(cls)
     
         # put the items in the parser
@@ -392,6 +420,7 @@ def test():
 
 class CustomFormatter(ap.ArgumentDefaultsHelpFormatter,
                       ap.MetavarTypeHelpFormatter):
+    ''' Customized formatter class for argparse '''
     pass
     
     #def add_usage(self,usage,actions,groups,prefix=None):
