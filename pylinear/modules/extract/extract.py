@@ -68,7 +68,6 @@ class Extract(object):
 
     def build_matrix(self,grisms,sources,beams,path,mskbeams=None,target=True):
 
-
         # build the matrix into the self
         self.matrix=Matrix(grisms,sources,beams,path=path,mskbeams=mskbeams,
                            inverter=self.inverter)
