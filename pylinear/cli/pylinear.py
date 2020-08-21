@@ -113,10 +113,6 @@ def extract():
     tabulate.ttype='omt'
     tabulate.nsub=1
     omtnames=[tabulate.run(grisms,sources,beam) for beam in conf['mskbeams']]
-
-
-    import pdb
-    pdb.set_trace()
     
     # step 4.  do the 1d extraction
     pylinear.modules.extract.extract1d(grisms,sources,conf['beams'],
