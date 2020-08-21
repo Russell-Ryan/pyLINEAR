@@ -3,7 +3,7 @@ import datetime
 from astropy.io import fits
 from astropy.wcs import WCS as astropyWCS
 import astropy.wcs.utils as wcsutils
-
+import re
 
 
 def formatter(func):
@@ -24,6 +24,18 @@ class WCS(astropyWCS):
 
     
     def __init__(self,hdr):
+        # ok, there is this annoying situation where the SIP coefs will
+        # be present, but the CTYPE does not indicate that.  Therefore,
+        # astropy will issue a big warning, so I'll take control of that
+        # here, but checking for SIP coefs and the CTYPE
+        #has_sip=self.has_sip(hdr)
+        #if has_sip:
+        #    for ctype in ('CTYPE1','CTYPE2'):
+        #        if hdr[ctype][8:] != '-SIP':
+        #            hdr[ctype] += '-SIP'
+
+
+        # set the astropy WCS class
         astropyWCS.__init__(self,hdr)
 
 
@@ -86,9 +98,24 @@ class WCS(astropyWCS):
             jacobian=jacobian[0]
         
         return jacobian
-        
 
 
+
+    def has_sip(self,hdr):
+
+        keys=list(hdr.keys())        
+        for func in ('A','B','AP','BP'):
+            # build a regex search
+            r = re.compile("{}_[0-9]_[0-9]".format(func))
+
+            
+            # has a given order
+            if '{}_ORDER'.format(func) in keys and any(filter(r.match,keys)):
+                return True
+        return False
+            
+
+            
     def putSIP(self,hdr,sip,name):
         if sip is not None:
             ii,jj=np.where(sip !=0)
