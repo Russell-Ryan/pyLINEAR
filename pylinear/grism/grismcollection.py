@@ -92,8 +92,10 @@ class GrismCollection(object):
         for (filename,) in tab.iterrows():
             phdr=fits.getheader(filename,exten=0)
 
-            
-            if phdr.get('OBSTYPE',None) == 'SPECTROSCOPIC':
+
+            # let's check the obstype, but assume the best of the user
+            # I hope they don't make a fool of me.
+            if phdr.get('OBSTYPE','SPECTROSCOPIC') == 'SPECTROSCOPIC':
                 insconf=instruments.Config(phdr['TELESCOP'])
                 img=ObservedFile(filename,insconf)
                 self.files[img.dataset]=img
