@@ -90,12 +90,15 @@ class GrismCollection(object):
         
         # interpret each line as a new image
         for (filename,) in tab.iterrows():
-            hdr=fits.getheader(filename,exten=0)
+            phdr=fits.getheader(filename,exten=0)
 
-            insconf=instruments.Config(hdr['TELESCOP'])
-            img=ObservedFile(filename,insconf)
-            self.files[img.dataset]=img
-
+            
+            if phdr.get('OBSTYPE',None) == 'SPECTROSCOPIC':
+                insconf=instruments.Config(phdr['TELESCOP'])
+                img=ObservedFile(filename,insconf)
+                self.files[img.dataset]=img
+            else:
+                print('[warn]Ignoring: {} not spectroscopy.'.format(filename))
 
     def get_default_extraction(self):
         lamb0,lamb1,dlamb=[],[],[]
