@@ -16,7 +16,6 @@ class Tabulate(object):
 
         self.ttype=ttype.lower()
 
-        print('[debug]Figure out if remake works right')
         
         # determine the subsampling frequency 
         if not isinstance(nsub,int):
