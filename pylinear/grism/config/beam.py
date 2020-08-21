@@ -162,35 +162,39 @@ class Beam(object):
                 if valid(line):
                     tokens=line.split(' ')
                     key=tokens[0].upper()
-                    val=tokens[1:]
+                    #val=tokens[1:]
 
-                    if key.startswith('FFNAME'):
-                        self.ffname=os.path.join(path,val[0])
+                    # remove empty spaces
+                    val = list(filter(lambda x: x!='',tokens[1:]))
+
+                    if val:
+                        if key.startswith('FFNAME'):
+                            self.ffname=os.path.join(path,val[0])
                         
-                    if key.startswith('XRANGE_{}'.format(beam)):
-                        self.xr=np.array(val[0:2],dtype=np.float32)
+                        if key.startswith('XRANGE_{}'.format(beam)):
+                            self.xr=np.array(val[0:2],dtype=np.float32)
 
-                    if key.startswith('YRANGE_{}'.format(beam)):
-                        self.yr=np.array(val[0:2],dtype=np.float32)
+                        if key.startswith('YRANGE_{}'.format(beam)):
+                            self.yr=np.array(val[0:2],dtype=np.float32)
                         
-                    if key.startswith('DISPX_{}'.format(beam)):
-                        val=[self.fix_type(v) for v in val if valid(v)]
-                        self.dispx.append(Spatial(val))
+                        if key.startswith('DISPX_{}'.format(beam)):
+                            val=[self.fix_type(v) for v in val if valid(v)]
+                            self.dispx.append(Spatial(val))
 
-                    if key.startswith('DISPY_{}'.format(beam)):
-                        val=[self.fix_type(v) for v in val if valid(v)]
-                        self.dispy.append(Spatial(val))
+                        if key.startswith('DISPY_{}'.format(beam)):
+                            val=[self.fix_type(v) for v in val if valid(v)]
+                            self.dispy.append(Spatial(val))
 
-                    if key.startswith('DISPL_{}'.format(beam)):
-                        val=[self.fix_type(v) for v in val if valid(v)]
-                        self.displ.append(Spatial(val))
+                        if key.startswith('DISPL_{}'.format(beam)):
+                            val=[self.fix_type(v) for v in val if valid(v)]
+                            self.displ.append(Spatial(val))
 
-                    if key.startswith('NAXIS'):
-                        self.naxis=np.array(val[0:2],dtype=np.uint16)
+                        if key.startswith('NAXIS'):
+                            self.naxis=np.array(val[0:2],dtype=np.uint16)
                         
-                    if key.startswith('SENSITIVITY_{}'.format(beam)):
-                        sensfile=os.path.join(path,val[0])
-                        self.sensitivity=Sensitivity(sensfile)
+                        if key.startswith('SENSITIVITY_{}'.format(beam)):
+                            sensfile=os.path.join(path,val[0])
+                            self.sensitivity=Sensitivity(sensfile)
 
                         
         # get a polygon clipper
