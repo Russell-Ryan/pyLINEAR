@@ -99,6 +99,7 @@ class Source(WCS,ExtractionParameters):
             self.mag=-2.5*np.log10(self.total)+zero
 
             
+            
             # check the mag limit
             if maglim is not None and self.mag > maglim:
                 print('[warn]below the mag limit for {}'.format(self.segid))
@@ -120,6 +121,8 @@ class Source(WCS,ExtractionParameters):
             self.valid=False
         if not self.valid:
             return 
+
+
         
         # record the pixels
         self.xyd=[(x-self.ltv[0],y-self.ltv[1]) for x,y,v in self]

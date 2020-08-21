@@ -39,7 +39,7 @@ class GrismImage(WCS):
 
         self.hdr=hdr
         WCS.__init__(self,self.hdr)
-
+        
         self.conffile=device.grism_config(grism)
 
         # record teh defalts from the XML data

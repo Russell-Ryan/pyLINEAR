@@ -203,7 +203,7 @@ class Device(object):
         try:
             conf=self.grisms[grism].config
         except KeyError:
-            print("[warn]grism/block combination not valid.")
+            print("[warn]grism/block combination not valid: {}.".format(grism))
         return conf
             
     def extension(self,exten):
