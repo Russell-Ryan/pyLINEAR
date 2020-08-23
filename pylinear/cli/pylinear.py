@@ -225,8 +225,6 @@ def main():
     # get the inputs
     args = parse_args()
 
-
-    print(args)
     
     # test if there were steps to run
     run=any(v is not None and v!=False for v in args.values())
