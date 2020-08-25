@@ -76,14 +76,6 @@ class ODT(H5TableBase,dict):
         ovt=OVT(self.segid,self.beam)
         if len(self)!=0:
 
-
-            # get all the (x,y) pairs that are uniq
-            #xy=[]
-            #for pdt in self:
-            #    xy.extend(list(zip(pdt.x,pdt.y)))
-            #xy=set(xy)
-            #x,y=list(zip(*xy))
-        
             
             # get all the (x,y) pairs
             x,y=[],[]
