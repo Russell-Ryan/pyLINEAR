@@ -2,9 +2,9 @@
 import numpy as np
 #import h5py
 #from shapely.geometry import Polygon
-from scipy.spatial import ConvexHull
+#from scipy.spatial import ConvexHull
 
-
+from ..utilities import convexhull,indices
 
 from .h5tablebase import H5TableBase
 from .pdt import PDT
@@ -76,6 +76,38 @@ class ODT(H5TableBase,dict):
         ovt=OVT(self.segid,self.beam)
         if len(self)!=0:
 
+
+            # get all the (x,y) pairs that are uniq
+            #xy=[]
+            #for pdt in self:
+            #    xy.extend(list(zip(pdt.x,pdt.y)))
+            #xy=set(xy)
+            #x,y=list(zip(*xy))
+        
+            
+            # get all the (x,y) pairs
+            x,y=[],[]
+            for pdt in self:
+                x.extend(pdt.x)
+                y.extend(pdt.y)
+
+
+            if len(x)>0:
+                
+                # make them np arrays
+                x=np.array(x,dtype=np.uint64)
+                y=np.array(y,dtype=np.uint64)
+                
+                # uniqify the pairs
+                x,y=indices.unique_pairs(x,y)
+
+                # compute the convex hull
+                x,y=convexhull.vertices(x,y)
+                
+                # return a new table
+                ovt.extend(x,y)
+            '''
+            
             # collect all the unique (x,y) pairs
             xy=[]
             for pdt in self:
@@ -84,7 +116,7 @@ class ODT(H5TableBase,dict):
             if len(xy)>0:
             
                 xy=np.array(xy)
-
+                
             
                 # make the hull
                 hull=ConvexHull(xy)
@@ -100,7 +132,7 @@ class ODT(H5TableBase,dict):
                 yh=xy[hull.vertices][:,1]
                 
                 ovt.extend(xh,yh)
-
+            '''
         return ovt
 
 
