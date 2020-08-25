@@ -1,5 +1,6 @@
 import numpy as np
 
+ONE=np.uint(1)
 
 def compress(indices):
     unique_indices=np.unique(indices)
@@ -34,9 +35,36 @@ def reverse(integers):
     ri=list(zip(uniq,reverse))
     return ri
 
-def one2two(one,dim):
-    y,x=np.divmod(np.array(one),dim[0])
+def one2two(xy,dim):
+    y,x=np.divmod(np.array(xy),dim[0])
     return x,y
 
 def two2one(x,y,dim):
     return np.array(x)+dim[0]*np.array(y)
+
+def unique_pairs(x,y):
+
+    mx=np.amax(x)+1
+    shape=(mx.astype(x.dtype),)
+
+    xy=two2one(x,y,shape)
+
+    xx,yy=one2two(xy,shape) 
+    
+    xyq=unique(xy)
+
+
+    xq,yq=one2two(xyq,shape)
+    
+
+    return xq,yq
+
+
+if __name__=='__main__':
+
+    x=np.array([1,2,3,4,5,3,1],dtype=np.uint64)
+    y=np.array([2,3,4,5,3,4,2],dtype=np.uint64)
+
+    
+    xq,yq=unique_pairs(x,y)
+    
