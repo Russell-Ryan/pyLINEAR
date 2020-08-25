@@ -83,7 +83,7 @@ class ODT(H5TableBase,dict):
                 x.extend(pdt.x)
                 y.extend(pdt.y)
 
-
+            # only compute convex hull if there are points
             if len(x)>0:
                 
                 # make them np arrays
