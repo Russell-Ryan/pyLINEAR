@@ -32,7 +32,8 @@ def average(indices,values):
 def reverse(integers):
     uniq,ind,nums=np.unique(integers,return_inverse=True,return_counts=True)
     reverse=np.split(np.argsort(ind),np.cumsum(nums[:-1]))
-    ri=list(zip(uniq,reverse))
+    #ri=list(zip(uniq,reverse))
+    ri=dict(list(zip(uniq,reverse)))
     return ri
 
 def one2two(xy,dim):

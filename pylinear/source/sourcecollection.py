@@ -146,8 +146,9 @@ class SourceCollection(dict):
 
         # get the reverse index
         revind=indices.reverse(seg.image.astype(np.uint64))
-        if revind[0][0]==0:
-            del revind[0]    # remove the sky from the segmentation map
+        del revind[0]    # remove the sky from the segmentation map
+        #if revind[0][0]==0:
+        #    del revind[0]    # remove the sky from the segmentation map
 
 
         # build a progress bar
@@ -157,7 +158,8 @@ class SourceCollection(dict):
         zeropoint=self.obscat.detzero
         
         # process each index
-        for segid,ri in revind:
+        #for segid,ri in revind:
+        for segid,ri in revind.items():
             pb.desc=self.PREFIX.format(segid)
           
             # get the (x,y) pairs
