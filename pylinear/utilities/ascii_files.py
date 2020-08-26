@@ -4,6 +4,7 @@ import numpy as np
 
 def read_ascii_table(filename,**kwargs):
     tab=Table.read(filename,format='ascii.no_header',**kwargs)
+
     meta={}
     if tab.meta:
         if 'comments' in tab.meta:
@@ -29,6 +30,11 @@ def read_ascii_columns(filename,**kwargs):
     return cols,meta
 
 if __name__=='__main__':
-    (lamb,tran),meta = read_ascii_columns('hst_acs_f814w.filt',names=('lamb','tran'))
-    print(lamb)
-            
+    #(lamb,tran),meta = read_ascii_columns('hst_acs_f814w.filt',names=('lamb','tran'))
+    #print(lamb)
+
+
+    filename='/Users/rryan/pylinear/training/notebooks/t.dat'
+    (a,b,c,d,e),meta=read_ascii_columns(filename)
+
+    print(meta)
