@@ -1,6 +1,7 @@
+
 import numpy as np
 import tqdm
-from contextlib import nullcontext
+#from contextlib import nullcontext
 import h5py
 import os
 import scipy.sparse.linalg as ssl
@@ -18,12 +19,21 @@ class Matrix(object):
     INT=np.uint64
     FLOAT=np.float64
     MINUNC=1e-10
-    
-    def __init__(self,grisms,sources,extbeams,inverter='lsqr',
-                 mskbeams=None,path='tables',
-                 usehdf5=False,hdf5file='matrix.h5'):
+
+    #grisms,sources,extbeams,usehdf5=False,hdf5file='matrix.h5'
+    def __init__(self,*args,group=0,inverter='lsqr',mskbeams=None,
+                 path='tables'):
+
+        # parse the inputs
+        n=len(args)
+        if n==3:
+            grisms,sources,extbeams=args
+        else:
+            return
+        
         
         # set some defaults        
+        self.group=group
         self.path=os.path.join(path)
         self.target=None
        
@@ -46,16 +56,18 @@ class Matrix(object):
         self.npar=cwav[-1]       # max number of wavelengths to determine
         self.cwav=np.insert(cwav,0,0)
         
-        # index for the image in questin
+        # index for the image in question
         self.images=[]    #self.images.append((grism.dataset,device.name))
         
         # load the matrix data
-        if usehdf5:
-            i,j,aij,self.bi=self.load_from_hdf5(grisms,sources,extbeams,
-                                                mskbeams,hdf5file)
-        else:
-            i,j,aij,self.bi=self.load_from_images(grisms,sources,extbeams,
-                                                  mskbeams,hdf5file)
+        #if usehdf5:
+        #    i,j,aij,self.bi=self.load_from_hdf5(grisms,sources,extbeams,
+        #                                        mskbeams,hdf5file)
+        #else:
+        #    i,j,aij,self.bi=self.load_from_images(grisms,sources,extbeams,
+        #                                          mskbeams,hdf5file)
+        i,j,aij,self.bi=self.load_from_images(grisms,sources,extbeams,mskbeams)
+                                              
 
         # just do a quick check
         if len(i)==0:
@@ -161,40 +173,40 @@ class Matrix(object):
         else:
             return 0
         
-    def load_from_hdf5(self,grisms,sources,extbeams,mskbeams,hdf5file):
-        msg='[info]Loading the matrix from {}'
-        #print(msg.format(hdf5file))
-        
-        print('[debug]Check if the inputs match')
-        
-        pb=tqdm.tqdm(total=self.nimg,desc='Loading matrix',dynamic_ncols=True)
-        
-        i,j,aij,bi=[],[],[],[]
-        
-        with h5py.File(hdf5file,'r') as h5:
-            hg=h5['grisms']
-            for grism in grisms:
-                pb.update()
-
-                hd=hg[grism.dataset]
-                if 'aij' in hd and 'bi' in hd:
-
-                    mat=hd['aij'][:]
-                    i.extend(list(mat['i']))
-                    j.extend(list(mat['j']))
-                    aij.extend(list(mat['aij']))
-                    vec=hd['bi'][:]
-                    bi.extend(list(vec))
-
-        # retype things
-        i=np.array(i,dtype=self.INT)
-        j=np.array(j,dtype=self.INT)
-        aij=np.array(aij,dtype=self.FLOAT)
-        bi=np.array(bi,dtype=self.FLOAT)
-                    
-        return i,j,aij,bi
+    #def load_from_hdf5(self,grisms,sources,extbeams,mskbeams,hdf5file):
+    #    msg='[info]Loading the matrix from {}'
+    #    #print(msg.format(hdf5file))
+    #    
+    #    print('[debug]Check if the inputs match')
+    #    
+    #    pb=tqdm.tqdm(total=self.nimg,desc='Loading matrix',dynamic_ncols=True)
+    #    
+    #    i,j,aij,bi=[],[],[],[]
+    #    
+    #    with h5py.File(hdf5file,'r') as h5:
+    #        hg=h5['grisms']
+    #        for grism in grisms:
+    #            pb.update()
+    #
+    #            hd=hg[grism.dataset]
+    #            if 'aij' in hd and 'bi' in hd:
+    #
+    #                mat=hd['aij'][:]
+    #                i.extend(list(mat['i']))
+    #                j.extend(list(mat['j']))
+    #                aij.extend(list(mat['aij']))
+    #                vec=hd['bi'][:]
+    #                bi.extend(list(vec))
+    #
+    #    # retype things
+    #    i=np.array(i,dtype=self.INT)
+    #    j=np.array(j,dtype=self.INT)
+    #    aij=np.array(aij,dtype=self.FLOAT)
+    #    bi=np.array(bi,dtype=self.FLOAT)
+    #                
+    #    return i,j,aij,bi
     
-    def load_from_images(self,grisms,sources,extbeams,mskbeams,hdf5file):
+    def load_from_images(self,grisms,sources,extbeams,mskbeams):
         msg='[info]Building the matrix: {} images, {} sources.'
         print(msg.format(self.nimg,self.nsrc))
 
@@ -206,42 +218,19 @@ class Matrix(object):
         # data to save as the matrix content
         i,j,aij,bi=[],[],[],[]
 
-        write=hdf5file is not None
-        with (h5py.File(hdf5file,'w') if write else nullcontext()) as h5:
-            if write:
-                h5.attrs['extbeams']=np.string_(extbeams)
-                h5.attrs['msbeams']=np.string_(mskbeams)
-                hg=h5.require_group('grisms')
-                hs=h5.require_group('sources')
-                sources.write_h5(hs)
-                
-                dtype=[('i',self.INT),('j',self.INT),('aij',self.FLOAT)]
+        # process each grism image        
+        for grism in grisms:
+            pb.update()     # update the progess bar
             
-            # process each grism image        
-            for grism in grisms:
-                pb.update()     # update the progess bar
-
-                # load the data from a single grism image
-                data=self.load_grism(grism,sources,extbeams,mskbeams)
-                nmat=len(data[0])
-
-                if write:
-                    # make a group for this grism
-                    hd=hg.require_group(grism.dataset)
-                
-                # collect the matrix values
-                if nmat > 0:
-                    i.extend(data[0])
-                    j.extend(data[1])
-                    aij.extend(data[2])
-                    bi.extend(data[3])
-
-
-                    # update the HDF5 file
-                    if write:
-                        # update the datasets 
-                        hm=hd.create_dataset('aij',data=np.array(list(zip(*data[0:3])),dtype=dtype))
-                        hv=hd.create_dataset('bi',data=np.array(data[3],dtype=self.FLOAT))
+            # load the data from a single grism image
+            data=self.load_grism(grism,sources,extbeams,mskbeams)
+                        
+            # collect the matrix values
+            if len(data[0]) > 0:
+                i.extend(data[0])
+                j.extend(data[1])
+                aij.extend(data[2])
+                bi.extend(data[3])
 
         # retype things
         i=np.array(i,dtype=self.INT)
@@ -727,25 +716,121 @@ class Matrix(object):
                 comment='Frobenius norm')
         hdr.set('NDOF',getint('npix')-getint('npar'),after='FROBNORM',
                 comment='number of degrees of freedom (=NPIXEL-NWAVE)')
-        
-
-    
-        #hdr.set('NPIXEL',value=self.npix,after='NNZ',
-        #        comment='total number of pixels analyzed')
-        #hdr.set('NSOURCE',value=self.nsrc,after='NPIXEL',
-        #        comment='total number of sources analyzed')
-        #hdr.set('NWAVE',value=self.npar,after='NSOURCE',
-        #        comment='total number of wavelengths extracted')
-        #hdr.set('DENSITY',value=self.density,after='NWAVE',
-        #        comment='fraction of non-zero elements')
-        #hdr.set('FROBNORM',value=self.frob,after='DENSITY',
-        #        comment='Frobenius norm')
-        #hdr.set('NDOF',int(self.npix)-int(self.npar),after='FROBNORM',
-        #        comment='number of degrees of freedom (=NPIXEL-NWAVE)')
         header_utils.add_stanza(hdr,'Matrix Properties',before='NNZ')
 
+
+    def to_hdf5(self,h5):
+        hf=h5.require_group(str(self.group))
+
+        hf.attrs['frob']=self.frob
+        hf.attrs['path']=self.path
+        hf.attrs['nimg']=self.nimg
+        hf.attrs['nsrc']=self.nsrc
+        hf.attrs['imgdim']=self.imgdim
+        hf.attrs['inverter']=self.inverter
+        hf.attrs['npix']=self.npix
+        hf.attrs['npar']=self.npar
+        hf.attrs['density']=self.density
+
+        d=hf.create_dataset('icomp',data=self.icomp)
+        d=hf.create_dataset('iuniq',data=self.iuniq)
+        d=hf.create_dataset('jcomp',data=self.jcomp)
+        d=hf.create_dataset('juniq',data=self.juniq)
+        d=hf.create_dataset('cwav',data=self.cwav)
+        d=hf.create_dataset('lam',data=self.lam)
+        d=hf.create_dataset('segids',data=self.segids)
         
-    
+        
+        dtype=[('dataset','S36'),('device','S36')]        
+        d=hf.create_dataset('images',data=np.array(self.images,dtype=dtype))
+        
+        # the reverse indices dict is ragged, so will encode the
+        # segid in there as the first element of a list
+        dtype=h5py.vlen_dtype(np.dtype('uint64'))
+        d=hf.create_dataset('ri',(len(self.ri),),dtype=dtype)
+        for i,segid in enumerate(self.ri.keys()):
+            d[i]=self.ri[segid]
+            #d[i]=[segid]+ri
+        
+
+        
+        #d=hf.create_dataset('ri',data=self.ri)
+        d=hf.create_dataset('hsrc',data=self.hsrc)
+        if self.target is not None:
+            d=hf.create_dataset('target',data=self.target)
+
+        d=hf.create_dataset('bi',data=self.bi)
+        dtype=[('row',self.INT),('col',self.INT),('data',self.FLOAT)]
+        data=np.array(list(zip(self.A.A.row,self.A.A.col,self.A.A.data)),
+                      dtype=dtype)
+
+        d=hf.create_dataset('aij',data=data)
+        d.attrs['shape']=self.A.A.shape
+
+
+        # write the LCurve results
+        self.lcurve.write_hdf5(hf)
+        
+    @classmethod
+    def from_hdf5(cls,h5,group):
+        obj=cls()
+        obj.group=group
+        if str(obj.group) in h5:
+            
+            hf=h5[str(obj.group)]
+            for k,v in hf.attrs.items():
+                setattr(obj,k,v)
+            obj.imgdim=tuple(obj.imgdim)
+            
+            obj.icomp=hf['icomp'][:]
+            obj.iuniq=hf['iuniq'][:]
+            obj.jcomp=hf['jcomp'][:]
+            obj.juniq=hf['juniq'][:]
+            obj.lam=hf['lam'][:]
+            obj.cwav=hf['cwav'][:]
+            obj.segids=hf['segids'][:]
+
+
+
+            images=hf['images'][:]
+            obj.images=[(a.decode('UTF-8'),b.decode('UTF-8')) for a,b in images]
+            
+            #obj.images=[]
+            #for dataset,device in images:
+            #    pair = (dataset.decode('UTF-8'),device.decode('UTF-8'))
+            #    obj.images.append(pair)
+
+            
+            
+            hd=hf['ri']
+            obj.ri={s:hd[i] for i,s in enumerate(obj.segids)}
+
+            obj.hsrc=hf['hsrc'][:]
+            if 'target' in hf:
+                obj.target=hf['target'][:]
+            else:
+                obj.target=None
+
+            obj.bi=hf['bi'][:]
+
+            
+            shape=hf['aij'].attrs['shape']
+            A=hf['aij'][:]
+            obj.A=ssl.aslinearoperator(coo_matrix((A['data'],
+                                                   (A['row'],A['col'])),
+                                                  shape=shape))
+
+            # load the L-curve data and test with the other loaded frob
+            obj.lcurve=LCurve.from_hdf5(hf)
+            if np.abs(obj.lcurve.norm/obj.frob-1)>1e-4:
+                print('[warn]The frobenius norm is corrupted')
+
+            return obj
+        else:
+            print('[warn]Group missing from matrix.h5')
+            
+
+                
     #def write_pickle(self,filename):
     #    print('[info]Pickling the matrix to: {}'.format(filename))
     #    with open(filename,'wb') as fp:

@@ -1,7 +1,6 @@
 from astropy.io import fits
 from datetime import datetime
 from timeit import default_timer
-
 import os,pwd
 from matplotlib.backends.backend_pdf import PdfPages
 
@@ -12,8 +11,8 @@ from .residuals import Residuals
 from .extract import Extract
 from .group import make_groups
 
-def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,
-              inverter='lsqr',mskbeams=None,group=True):
+def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,group=True,
+              inverter='lsqr',mskbeams=None,hdf5file='matrix.h5'):
               
     
 
@@ -32,8 +31,6 @@ def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,
     # fix the masking of beams
     if mskbeams is not None and not isinstance(mskbeams,(tuple,list)):
         mskbeams=[mskbeams]
-        
-
     
     
     # build the groups
@@ -45,13 +42,20 @@ def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,
     
     # build an extraction object
     extract=Extract(inverter=inverter,method=method)
+    usehdf5=True
+    extract.open_hdf5(hdf5file,'r' if usehdf5 else 'w')
 
+
+    
     # this will collect the outputs
     source_hdu={}
     group_hdu=[]
 
+    
     # process each group
     with PdfPages(pdffile) as pdf:
+        
+
         # put some stuff in the PDF
         d=pdf.infodict()
         d['Title']='L-Curve Results'
@@ -87,13 +91,18 @@ def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,
             for segid in segids:
                 sources[segid]=sources_dict[segid]
 
-            # build a matrix
-            extract.build_matrix(grisms,sources,beams,path,mskbeams=mskbeams)
 
+            # how to load the data
+            if usehdf5:              # load the matrix from HDF5
+                extract.load_matrix(sources,group=group)
+            else:                    # build a matrix
+                extract.build_matrix(grisms,sources,beams,path,group=group,
+                                     mskbeams=mskbeams)
 
             # run the extraction method
-            sres,gres=extract.run(logdamp,group=group,pdf=pdf,mcmc=False,
+            sres,gres=extract.run(logdamp,pdf=pdf,mcmc=False,
                                   residuals=residuals)
+                                  
                                   
             # collect the results
             source_hdu.update(sres)
@@ -108,7 +117,12 @@ def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,
         sources.clear()
         for k,v in sources_dict.items():
             sources[k]=v
-        
+
+
+    # close the HDF5 file for the matrices
+    extract.close_hdf5()
+
+            
     # sort the results by SEGID
     source_hdu={k:v for k,v in sorted(source_hdu.items())}
 

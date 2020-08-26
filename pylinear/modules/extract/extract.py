@@ -2,6 +2,7 @@ import os
 from astropy.io import fits
 import numpy as np
 from timeit import default_timer
+import h5py
 
 
 from .. import header_utils
@@ -14,8 +15,8 @@ from .result import Result
 class Extract(object):
     PHI=(1.+np.sqrt(5.))/2.    # DEFINE THE GOLDEN RATIO
 
-    def __init__(self,path='tables',inverter='lsqr',method='golden',
-                 **kwargs):
+    def __init__(self,path='tables',inverter='lsqr',method='golden',**kwargs):
+                 
         self.path=os.path.join(path)
 
         self.inverter=inverter
@@ -26,6 +27,17 @@ class Extract(object):
         
         self.mcmc=MCMC(**kwargs)
 
+
+    def open_hdf5(self,hdf5file,mode):
+        self.hdf5file=hdf5file
+        self.h5=h5py.File(self.hdf5file,mode)
+            
+    def __del__(self):
+        self.close()
+
+    def close_hdf5(self):
+        if hasattr(self,'h5'):
+            self.h5.close()
 
         
     @property
@@ -52,27 +64,46 @@ class Extract(object):
         print('[info]Building a damping target')
 
         targ=np.zeros(self.matrix.npar,dtype=np.float)
-        indices=[i for i,ri in self.matrix.ri]
+        #indices=[i for i,ri in self.matrix.ri]
         for source in self.sources:
 
-
-            if source.segid in indices:
-                index=indices.index(source.segid)
-                s,g1=self.matrix.ri[index]
-                if s==source.segid:
-                    g2=self.matrix.lam[g1]
-                    waves=source.wavelengths()
-                    targ[g1]=source.sed.interpolate(waves[g2])/FLUXSCALE
+            if source.segid in self.matrix.ri:
+            
+            #if source.segid in indices:
+                #index=indices.index(source.segid)
+                #s,g1=self.matrix.ri[index]
+                #if s==source.segid:
+                g1=self.matrix.ri[source.segid]
+                g2=self.matrix.lam[g1]
+                waves=source.wavelengths()
+                targ[g1]=source.sed.interpolate(waves[g2])/FLUXSCALE
 
         return targ
 
-    def build_matrix(self,grisms,sources,beams,path,mskbeams=None,target=True):
 
-        # build the matrix into the self
-        self.matrix=Matrix(grisms,sources,beams,path=path,mskbeams=mskbeams,
-                           inverter=self.inverter)
+    def load_matrix(self,sources,group=0):
+        if hasattr(self,'h5'):
+            self.sources=sources
+            self.optimized=False
+            self.matrix=Matrix.from_hdf5(self.h5,group)
+
+            # do a quick test that segids match
+            if not all(s.segid in self.matrix.segids for s in self.sources):
+                print('[warn]The source IDs in the matrix file do not match')
+
+
+
+            
+    def build_matrix(self,grisms,sources,beams,path,group=0,
+                     mskbeams=None,target=True):
+
+
         self.sources=sources
         self.optimized=False     # set a default value
+        
+        # build the matrix into the self
+        self.matrix=Matrix(grisms,sources,beams,path=path,mskbeams=mskbeams,
+                           group=group,inverter=self.inverter)
         if len(self.matrix)==0:
             print('[alarm]Matrix has no elements. Cannot set damping target.')
             return
@@ -81,7 +112,11 @@ class Extract(object):
         if target:
             target_spectra=self.get_damping_target()
             self.matrix.set_damping_target(target_spectra)
-            
+
+
+        # save the matrix if
+        if hasattr(self,'h5'):
+            self.matrix.to_hdf5(self.h5)
         
             
     def golden_search(self,logdamp):
@@ -204,7 +239,7 @@ class Extract(object):
         return self.matrix.invert(logdamp) 
 
    
-    def run(self,logdamp,group=0,pdf=None,mcmc=False,residuals=None):
+    def run(self,logdamp,pdf=None,mcmc=False,residuals=None):
 
         t1=default_timer()
 
@@ -273,7 +308,7 @@ class Extract(object):
         
             # get indices to unpack matrix below (this shoudl really be in
             # matrix) this is because they are sorted in ri
-            indices=[i for i,ri in self.matrix.ri]
+            #indices=[i for i,ri in self.matrix.ri]
 
         else:
             # invalid matrix.  making dummy data
@@ -296,17 +331,19 @@ class Extract(object):
                 #index=self.matrix.segids.index(source.segid)
                 #s,g1=self.matrix.ri[index]
 
+                if source.segid in self.matrix.ri:
                 # new thing requires an auxillary variable (indices)
-                if source.segid in indices:
-                    index=indices.index(source.segid)
-                    s,g1=self.matrix.ri[index]
+                #if source.segid in indices:
+                    #index=indices.index(source.segid)
+                    #s,g1=self.matrix.ri[index]
                     
-                    if s==source.segid:
-                        if len(g1)!=0:
-                            g2=self.matrix.lam[g1]
-                            flam[g2]=res.x[g1]
-                            flo[g2]=res.lo[g1]
-                            fhi[g2]=res.hi[g1]
+                    #if s==source.segid:
+                    g1=self.matrix.ri[source.segid]
+                    if len(g1)!=0:
+                        g2=self.matrix.lam[g1]
+                        flam[g2]=res.x[g1]
+                        flo[g2]=res.lo[g1]
+                        fhi[g2]=res.hi[g1]
                 else:
                     print('[warn]{} was not measured.'.format(source.segid))
             else:
@@ -330,7 +367,7 @@ class Extract(object):
                            comment='extension version')
 
             # put the source content in the header
-            source.update_header(hdu.header,group=group)
+            source.update_header(hdu.header,group=self.matrix.group)
 
 
             # update header with MCMC
@@ -380,7 +417,7 @@ class Extract(object):
         # update the group header
         hdu.header.set('EXTNAME',value='GROUP',after='TFORM4',
                        comment='extension name')
-        hdu.header.set('EXTVER',value=group,after='EXTNAME',
+        hdu.header.set('EXTVER',value=self.matrix.group,after='EXTNAME',
                        comment='extension version')
 
         # update header for the matrix
