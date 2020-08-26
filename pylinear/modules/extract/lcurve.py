@@ -86,7 +86,7 @@ class LCurve(object):
         
         with open(filename,'w') as fp:
             print('# File written by pyLINEAR: {}'.format(date),file=fp)
-            print('# FROBNORM = {}'.format(self.frob))
+            print('# FROBNORM = {}'.format(self.norm))
             print('# 1: iteration',file=fp)
             print('# 2: log(ell)',file=fp)
             print('# 3: log(||Ax-b||^2)',file=fp)
@@ -133,7 +133,7 @@ class LCurve(object):
                ('logdamp',np.float64)]
         data=np.array(list(zip(self.x,self.y,self.l)),dtype=dtype)
         hd=h5.create_dataset('lcurve',data=data)
-        hd.attrs['frob']=self.frob
+        hd.attrs['frob']=self.norm
 
     def write_pdf(self,pdf,colormap='Spectral',grpid=None):
           # define a colormap
