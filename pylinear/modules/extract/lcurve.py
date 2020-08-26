@@ -3,8 +3,9 @@ import matplotlib.colors as mc
 from matplotlib.backends.backend_pdf import PdfPages
 import datetime
 import numpy as np
-from astropy.table import Table
+#from astropy.table import Table
 
+from ...utilities import ascii_files
 from .menger import menger    # to compute Menger curvature
 
 class LCurve(object):
@@ -85,6 +86,7 @@ class LCurve(object):
         
         with open(filename,'w') as fp:
             print('# File written by pyLINEAR: {}'.format(date),file=fp)
+            print('# FROBNORM = {}'.format(self.frob))
             print('# 1: iteration',file=fp)
             print('# 2: log(ell)',file=fp)
             print('# 3: log(||Ax-b||^2)',file=fp)
@@ -97,14 +99,41 @@ class LCurve(object):
     @classmethod
     def load_ascii(cls,filename):
         obj=cls()
-        names=('l','x','y','c')
-        data=Table.read(filename,format='ascii.no_header',names=names)
-        obj.x=list(data['x'])
-        obj.y=list(data['y'])
-        obj.l=list(data['l'])
+
+        
+        #names=('l','x','y','c')
+        #data=Table.read(filename,format='ascii.no_header',names=names)
+        #obj.x=list(data['x'])
+        #obj.y=list(data['y'])
+        #obj.l=list(data['l'])
+
+        (it,ld,lr,lx,cv),meta=ascii_file.read_ascii_columns(filename)
+        obj.x=list(lr)
+        obj.y=list(lx)
+        obj.l=list(ld)
+        obj.norm=meta['FROBNORM']
+        x,y,l
+        
+       
         return obj
         
-                
+    @classmethod
+    def from_hdf5(cls,h5):
+        obj=cls()
+        obj.norm=h5['lcurve'].attrs['frob']
+        dat=h5['lcurve'][:]
+        obj.x=list(dat['logr1norm'])
+        obj.y=list(dat['logxnorm'])
+        obj.l=list(dat['logdamp'])
+        return obj
+
+    def write_hdf5(self,h5):
+        dtype=[('logr1norm',np.float64),
+               ('logxnorm',np.float64),
+               ('logdamp',np.float64)]
+        data=np.array(list(zip(self.x,self.y,self.l)),dtype=dtype)
+        hd=h5.create_dataset('lcurve',data=data)
+        hd.attrs['frob']=self.frob
 
     def write_pdf(self,pdf,colormap='Spectral',grpid=None):
           # define a colormap
