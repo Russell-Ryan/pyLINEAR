@@ -12,7 +12,8 @@ from .extract import Extract
 from .group import make_groups
 
 def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,group=True,
-              inverter='lsqr',mskbeams=None,hdf5file='matrix.h5'):
+              inverter='lsqr',mskbeams=None,
+              usehdf5=False,hdf5file='matrix.h5'):
               
     
 
@@ -42,10 +43,9 @@ def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,group=True,
     
     # build an extraction object
     extract=Extract(inverter=inverter,method=method)
-    usehdf5=True
+
+    # open the matrix save file
     extract.open_hdf5(hdf5file,'r' if usehdf5 else 'w')
-
-
     
     # this will collect the outputs
     source_hdu={}
@@ -94,10 +94,10 @@ def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,group=True,
 
             # how to load the data
             if usehdf5:              # load the matrix from HDF5
-                extract.load_matrix(sources,group=group)
+                extract.load_matrix_hdf5(sources,group=group)
             else:                    # build a matrix
-                extract.build_matrix(grisms,sources,beams,path,group=group,
-                                     mskbeams=mskbeams)
+                extract.load_matrix_file(grisms,sources,beams,path,group=group,
+                                         mskbeams=mskbeams)
 
             # run the extraction method
             sres,gres=extract.run(logdamp,pdf=pdf,mcmc=False,

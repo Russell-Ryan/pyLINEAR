@@ -53,7 +53,9 @@ def extract2d(grisms,sources,beams,logdamp,method,fileroot,path,
 
 
         # build a matrix
-        extract.build_matrix(grisms,sources,beams,path,mskbeams=mskbeams)
+        extract.load_matrix_file(grisms,sources,beams,path,group=group,
+                                 mskbeams=mskbeams)
+        #extract.build_matrix(grisms,sources,beams,path,mskbeams=mskbeams)
 
         # run extraction method
         sres,gres=extract.run(logdamp,pdf=pdf,mcmc=False,

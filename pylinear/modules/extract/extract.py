@@ -81,7 +81,7 @@ class Extract(object):
         return targ
 
 
-    def load_matrix(self,sources,group=0):
+    def load_matrix_hdf5(self,sources,group=0):
         if hasattr(self,'h5'):
             self.sources=sources
             self.optimized=False
@@ -94,8 +94,8 @@ class Extract(object):
 
 
             
-    def build_matrix(self,grisms,sources,beams,path,group=0,
-                     mskbeams=None,target=True):
+    def load_matrix_file(self,grisms,sources,beams,path,group=0,
+                         mskbeams=None,target=True):
 
 
         self.sources=sources
