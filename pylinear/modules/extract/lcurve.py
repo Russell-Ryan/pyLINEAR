@@ -6,6 +6,7 @@ import numpy as np
 #from astropy.table import Table
 
 from ...utilities import ascii_files
+from ...constants import COMPARGS
 from .menger import menger    # to compute Menger curvature
 
 class LCurve(object):
@@ -132,7 +133,7 @@ class LCurve(object):
                ('logxnorm',np.float64),
                ('logdamp',np.float64)]
         data=np.array(list(zip(self.x,self.y,self.l)),dtype=dtype)
-        hd=h5.create_dataset('lcurve',data=data)
+        hd=h5.create_dataset('lcurve',data=data,**COMPARGS)
         hd.attrs['frob']=self.norm
 
     def write_pdf(self,pdf,colormap='Spectral',grpid=None):
