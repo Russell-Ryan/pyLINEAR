@@ -86,11 +86,12 @@ class Extract(object):
             self.sources=sources
             self.optimized=False
             self.matrix=Matrix.from_hdf5(self.h5,group)
-
-            # do a quick test that segids match
-            if not all(s.segid in self.matrix.segids for s in self.sources):
-                print('[warn]The source IDs in the matrix file do not match')
-
+            if not self.matrix:
+                # do a quick test that segids match
+                if not all(s.segid in self.matrix.segids for s in self.sources):
+                    print('[warn]Incompatible SEGIDs in matrix file.')
+            else:
+                print('[warn]Matrix could not be loaded.')
 
 
             
