@@ -683,7 +683,6 @@ class Matrix(object):
 
         dtype=[('x',np.uint16),('y',np.uint16),('v',np.float64)]
 
-        #out={image:[] for (image,detname) in self.images}
         out={image:{} for (image,detname) in self.images}
         for imgindex,(image,detname) in enumerate(self.images):
             g=np.where(imgindices == imgindex)
@@ -732,6 +731,11 @@ class Matrix(object):
         hf.attrs['npar']=self.npar
         hf.attrs['density']=self.density
 
+
+        # flags for writing dataset
+        kwargs={'compression':'gzip','compression_opts':9}
+
+        # write all the datasets
         d=hf.create_dataset('icomp',data=self.icomp)
         d=hf.create_dataset('iuniq',data=self.iuniq)
         d=hf.create_dataset('jcomp',data=self.jcomp)
@@ -762,7 +766,7 @@ class Matrix(object):
         d=hf.create_dataset('bi',data=self.bi)
         dtype=[('row',self.INT),('col',self.INT),('data',self.FLOAT)]
         data=np.array(list(zip(self.A.A.row,self.A.A.col,self.A.A.data)),
-                      dtype=dtype)
+                      dtype=dtype,compression="gzip", compression_opts=9)
 
         d=hf.create_dataset('aij',data=data)
         d.attrs['shape']=self.A.A.shape
@@ -792,14 +796,10 @@ class Matrix(object):
 
 
 
-            images=hf['images'][:]
-            obj.images=[(a.decode('UTF-8'),b.decode('UTF-8')) for a,b in images]
             
-            #obj.images=[]
-            #for dataset,device in images:
-            #    pair = (dataset.decode('UTF-8'),device.decode('UTF-8'))
-            #    obj.images.append(pair)
-
+            decode=lambda x: x.decode('UTF-8')
+            images=hf['images'][:]
+            obj.images=[(decode(dset),decode(dev)) for dset,dev in images]
             
             
             hd=hf['ri']
