@@ -162,7 +162,8 @@ def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,group=True,
     #                comment='grism element')
     #phdu.header.set('BLOCKING',value=grisms.grism[1],after='GRISM',
     #                comment='Blocking filter')                    
-    header_utils.add_stanza(phdu.header,'Observational Settings',before='DETFILE')
+    header_utils.add_stanza(phdu.header,'Observational Settings',
+                            before='DETFILE')
     
     # put the config into the header
     Config().update_header(phdu.header)
