@@ -7,7 +7,7 @@ from ..wcs import WCS
 from ..utilities import convexhull
 from . import morpho
 from .extractionparameters import ExtractionParameters
-
+from ..constants import COMPARGS
 
 
 class Source(WCS,ExtractionParameters):
@@ -139,7 +139,7 @@ class Source(WCS,ExtractionParameters):
         
         dtype=[('x',np.uint16),('y',np.uint16),('w',np.float64)]
         data=np.array(list(zip(self.xd,self.yd,self.wht)),dtype=dtype)
-        hd=h5.create_dataset(str(self.segid),data=data)
+        hd=h5.create_dataset(str(self.segid),data=data,**COMPARGS)
         hd.attrs['total']=np.float32(self.total)
         hd.attrs['mag']=np.float32(self.mag)
         hd.attrs['area']=np.float32(self.area)

@@ -1,6 +1,9 @@
 import h5py
 import numpy as np
 
+
+from ..constants import COMPARGS
+
 class H5TableBase(object):
     def __init__(self):
         pass
@@ -41,13 +44,10 @@ class H5TableBase(object):
             data=list(zip(*args))
             dtype=[(arg.name,arg.dtype) for arg in args]
 
-            
-        data=np.array(data,dtype=dtype)            
-
         # try this for overwriting data in an h5
         if name in h5:
             del h5[name]
-        hd=h5.create_dataset(name,data=data)
+        hd=h5.create_dataset(name,data=np.array(data,dtype=dtype),**COMPARGS)
             
 
         # these are the columns
