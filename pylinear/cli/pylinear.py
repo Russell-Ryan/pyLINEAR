@@ -120,6 +120,8 @@ def extract():
                                        conf['root'],conf['path'],
                                        inverter=conf['inverter'],
                                        mskbeams=conf['mskbeams'],
+                                       usehdf5=conf['usehdf5'],
+                                       hdf5file=cof['hdf5file'],
                                        group=conf['group'])
                                         
 def extract_fluxcube():
