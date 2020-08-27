@@ -128,6 +128,8 @@ def extract2d(grisms,sources,beams,logdamp,method,fileroot,path,
                     comment='number of grism exposures')                    
     phdu.header.set('NSOURCE',value=len(sources),after='NGRISM',
                     comment='number of sources')
+    #phdu.header.set('HDF5MAT',value=usehdf5,after='NSOURCE',
+    #                comment='loaded from HDF5 save file?')
     header_utils.add_stanza(phdu.header,'Observational Settings',
                             before='DETFILE')
     

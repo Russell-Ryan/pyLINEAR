@@ -156,6 +156,8 @@ def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,group=True,
                     comment='number of grism exposures')                    
     phdu.header.set('NSOURCE',value=len(sources),after='NGRISM',
                     comment='number of sources')
+    phdu.header.set('HDF5MAT',value=usehdf5,after='NSOURCE',
+                    comment='loaded from HDF5 save file?')
     #phdu.header.set('GRISM',value=grisms.grism[0],after='NSOURCE',
     #                comment='grism element')
     #phdu.header.set('BLOCKING',value=grisms.grism[1],after='GRISM',
