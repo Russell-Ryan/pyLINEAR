@@ -6,3 +6,5 @@ from .ovt import OVT
 from .omt import OMT
 from .pdt import PDT
 
+# global settings for the compression of HDF5 files
+compargs={'compression':'gzip','compression_opts':9}
