@@ -1,7 +1,6 @@
 
 import numpy as np
 import tqdm
-#from contextlib import nullcontext
 import h5py
 import os
 import scipy.sparse.linalg as ssl
@@ -11,6 +10,7 @@ from scipy.sparse import coo_matrix
 from .. import header_utils
 from ...utilities import indices
 from ... import h5table
+from ...constants import COMPARGS
 from .lcurve import LCurve
 from .result import Result
 from .fluxunit import FLUXSCALE
@@ -719,6 +719,7 @@ class Matrix(object):
 
 
     def to_hdf5(self,h5):
+        name=str(self.group)
         hf=h5.require_group(str(self.group))
 
         hf.attrs['frob']=self.frob
@@ -733,25 +734,25 @@ class Matrix(object):
 
 
         # flags for writing dataset
-        kwargs={'compression':'gzip','compression_opts':9}
 
         # write all the datasets
-        d=hf.create_dataset('icomp',data=self.icomp)
-        d=hf.create_dataset('iuniq',data=self.iuniq)
-        d=hf.create_dataset('jcomp',data=self.jcomp)
-        d=hf.create_dataset('juniq',data=self.juniq)
-        d=hf.create_dataset('cwav',data=self.cwav)
-        d=hf.create_dataset('lam',data=self.lam)
-        d=hf.create_dataset('segids',data=self.segids)
+        d=hf.create_dataset('icomp',data=self.icomp,**COMPARGS)
+        d=hf.create_dataset('iuniq',data=self.iuniq,**COMPARGS)
+        d=hf.create_dataset('jcomp',data=self.jcomp,**COMPARGS)
+        d=hf.create_dataset('juniq',data=self.juniq,**COMPARGS)
+        d=hf.create_dataset('cwav',data=self.cwav,**COMPARGS)
+        d=hf.create_dataset('lam',data=self.lam,**COMPARGS)
+        d=hf.create_dataset('segids',data=self.segids,**COMPARGS)
         
         
         dtype=[('dataset','S36'),('device','S36')]        
-        d=hf.create_dataset('images',data=np.array(self.images,dtype=dtype))
+        d=hf.create_dataset('images',data=np.array(self.images,dtype=dtype),
+                            **COMPARGS)
         
         # the reverse indices dict is ragged, so will encode the
         # segid in there as the first element of a list
         dtype=h5py.vlen_dtype(np.dtype('uint64'))
-        d=hf.create_dataset('ri',(len(self.ri),),dtype=dtype)
+        d=hf.create_dataset('ri',(len(self.ri),),dtype=dtype,**COMPARGS)
         for i,segid in enumerate(self.ri.keys()):
             d[i]=self.ri[segid]
             #d[i]=[segid]+ri
@@ -759,16 +760,16 @@ class Matrix(object):
 
         
         #d=hf.create_dataset('ri',data=self.ri)
-        d=hf.create_dataset('hsrc',data=self.hsrc)
+        d=hf.create_dataset('hsrc',data=self.hsrc,**COMPARGS)
         if self.target is not None:
-            d=hf.create_dataset('target',data=self.target)
+            d=hf.create_dataset('target',data=self.target,**COMPARGS)
 
-        d=hf.create_dataset('bi',data=self.bi)
+        d=hf.create_dataset('bi',data=self.bi,**COMPARGS)
         dtype=[('row',self.INT),('col',self.INT),('data',self.FLOAT)]
         data=np.array(list(zip(self.A.A.row,self.A.A.col,self.A.A.data)),
-                      dtype=dtype,compression="gzip", compression_opts=9)
+                      dtype=dtype)
 
-        d=hf.create_dataset('aij',data=data)
+        d=hf.create_dataset('aij',data=data,**COMPARGS)
         d.attrs['shape']=self.A.A.shape
 
 

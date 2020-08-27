@@ -45,7 +45,10 @@ def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,group=True,
     extract=Extract(inverter=inverter,method=method)
 
     # open the matrix save file
-    extract.open_hdf5(hdf5file,'r' if usehdf5 else 'w')
+    hdf5path='matrices'
+    if not os.path.exists(hdf5path):
+        os.makedirs(hdf5path)            
+    #extract.open_matrix(hdf5file,'r' if usehdf5 else 'w')
     
     # this will collect the outputs
     source_hdu={}
@@ -92,13 +95,20 @@ def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,group=True,
                 sources[segid]=sources_dict[segid]
 
 
+
+            # create an HDF5 file for each group
+            hdf5file=os.path.join(hdf5path,'group_{}.h5'.format(group))
+                
             # how to load the data
             if usehdf5:              # load the matrix from HDF5
+                extract.open_matrix(hdf5file,'r')
                 extract.load_matrix_hdf5(sources,group=group)
             else:                    # build a matrix
+                extract.open_matrix(hdf5file,'w')
                 extract.load_matrix_file(grisms,sources,beams,path,group=group,
                                          mskbeams=mskbeams)
-
+            extract.close_matrix()
+                
             # run the extraction method
             sres,gres=extract.run(logdamp,pdf=pdf,mcmc=False,
                                   residuals=residuals)
@@ -122,7 +132,7 @@ def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,group=True,
 
 
     # close the HDF5 file for the matrices
-    extract.close_hdf5()
+    #extract.close_matrix()
 
             
     # sort the results by SEGID

@@ -28,14 +28,14 @@ class Extract(object):
         self.mcmc=MCMC(**kwargs)
 
 
-    def open_hdf5(self,hdf5file,mode):
-        self.hdf5file=hdf5file
-        self.h5=h5py.File(self.hdf5file,mode)
+    def open_matrix(self,matrix_file,mode):
+        self.matrix_file=matrix_file
+        self.h5=h5py.File(self.matrix_file,mode)
             
     def __del__(self):
-        self.close_hdf5()
+        self.close_matrix()
 
-    def close_hdf5(self):
+    def close_matrix(self):
         if hasattr(self,'h5'):
             self.h5.close()
 
