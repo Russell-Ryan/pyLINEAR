@@ -4,7 +4,7 @@ from timeit import default_timer
 ''' Gaussian kernels should probably be something like
 
 .. math::
-        \sigma_{kernel} = \sqrt{\left(1.22\frac{\lambda}{D}\right)^2 - \sigma}
+        \sigma_{kernel} = \sqrt{\left(1.22\frac{\lambda}{D}\right)^2 - \sigma^2}
 
 Where D is diameter of telescope, \sigma the Gaussian dispersion for the 
 direct-image PSF, and \sigma_{kernel} is the sigma for the `GaussianKernel`
