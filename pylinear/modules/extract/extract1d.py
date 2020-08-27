@@ -105,8 +105,10 @@ def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,group=True,
                                   
                                   
             # collect the results
-            source_hdu.update(sres)
-            group_hdu.append(gres)
+            if sres is not None:
+                source_hdu.update(sres)
+            if gres is not None:
+                group_hdu.append(gres)
 
         # finalize the residuals
         residuals.apply_uncertainty()

@@ -33,7 +33,7 @@ class Extract(object):
         self.h5=h5py.File(self.hdf5file,mode)
             
     def __del__(self):
-        self.close()
+        self.close_hdf5()
 
     def close_hdf5(self):
         if hasattr(self,'h5'):
@@ -82,11 +82,12 @@ class Extract(object):
 
 
     def load_matrix_hdf5(self,sources,group=0):
+        self.group=group
         if hasattr(self,'h5'):
             self.sources=sources
             self.optimized=False
             self.matrix=Matrix.from_hdf5(self.h5,group)
-            if not self.matrix:
+            if self.matrix is not None:
                 # do a quick test that segids match
                 if not all(s.segid in self.matrix.segids for s in self.sources):
                     print('[warn]Incompatible SEGIDs in matrix file.')
@@ -98,7 +99,7 @@ class Extract(object):
     def load_matrix_file(self,grisms,sources,beams,path,group=0,
                          mskbeams=None,target=True):
 
-
+        self.group=group
         self.sources=sources
         self.optimized=False     # set a default value
         
@@ -248,10 +249,7 @@ class Extract(object):
         # make the flux unit variable for outputting
         fluxunit='{} {}'.format(FLUXSCALE,FLUXUNIT)
 
-
-
-
-        if len(self.matrix)>0:
+        if self.matrix is not None and len(self.matrix)>0:
         
             # iteratively call LSQR to maximize the curvature
             res=self._method(logdamp)
@@ -326,7 +324,8 @@ class Extract(object):
             fhi=np.full_like(wave,np.nan)
                                     
             # parse the matrix to get the spectrum for each source
-            if len(self.matrix)>0:# and source.segid in self.matrix.segids:
+            if self.matrix is not None and len(self.matrix)>0:
+                # and source.segid in self.matrix.segids:
 
                 # original thing sseemed to break with 2d flux cube. not sure?
                 #index=self.matrix.segids.index(source.segid)
@@ -368,7 +367,7 @@ class Extract(object):
                            comment='extension version')
 
             # put the source content in the header
-            source.update_header(hdu.header,group=self.matrix.group)
+            source.update_header(hdu.header,group=self.group)
 
 
             # update header with MCMC
@@ -396,53 +395,58 @@ class Extract(object):
             hdus[source.segid]=hdu
             
         #set the group data
-        if len(self.matrix)>0:
-            x,y,l,i=self.matrix.lcurve.values()
-            c=self.matrix.lcurve.compute_curvature()
+        if self.matrix is not None:
+            if len(self.matrix)>0:
+                x,y,l,i=self.matrix.lcurve.values()
+                c=self.matrix.lcurve.compute_curvature()
+            else:
+                # an empty matrix.  so make dummy data
+                x=np.array([])
+                y=np.array([])
+                l=np.array([])
+                c=np.array([])
+            # make the fits table columns
+            col1=fits.Column(name='logdamp',format='1D',array=l)
+            col2=fits.Column(name='logr1norm',format='1D',array=x)
+            col3=fits.Column(name='logxnorm',format='1D',array=y)
+            col4=fits.Column(name='curvature',format='1D',array=c)
+            cols=fits.ColDefs([col1,col2,col3,col4])
+
+            # package the data into a fits table
+            hdu=fits.BinTableHDU.from_columns(cols)
+
+            # update the group header
+            hdu.header.set('EXTNAME',value='GROUP',after='TFORM4',
+                           comment='extension name')
+            hdu.header.set('EXTVER',value=self.group,after='EXTNAME',
+                           comment='extension version')
+            
+            # update header for the matrix
+            self.matrix.update_header(hdu.header)
+
+            # put the results from the Minimizer
+            res.update_header(hdu.header)
+            *_,last=hdu.header.keys()    # get the last keyword
+
+            # put some stuff about this run        
+            hdu.header.set('METHOD',value=self.method,after=last,
+                           comment='method to run LSQR')
+            hdu.header.set('OPTIMIZE',value=self.optimized,after='METHOD',
+                           comment='was curvature optimized')
+            hdu.header.set('LOGDAMP',value=res.logdamp,after='OPTIMIZE',
+                           comment='log(damping parameter) unscaled')
+            
+            try:
+                nlcurve=len(self.matrix.lcurve)
+            except:
+                nlcurve=0
+            hdu.header.set('NLCURVE',value=nlcurve,after='LOGDAMP',
+                           comment='number of L-curve steps')
+            header_utils.add_stanza(hdu.header,'L-Curve Results',
+                                    before='METHOD')
         else:
-            # an empty matrix.  so make dummy data
-            x=np.array([])
-            y=np.array([])
-            l=np.array([])
-            c=np.array([])
-        # make the fits table columns
-        col1=fits.Column(name='logdamp',format='1D',array=l)
-        col2=fits.Column(name='logr1norm',format='1D',array=x)
-        col3=fits.Column(name='logxnorm',format='1D',array=y)
-        col4=fits.Column(name='curvature',format='1D',array=c)
-        cols=fits.ColDefs([col1,col2,col3,col4])
+            hdu=None
 
-        # package the data into a fits table
-        hdu=fits.BinTableHDU.from_columns(cols)
-
-        # update the group header
-        hdu.header.set('EXTNAME',value='GROUP',after='TFORM4',
-                       comment='extension name')
-        hdu.header.set('EXTVER',value=self.matrix.group,after='EXTNAME',
-                       comment='extension version')
-
-        # update header for the matrix
-        self.matrix.update_header(hdu.header)
-
-        # put the results from the Minimizer
-        res.update_header(hdu.header)
-        *_,last=hdu.header.keys()    # get the last keyword
-
-        # put some stuff about this run        
-        hdu.header.set('METHOD',value=self.method,after=last,
-                       comment='method to run LSQR')
-        hdu.header.set('OPTIMIZE',value=self.optimized,after='METHOD',
-                       comment='was curvature optimized')
-        hdu.header.set('LOGDAMP',value=res.logdamp,after='OPTIMIZE',
-                       comment='log(damping parameter) unscaled')
-
-        try:
-            nlcurve=len(self.matrix.lcurve)
-        except:
-            nlcurve=0
-        hdu.header.set('NLCURVE',value=nlcurve,after='LOGDAMP',
-                       comment='number of L-curve steps')
-        header_utils.add_stanza(hdu.header,'L-Curve Results',before='METHOD')
-    
+            
         return hdus,hdu    
 
