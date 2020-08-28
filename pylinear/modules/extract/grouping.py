@@ -120,6 +120,8 @@ def group_grism(grism,sources,beams,path):
 
     
     #ids=[set(group) for group in groups]
+
+    # convert the list of lists into a list of sets
     ids=[set(i) for i in segids]
 
     
@@ -155,6 +157,8 @@ def make_groups(grisms,sources,beams,path,ncpu=0):
     p=pool.Pool(group_grism,desc='Grouping grisms',ncpu=ncpu)
     ids=p(grisms.values(),sources,beams,path)
     #ids=[group_grism(f,sources,beams,path) for f in grisms]
+
+
     
     # make the list of lists a list of sets
     sets=[]
