@@ -11,7 +11,8 @@ from .residuals import Residuals
 from .extract import Extract
 from .group import make_groups
 
-def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,group=True,
+def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,
+              ncpu=0,group=True,
               inverter='lsqr',mskbeams=None,
               usehdf5=False,matrix_path='matrices'):
               
@@ -36,7 +37,7 @@ def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,group=True,
     
     # build the groups
     if group and (len(sources)>1):
-        groups=make_groups(grisms,sources,beams,path)
+        groups=make_groups(grisms,sources,beams,path,ncpu=ncpu)
     else:
         groups=[list(sources.keys())]
     ngrp=len(groups)

@@ -122,6 +122,7 @@ def extract():
                                        mskbeams=conf['mskbeams'],
                                        usehdf5=conf['usehdf5'],
                                        matrix_path=conf['matpath'],
+                                       ncpu=conf['ncpu'],
                                        group=conf['group'])
                                         
 def extract_fluxcube():
