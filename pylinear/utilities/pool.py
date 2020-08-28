@@ -11,7 +11,7 @@ class Pool(object):
         # get some settings for the processing
         ncpus=ps.cpu_count(logical=False)
         ncores=ps.cpu_count(logical=True)
-        nmax=ncores-1
+        nmax=ncores-2      
         
         # set a default to the max
         if ncpu is None:
