@@ -14,7 +14,7 @@ class Pool(object):
         nmax=ncores-2      
         
         # set a default to the max
-        if ncpu is None:
+        if ncpu is None or ncpu<=0:
             self.ncpu=nmax
         else:
             self.ncpu=min(max(ncpu,1),nmax)    # force this to be in range
