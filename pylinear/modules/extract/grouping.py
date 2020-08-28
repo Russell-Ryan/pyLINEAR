@@ -1,9 +1,10 @@
 import numpy as np
 from shapely import geometry
+import h5py
 
 from ... import h5table
 from ...utilities import pool
-
+from ...constants import SEGTYPE
 
 
 def group_polygons(data,minarea=0.1):
@@ -37,7 +38,7 @@ def group_polygons(data,minarea=0.1):
     return groups
 
 def group_ids(data):
-    print("[info]Grouping the IDs")
+    #print("[info]Grouping the IDs")
     
     # group those IDs
     nnew=ndata=len(data)
@@ -117,8 +118,6 @@ def group_grism(grism,sources,beams,path):
     #groups=list(zip(*groups))[0]
     #segids=list(zip(*groups))[0]
 
-    #print(segids)
-
     
     #ids=[set(group) for group in groups]
     ids=[set(i) for i in segids]
@@ -130,6 +129,22 @@ def group_grism(grism,sources,beams,path):
     # return the SEGIDs that collide
     return ids
 
+
+def write_group(data,grpfile):
+    with h5py.File(grpfile,'w') as h5:
+        h5.attrs['ngroup']=np.uint32(len(data))
+        for i,segids in enumerate(data):
+            name=str(i)
+            hd=h5.create_dataset(name,data=np.array(segids,dtype=SEGTYPE))
+            hd.attrs['nobj']=np.uint32(len(segids))
+
+
+
+def load_group(grpfile):
+    with h5py.File(grpfile,'r') as h5:
+        data=[list(v[:]) for v in h5.values()]
+
+    return data
 
 def make_groups(grisms,sources,beams,path,ncpu=0):
     print('[info]Starting the group algorithm')
@@ -154,8 +169,15 @@ def make_groups(grisms,sources,beams,path,ncpu=0):
     if ndata!=0:
         data.sort(key=len)
         data.reverse()
-    
+
+    # write the grouping data to a HDF5 file
+
+
+
+        
     # print something for something's sake
     print("[info]Done grouping. Found {} groups.\n".format(ndata))
+
+
     
     return data
