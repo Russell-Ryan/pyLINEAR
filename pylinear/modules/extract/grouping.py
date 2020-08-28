@@ -4,7 +4,7 @@ import h5py
 
 from ... import h5table
 from ...utilities import pool
-from ...constants import SEGTYPE
+from ...constants import COMPARGS,SEGTYPE
 
 
 def group_polygons(data,minarea=0.1):
@@ -135,7 +135,8 @@ def write_group(data,grpfile):
         h5.attrs['ngroup']=np.uint32(len(data))
         for i,segids in enumerate(data):
             name=str(i)
-            hd=h5.create_dataset(name,data=np.array(segids,dtype=SEGTYPE))
+            hd=h5.create_dataset(name,data=np.array(segids,dtype=SEGTYPE),
+                                 **COMPARGS)
             hd.attrs['nobj']=np.uint32(len(segids))
 
 
