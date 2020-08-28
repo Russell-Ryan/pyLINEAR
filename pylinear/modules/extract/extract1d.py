@@ -13,7 +13,7 @@ from .group import make_groups
 
 def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,group=True,
               inverter='lsqr',mskbeams=None,
-              usehdf5=False,hdf5file='matrix.h5'):
+              usehdf5=False,matrix_path='matrices'):
               
     
 
@@ -45,9 +45,9 @@ def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,group=True,
     extract=Extract(inverter=inverter,method=method)
 
     # open the matrix save file
-    hdf5path='matrices'
-    if not os.path.exists(hdf5path):
-        os.makedirs(hdf5path)            
+    matrix_path='matrices'
+    if not os.path.exists(matrix_path):
+        os.makedirs(matrix_path)
     #extract.open_matrix(hdf5file,'r' if usehdf5 else 'w')
     
     # this will collect the outputs
@@ -97,7 +97,7 @@ def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,group=True,
 
 
             # create an HDF5 file for each group
-            hdf5file=os.path.join(hdf5path,'group_{}.h5'.format(group))
+            hdf5file=os.path.join(matrix_path,'group_{}.h5'.format(group))
                 
             # how to load the data
             if usehdf5:              # load the matrix from HDF5
