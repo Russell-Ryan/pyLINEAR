@@ -49,7 +49,7 @@ def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,
     matrix_path='matrices'
     if not os.path.exists(matrix_path):
         os.makedirs(matrix_path)
-    #extract.open_matrix(hdf5file,'r' if usehdf5 else 'w')
+    #extract.open_matrix(,'r' if usehdf5 else 'w')
     
     # this will collect the outputs
     source_hdu={}
@@ -98,14 +98,14 @@ def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,
 
 
             # create an HDF5 file for each group
-            hdf5file=os.path.join(matrix_path,'group_{}.h5'.format(group))
+            matfile=os.path.join(matrix_path,'{}_grp{}.h5'.format(fileroot,group))
                 
             # how to load the data
             if usehdf5:              # load the matrix from HDF5
-                extract.open_matrix(hdf5file,'r')
+                extract.open_matrix(matfile,'r')
                 extract.load_matrix_hdf5(sources,group=group)
             else:                    # build a matrix
-                extract.open_matrix(hdf5file,'w')
+                extract.open_matrix(matfile,'w')
                 extract.load_matrix_file(grisms,sources,beams,path,group=group,
                                          mskbeams=mskbeams)
             extract.close_matrix()
