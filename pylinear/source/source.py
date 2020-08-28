@@ -7,14 +7,10 @@ from ..wcs import WCS
 from ..utilities import convexhull
 from . import morpho
 from .extractionparameters import ExtractionParameters
-from ..constants import COMPARGS
+from ..constants import COMPARGS,SEGTYPE
 
 
 class Source(WCS,ExtractionParameters):
-    # force all segIDs to have same data type.  Permit negative segid
-    # to encode the (x,y) ID for the IFU object
-    SEGTYPE=np.int32
-
     def __init__(self,img,seg,zero,verbose=True,boolean=False,segid=None,
                  filtsig=None,eroderad=None,binfact=None,
                  minpix=0,maglim=None):
@@ -30,7 +26,7 @@ class Source(WCS,ExtractionParameters):
                 print('[warn]Segmentation ID is missing from the header.')
                 self.valid=False
                 return
-        self.segid=self.SEGTYPE(segid)
+        self.segid=SEGTYPE(segid)
 
         # check that img/seg headers match
         #keys=['NAXIS','NAXIS2','CRPIX1','CRPIX2','CRVAL1','CRVAL2', \
