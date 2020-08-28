@@ -131,12 +131,12 @@ def group_grism(grism,sources,beams,path):
     return ids
 
 
-def make_groups(grisms,sources,beams,path):
+def make_groups(grisms,sources,beams,path,ncpu=0):
     print('[info]Starting the group algorithm')
     
 
     # use the pool to group the FLTs
-    p=pool.Pool(group_grism,desc='Grouping grisms',ncpu=1)
+    p=pool.Pool(group_grism,desc='Grouping grisms',ncpu=ncpu)
     ids=p(grisms.values(),sources,beams,path)
     #ids=[group_grism(f,sources,beams,path) for f in grisms]
     
