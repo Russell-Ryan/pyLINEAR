@@ -229,8 +229,9 @@ class Config(object):
             cls.cfg['mskbeams']=Keyword('mskbeams',[],'beams to mask in extraction')
             cls.cfg['group']=Keyword('group',True,'flag to group objects before extracting')
             cls.cfg['root']=Keyword('root','pylinear','output files start with this name')
-            cls.cfg['usehdf5']=Keyword('usehdf5',False,'flag to load from HDF5 matrix file')
-            cls.cfg['hdf5file']=Keyword('hdf5file','matrix.h5','HDF5 matrix file',write=True)
+            #cls.cfg['wrmatrix']=Keyword('wrmatrix',True,'flag to write the HDF5 matrix files')
+            cls.cfg['usehdf5']=Keyword('usehdf5',False,'flag to load from HDF5 matrix files')
+            cls.cfg['matpath']=Keyword('matpath','matrices','Path where matrices are stored')
             cls.cfg['cubeid']=Keyword('cubeid',1,'SegID for flux-cube extraction')
             
             # things that probably shouldn't be fiddled with

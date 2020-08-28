@@ -121,7 +121,7 @@ def extract():
                                        inverter=conf['inverter'],
                                        mskbeams=conf['mskbeams'],
                                        usehdf5=conf['usehdf5'],
-                                       hdf5file=conf['hdf5file'],
+                                       matrix_path=conf['matpath'],
                                        group=conf['group'])
                                         
 def extract_fluxcube():
