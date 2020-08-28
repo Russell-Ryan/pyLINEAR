@@ -248,7 +248,7 @@ class Tabulate(object):
         pool=Pool(self.make_table,ncpu=self.ncpu,desc="Making tables")
 
         # run the pool
-        names=pool(grisms.values(),sources,beam)
+        tabnames=pool(grisms.values(),sources,beam)
 
         # for debugging
         #tabnames=[self.make_table(grism,sources,beam) for grism in grisms]

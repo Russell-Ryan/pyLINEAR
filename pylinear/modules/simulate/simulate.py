@@ -152,9 +152,9 @@ class Simulate(object):
         pool=Pool(self.simulate,ncpu=self.ncpu,desc="Simulating FLTs")
         
         # run the pool
-        #fltnames=pool(grisms.values(),sources,beam)
+        fltnames=pool(grisms.values(),sources,beam)
 
-        fltnames=[self.simulate(grism,sources,beam) for grism in grisms]
+        #fltnames=[self.simulate(grism,sources,beam) for grism in grisms]
 
         return fltnames
     
