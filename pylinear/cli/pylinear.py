@@ -113,6 +113,10 @@ def extract():
     tabulate.ttype='omt'
     tabulate.nsub=1
     omtnames=[tabulate.run(grisms,sources,beam) for beam in conf['mskbeams']]
+
+    # get the parse file
+    grpfile=None if conf['grpfile']=='' else conf.get('grpfile',None)
+
     
     # step 4.  do the 1d extraction
     pylinear.modules.extract.extract1d(grisms,sources,conf['beams'],
@@ -122,9 +126,8 @@ def extract():
                                        mskbeams=conf['mskbeams'],
                                        usehdf5=conf['usehdf5'],
                                        matrix_path=conf['matpath'],
-                                       ncpu=conf['ncpu'],
-                                       group=conf['group'])
-                                        
+                                       grpfile=grpfile,group=conf['group'],
+                                       ncpu=conf['ncpu'])
 def extract_fluxcube():
     print('[info]Running pyLINEAR Extract_Fluxcube')
     conf=pylinear.Config()

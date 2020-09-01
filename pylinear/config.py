@@ -228,6 +228,7 @@ class Config(object):
             cls.cfg['beams']=Keyword('beams',['+1'],'beams to process')
             cls.cfg['mskbeams']=Keyword('mskbeams',[],'beams to mask in extraction')
             cls.cfg['group']=Keyword('group',True,'flag to group objects before extracting')
+            cls.cfg['grpfile']=Keyword('grpfile','','group file to use')
             cls.cfg['root']=Keyword('root','pylinear','output files start with this name')
             #cls.cfg['wrmatrix']=Keyword('wrmatrix',True,'flag to write the HDF5 matrix files')
             cls.cfg['usehdf5']=Keyword('usehdf5',False,'flag to load from HDF5 matrix files')
