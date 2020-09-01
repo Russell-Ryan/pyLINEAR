@@ -10,9 +10,10 @@ from .. import header_utils
 from .residuals import Residuals
 from .extract import Extract
 from .grouping import make_groups
+from .groupcollection import GroupCollection
 
-def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,
-              ncpu=0,group=True,
+def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,ncpu=0,
+              group=True,grpfile=None,
               inverter='lsqr',mskbeams=None,
               usehdf5=False,matrix_path='matrices'):
               
@@ -33,13 +34,49 @@ def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,
     # fix the masking of beams
     if mskbeams is not None and not isinstance(mskbeams,(tuple,list)):
         mskbeams=[mskbeams]
-    
-    
-    # build the groups
-    if group and (len(sources)>1):
-        groups=make_groups(grisms,sources,beams,path,ncpu=ncpu)
+
+
+    #groups=GroupCollection(ncpu=ncpu,path=path)
+    #if group:
+    #    if grpfile is not None and os.path.isfile(grpfile):
+    #        # have a group file, so let's use it
+    #        groups=GroupCollection.load_h5(grpfile,ncpu=ncpu,path=path)
+    #    else:
+    #        # do not have a group file, so we have to make it
+    #        if len(sources)>1:
+    #            # do the grouping
+    #            groups.group(grisms,sources,beams)
+    #            groups.write_h5('{}_grp.h5'.format(root))
+    #        else:
+    #            # There is only 1 object, so forego grouping
+    #            groups.append(sources.keys())
+    #else:
+    #    # do not want to group. so use all the sources
+    #    groups.append(sources.keys())
+
+        
+    # make the group data
+    if grpfile is None or not os.path.isfile(grpfile):
+        # if a group file is not present, and ask to group, then gotta make
+        groups=GroupCollection(ncpu=ncpu,path=path)
+        if group and len(sources)>1:
+            groups.group(grisms,sources,beams)
+            groups.write_h5('{}_grp.h5'.format(fileroot))
+        else:
+            # didn't want to group, or theres only 1 object.  This is the
+            # "null" group
+            groups.append(sources.keys())
     else:
-        groups=[list(sources.keys())]
+        # a group file is present.  So use it.
+        groups=GroupCollection.load_h5(grpfile,ncpu=ncpu,path=path)
+
+
+    
+    ## build the groups
+    #if group and (len(sources)>1):
+    #    groups=make_groups(grisms,sources,beams,path,ncpu=ncpu)
+    #else:
+    #    groups=[list(sources.keys())]
     ngrp=len(groups)
     
     # build an extraction object
