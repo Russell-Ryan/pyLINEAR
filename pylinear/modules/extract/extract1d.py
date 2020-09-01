@@ -9,7 +9,6 @@ from ...config import Config
 from .. import header_utils
 from .residuals import Residuals
 from .extract import Extract
-#from .grouping import make_groups
 from .groupcollection import GroupCollection
 
 def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,ncpu=0,
@@ -69,14 +68,6 @@ def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,ncpu=0,
     else:
         # a group file is present.  So use it.
         groups=GroupCollection.load_h5(grpfile,ncpu=ncpu,path=path)
-
-
-    
-    ## build the groups
-    #if group and (len(sources)>1):
-    #    groups=make_groups(grisms,sources,beams,path,ncpu=ncpu)
-    #else:
-    #    groups=[list(sources.keys())]
     ngrp=len(groups)
     
     # build an extraction object
