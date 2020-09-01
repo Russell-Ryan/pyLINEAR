@@ -227,9 +227,17 @@ class SourceCollection(dict):
         raise NotImplementedError
 
     
-    def update_extraction_parameters(self,lamb0,lamb1,dlamb):
+    def update_extraction_parameters(self,lamb0,lamb1,dlamb,segids=None):
         print('[info]updating extraction parameters.')
-        for source in self:
+
+        if segids is None:
+            segids=self.keys()
+        else:
+            if not isinstance(segids,(list,tuple,np.ndarray)):
+                segids=[segids]
+
+        for segid in segids:
+            source=self[segid]
             if source.lamb0 is None:
                 source.lamb0=lamb0
             if source.lamb1 is None:
@@ -237,6 +245,16 @@ class SourceCollection(dict):
             if source.dlamb is None:
                 source.dlamb=dlamb
 
+                
+        #for source in self:
+        #    if source.lamb0 is None:
+        #        source.lamb0=lamb0
+        #    if source.lamb1 is None:
+        #        source.lamb1=lamb1
+        #    if source.dlamb is None:
+        #        source.dlamb=dlamb
+
+                    
         if hasattr(self,'composite'):
             if self.composite.lamb0 is None:
                 self.composite.lamb0=lamb0
