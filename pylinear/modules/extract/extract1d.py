@@ -9,7 +9,7 @@ from ...config import Config
 from .. import header_utils
 from .residuals import Residuals
 from .extract import Extract
-from .grouping import make_groups
+#from .grouping import make_groups
 from .groupcollection import GroupCollection
 
 def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,ncpu=0,
