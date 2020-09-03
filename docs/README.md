@@ -1,15 +1,14 @@
 # FAQs
 
-[How to prepare the FLTs for extraction?](#how-to-prepare-the-flts-for-extraction)  
-[What is the format of the obs.lst file?](#what-is-the-format-of-the-obslst-file)  
-[What is the format of the sed.lst file?](#what-is-the-format-of-the-sedlst-file)  
-[What is the format of the wcs.lst file?](#what-is-the-format-of-the-wcslst-file)  
-[What about noise in the simulated images?](#what-about-noise-in-the-simulated-images)  
-[astropy.wcs.wcs Convergence error?](#astropywcswcs-convergence-error)
+1. [How to prepare the FLTs for extraction?](#how-to-prepare-the-flts-for-extraction)  
+2. [What is the format of the obs.lst file?](#what-is-the-format-of-the-obslst-file)  
+3. [What is the format of the sed.lst file?](#what-is-the-format-of-the-sedlst-file)   
+4. [What is the format of the wcs.lst file?](#what-is-the-format-of-the-wcslst-file)  
+5. [What about noise in the simulated images?](#what-about-noise-in-the-simulated-images)  
+6. [What is a convergence error in astropy.wcs.wcs?](#what-is-a-convergence-error-in-astropywcswcs)  
+7. [What are these strange astropy warnings?](#what-are-these-strange-astropy-warnings)
 
 ---
-
-
 
 ### How to prepare the FLTs for extraction?
 
@@ -94,7 +93,7 @@ f125w_drz.fits    hst_wfc3_f125w
 ---
 
 
-### astropy.wcs.wcs Convergence error?
+### What is a convergence error in astropy.wcs.wcs?
 
 *You probably got an error like this:*
 
@@ -104,3 +103,17 @@ f125w_drz.fits    hst_wfc3_f125w
 
 [Back to the top](#faqs)
 
+---
+
+### What are these strange astropy warnings?
+
+*Did you get an error messages like one of these?*
+
+> WARNING: FITSFixedWarning: The WCS transformation has more axes (2) than the image it is associated with (0) [astropy.wcs.wcs]
+
+> WARNING: FITSFixedWarning: 'datfix' made the change 'Set DATE-REF to '1858-11-17' from MJD-REF'. [astropy.wcs.wcs]
+
+*I am not 100% certain, however this seems to be errors that crop up with ```astropy``` when using the multiprocessor.  If you used the multiprocessind module (ie. setting ```ncpu<=0``` or ```ncpu=None```), then try going to single-core running by explicitly setting ```ncpu=1``` and try it again.  If the warnings go away, then voila.  If they persist, then check the FITS headers, as something seems fishy.*
+
+
+[Back to the top](#faqs)
