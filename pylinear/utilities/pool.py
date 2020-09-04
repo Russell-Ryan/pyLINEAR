@@ -57,6 +57,7 @@ class Pool(object):
             p=mp.Pool(processes=self.ncpu)
             imap=p.imap(self.__worker__,self.__zip__(itrs,*args))
             results=list(tqdm.tqdm(imap,total=total,desc=self.desc))
+                        
             if kwargs is not None:
                 self.func=func
             
