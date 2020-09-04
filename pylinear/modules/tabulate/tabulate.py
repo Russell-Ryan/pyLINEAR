@@ -35,22 +35,21 @@ class Tabulate(object):
 
     def make_pdts(self,src,wav,beamconf,device,pixfrac=1.0):
         dwav=wav[1]-wav[0]    # compute bandwidth
-        
+
         # make a table to write to
         #odt=h5table.ODT(src.name,beamconf.beam,wav)
 
         pdts=[]
-        
         # compute ratio of pixel area between the FLT and the source
         pixrat=device.pixelarea/(pixfrac*src.pixelarea)
 
         # process each pixel in the source
         for xd,yd,wd in src:
-                        
+
             # convert the corners of the direct image to the
             # corresponding grism image
             xg,yg=src.xy2xy(xd+self.DX,yd+self.DY,device)
-
+            
             # drizzle these corners
             x,y,l,v=beamconf.drizzle(xg,yg,wav,pixfrac=pixfrac)
             

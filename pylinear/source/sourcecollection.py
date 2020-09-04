@@ -236,6 +236,7 @@ class SourceCollection(dict):
             if not isinstance(segids,(list,tuple,np.ndarray)):
                 segids=[segids]
 
+        # process each seg ID
         for segid in segids:
             source=self[segid]
             if source.lamb0 is None:

@@ -11,9 +11,10 @@ def formatter(func):
         a,b=func(*args,**kwargs)
         if isinstance(a,np.ndarray) and a.ndim==0:
             #and (a.ndim==0 or len(a)==1):
-            a=np.asscalar(a)
-            b=np.asscalar(b)
-            
+            #a=np.asscalar(a)
+            #b=np.asscalar(b)
+            a=a.item()
+            b=b.item()
         return a,b
     return wrapper
 
@@ -35,8 +36,9 @@ class WCS(astropyWCS):
         #            hdr[ctype] += '-SIP'
 
 
+
         # set the astropy WCS class
-        astropyWCS.__init__(self,hdr)
+        astropyWCS.__init__(self,header=hdr)
 
 
         self.shape=(hdr['NAXIS2'],hdr['NAXIS1'])
@@ -322,19 +324,28 @@ class WCS(astropyWCS):
     
         
 if __name__=='__main__':
-    with fits.open('/Users/rryan/icoi3immq_flt.fits') as hdul:
+    with fits.open('/Users/rryan/MACS0647/data1/pre_Z11_-25_1.302_G141/icc905meq_flt.fits') as hdul:
         hdr=hdul[1].header
     wcs=WCS(hdr)
 
-    
 
-    
-    a,d=wcs.xy2ad(np.array([11]),np.array([21]))
-    
+    import fitsimage
+    x=fitsimage.FITSImage('/Users/rryan/MACS0647/data/CLASH/65mas/z11_seg.fits')
+
+    y=x.extract(50,70,50,70)
+    print(y)
+
+    a,d=y.xy2ad(10,10)
     print(a,d)
-    x,y=wcs.ad2xy(a,d)
+    xx,yy=wcs.ad2xy(a,d)
+    print(xx,yy)
+    
+    #a,d=wcs.xy2ad(np.array([11]),np.array([21]))
+    
+    #print(a,d)
+    #x,y=wcs.ad2xy(a,d)
 
-    print(x,y)
-    x,y=wcs.xy2xy(11,21,wcs)
-    print(x,y)
+    #print(x,y)
+    #x,y=wcs.xy2xy(11,21,wcs)
+    #print(x,y)
 
