@@ -1,6 +1,6 @@
 from astropy.table import Table
 from astropy.io import fits
-import statistics
+import statistics as stats
 
 from . import instruments
 from ..utilities.ascii_files import read_ascii_table
@@ -116,16 +116,11 @@ class GrismCollection(object):
                 lamb1.append(device.grisms[grism].lamb1)
                 dlamb.append(device.grisms[grism].dlamb)
 
-        # make the results a dict?
-        #defs = {}
-        #defs['lamb0']=max(lamb0)
-        #defs['lamb1']=min(lamb1)
-        #defs['dlamb']=statistics.median(lamb)
-        #return defs
-        
-        lamb0=max(lamb0)
-        lamb1=min(lamb1)
-        dlamb=statistics.median(dlamb)
+        # make the results a dict
+        ext={'lamb0':max(lamb0),'lamb1':min(lamb1),'dlamb':stats.median(dlamb)}
 
-        return lamb0,lamb1,dlamb
+        return ext
+
+        # return as a tuple
+        #return lamb0,lamb1,dlamb
             

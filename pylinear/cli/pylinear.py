@@ -100,8 +100,13 @@ def extract():
     
     # step 2b. get the default extraction settings and set to the sources
     default_extract=grisms.get_default_extraction()
-    sources.update_extraction_parameters(*default_extract)
+    sources.update_extraction_parameters(**default_extract)
 
+    # update this for Dan's galaxy
+    sources.update_extraction_parameters(dlamb=50.)
+    sources.update_extraction_parameters(dlamb=500.,segids=550)
+
+    
     
     # step 3a.  compute the pixel tables
     tabulate=pylinear.modules.Tabulate('pdt',remake=conf['remake'],
