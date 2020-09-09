@@ -146,12 +146,11 @@ class SimulatedImage(GrismImage):
 class ObservedFile(GrismFile):
     TYPE='observed'
     def __init__(self,filename,insconf):
-        basename=os.path.basename(filename)
-        self.dataset=basename.split(self.SUFFIX)[0]
-
+        
+        self.name=filename
         
         # get the primary header
-        phdr=fits.getheader(filename,ext=0)
+        phdr=fits.getheader(self.name,ext=0)
 
         # load the observational configuration and detector
         #obsconf=(phdr['TELESCOP'],phdr['INSTRUME'],phdr['DETECTOR'])
@@ -177,7 +176,14 @@ class ObservedFile(GrismFile):
 
             # save the image
             self.images[device.name]=img
-          
+
+    @property
+    def dataset(self):
+        basename=os.path.basename(self.name)
+        return basename.split(self.SUFFIX)[0]
+        
+
+
 
 class ObservedImage(GrismImage):
     TYPE='observed'

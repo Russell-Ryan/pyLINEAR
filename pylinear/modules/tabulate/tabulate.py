@@ -146,6 +146,8 @@ class Tabulate(object):
         pixfrac=1.0    # DO NOT CHANGE THIS VALUE
         dataset=grism.dataset
 
+
+        
         # skip if not remaking
         if not self.remake:
             return
