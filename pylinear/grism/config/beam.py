@@ -219,11 +219,11 @@ class Beam(object):
                 pass
         return v
 
-    def load_flatfield(self,unity=False):
+    def load_flatfield(self,unity=False):        
         if unity or not hasattr(self,'ffname'):
             ff=UnityFlatField(np.flip(self.naxis))
         else:
-            ff=ImageFlatField(self.ffname)            
+            ff=ImageFlatField(self.ffname)
         return ff
     
     def dispersion(self,xy):

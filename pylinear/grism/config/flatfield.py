@@ -2,6 +2,7 @@ from astropy.io import fits
 import numpy as np
 
 
+
 ''' Set of classes to implement grism flat fielding
 
 Written for pyLINEAR by R Ryan
@@ -20,24 +21,44 @@ class UnityFlatField(FlatField):
     def __call__(self,x,y,l):
         g=(x >= 0) & (x < self.shape[1]) & (y >= 0) & (y < self.shape[0])
         return g.astype(self.DTYPE)
-        
+
+    def __str__(self):
+        return 'Unity Flat Field'
+
+    
 class ImageFlatField(FlatField):
     def __init__(self,filename):
         self.filename=filename
         with fits.open(self.filename) as hdul:
-            self.data=[hdu.data for hdu in hdul]
+            self.data=[hdu.data for hdu in hdul if hdu.data is not None]
 
-        self.shape=self.data[0].shape
         self.order=len(self.data)
-        if self.order > 1:
+        if self.order ==0:
+            # null flat
+            print('[warn]Flat-field is invalid, using ones')
+            self.ftype='Unity'
+            self.func=self.unity
+        elif self.order==1:
+            # gray flat
+            self.shape=self.data[0].shape
+            self.ftype='Gray'
+            self.func=self.gray
+        else:
+            # chromatic flat
+            self.shape=self.data[0].shape
             self.wmin=hdul[0].header['WMIN']
             self.wmax=hdul[0].header['WMAX']
-            self.ftype='polynomial'
+            self.ftype='Polynomial'
             self.func=self.poly
-        else:
-            self.ftype='gray'
-            self.func=self.gray
+        
             
+
+    def __str__(self):
+        s='{} Flat Field'.format(self.ftype)
+        if self.ftype =='Polynomial':
+            s+=' with {} terms'.format(self.order)
+        return s
+
             
     def poly(self,x,y,l):
         ll=(l-self.wmin)/(self.wmax-self.wmin)
@@ -46,7 +67,10 @@ class ImageFlatField(FlatField):
 
     def gray(self,x,y,l):
         return self.data[0][y,x]
- 
+
+    def unity(self,x,y,l):
+        return np.ones_like(x,dtype=self.DTYPE)
+    
     def __call__(self,x,y,l):
         f=np.zeros_like(x,dtype=self.DTYPE)
         g=(x >= 0) & (x < self.shape[1]) & (y >= 0) & (y < self.shape[0])
@@ -56,18 +80,25 @@ class ImageFlatField(FlatField):
    
 
 if __name__=='__main__':
-    ff=ImageFlatField('/Users/rryan/LINEAR/config/HST/WFC3/IR/G102_V2.0/WFC3.IR.G102.flat.2.fits')
 
     x=np.array([-2,1,2,3,4,1014])
     y=np.array([-2,5,6,7,8,1014])
     l=np.array([8900,9000,9100,9200,9300,9400])
 
-    q=ff(x,y,l)
+
+    ff=ImageFlatField('/Users/rryan/LINEAR/config/HST/WFC3/IR/G102_V2.0/WFC3.IR.G102.flat.2.fits')
+    print(ff)
+    print(ff(x,y,l))
+
+    ff=ImageFlatField('/Users/rryan/PYLINEAR_CONFIG/WFC3IR/F105W_pfl.fits')
+    print(ff)
+    print(ff(x,y,l))
 
 
     ff=UnityFlatField((1014,1014))
-    print(ff(x,y,l))
     print(ff)
+    print(ff(x,y,l))
+
 
 
         
