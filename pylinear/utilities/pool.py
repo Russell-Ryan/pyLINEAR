@@ -54,11 +54,41 @@ class Pool(object):
             if kwargs is not None:
                 func=self.func
                 self.func=partial(self.func,**kwargs)
-            p=mp.Pool(processes=self.ncpu)
-            imap=p.imap(self.__worker__,self.__zip__(itrs,*args))
-            results=list(tqdm.tqdm(imap,total=total,desc=self.desc))
+
+            with mp.Pool(processes=self.ncpu) as p:
+                imap=p.imap(self.__worker__,self.__zip__(itrs,*args))
+                results=list(tqdm.tqdm(imap,total=total,desc=self.desc))
+
+                
+            #p=mp.Pool(processes=self.ncpu)
+            #imap=p.imap(self.__worker__,self.__zip__(itrs,*args))
+            #results=list(tqdm.tqdm(imap,total=total,desc=self.desc))
                         
             if kwargs is not None:
                 self.func=func
             
         return results
+
+
+
+if __name__=='__main__':
+    from time import sleep
+    import numpy as np
+    def func(t):
+        x=np.zeros((20000,20000),dtype=np.float)
+        y=np.zeros_like(x)
+        z=np.zeros_like(x)
+        w=np.zeros_like(x)
+        sleep(t)
+        return float(t)
+        
+    #func = lambda x: sleep(x)
+
+
+    p=Pool(func,ncpu=4)
+    r=p([1,2,3,4,2,3,5,3,2,4,2,1])
+    print(r)
+
+
+    import pdb
+    pdb.set_trace()
