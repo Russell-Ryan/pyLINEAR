@@ -31,7 +31,7 @@ class SourceCollection(dict):
         # record something for flux cubes
         self.cubeid=cubeid
 
-        
+    
         # figure out which maps:
         detfile=self.obscat.detfile    # just for streamlined access
         with fits.open(self.segfile) as hdus,fits.open(detfile) as hdui:
@@ -173,6 +173,8 @@ class SourceCollection(dict):
             subseg=seg.extract(*bbox)
             subimg=img.extract(*bbox)
 
+
+            
             
             # check for a cube ID
             if segid==self.cubeid:
@@ -227,7 +229,8 @@ class SourceCollection(dict):
         raise NotImplementedError
 
     
-    def update_extraction_parameters(self,lamb0,lamb1,dlamb,segids=None):
+    def update_extraction_parameters(self,lamb0=None,lamb1=None,dlamb=None,
+                                     segids=None):
         print('[info]updating extraction parameters.')
 
         if segids is None:
@@ -239,11 +242,11 @@ class SourceCollection(dict):
         # process each seg ID
         for segid in segids:
             source=self[segid]
-            if source.lamb0 is None:
+            if lamb0 is not None:
                 source.lamb0=lamb0
-            if source.lamb1 is None:
+            if lamb1 is not None:
                 source.lamb1=lamb1
-            if source.dlamb is None:
+            if dlamb is not None:
                 source.dlamb=dlamb
 
                 
