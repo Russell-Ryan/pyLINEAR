@@ -12,6 +12,9 @@ class Bandpass(object):
                                                       names=('lamb','tran'))
 
         self.zeropoint=meta['ZEROPOINT']
+        self.name=meta['NAME']
+
+
         
         # compute frequency and range
         self.freq=(sc.c/self.lamb)*1e10
