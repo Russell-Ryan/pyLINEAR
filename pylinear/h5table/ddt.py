@@ -82,7 +82,6 @@ class DDT(H5TableBase):
             y=self.y.to_numpy()
             
             g=np.where(msk[y,x])[0]
-
             self.select(g)
 
         

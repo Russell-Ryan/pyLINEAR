@@ -297,6 +297,8 @@ class Matrix(object):
 
                 # make a mask  (these are good pixels)
                 msk=np.bitwise_and(dqa,device.bitmask)==0
+
+
                 
                 # update the mask with the beams
                 #if mskbeams is not None and mskbeams:
@@ -336,9 +338,10 @@ class Matrix(object):
                     # this takes ODTs, decimates, scales by detector
                     # effects, and joins them over beams
                     ddt=self.load_ddts(source,unc,device,h5tab,config)
-
+                    
                     # apply the DQA+beam mask
                     ddt.apply_mask(msk)
+
                     
                     # now will need to decimate the DDTs
                     # this is a null operation for detectors where the
