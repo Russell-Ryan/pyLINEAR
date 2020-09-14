@@ -145,7 +145,6 @@ class Beam(object):
         self.beam=beam
         self.conffile=os.path.join(os.environ['PYLINEAR_CONFIG'],conffile)
 
-        print('[debug]Look into wedge offsets')
 
         # the three main functions
         self.dispx=Parametric('dispx')
@@ -155,6 +154,9 @@ class Beam(object):
         # define the local path
         path=os.path.dirname(self.conffile)
 
+        # add wedges
+        self.wedge={}
+        
         # open the file
         with open(self.conffile,'r') as fp:
             for line in fp:
@@ -196,6 +198,10 @@ class Beam(object):
                             sensfile=os.path.join(path,val[0])
                             self.sensitivity=Sensitivity(sensfile)
 
+                        if key.startswith('WEDGE_'):
+                            filt=key.split('_')[1]
+                            val=tuple(self.fix_type(v) for v in val if valid(v))
+                            self.wedge[filt]=val
                         
         # get a polygon clipper
         self.polyclip=polyclip.Polyclip(self.naxis)
@@ -248,7 +254,7 @@ class Beam(object):
         return wave
 
 
-    def disperse(self,xd,yd,wav):
+    def disperse(self,xd,yd,wav,band=None):
         nx=len(xd)
         nw=len(wav)
         xg=np.empty((nw,nx))
@@ -257,9 +263,15 @@ class Beam(object):
             t=self.displ.invert(xyd,wav)
             xg[:,i]=self.dispx.evaluate(xyd,t)+xyd[0]
             yg[:,i]=self.dispy.evaluate(xyd,t)+xyd[1]
+
+        # implement the wedge offset
+        if band is not None and band in self.wedge:
+            xg-=self.wedge[band][0]
+            yg-=self.wedge[band][1]
+            
         return xg,yg
 
-    def drizzle(self,xd,yd,wav,ignore='average',pixfrac=1.):
+    def drizzle(self,xd,yd,wav,ignore='average',pixfrac=1.,band=None):
         assert (np.abs(pixfrac-1.)<=1e-3),'pixfrac must be 1'
 
         # apply the ignoring procedure
@@ -283,7 +295,7 @@ class Beam(object):
                 pass
         
         # disperse each polygon vertix
-        xg,yg=self.disperse(xd,yd,wav)
+        xg,yg=self.disperse(xd,yd,wav,band=band)
 
         # apply clipping
         xg=np.clip(xg,0,self.naxis[0])

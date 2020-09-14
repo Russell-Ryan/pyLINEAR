@@ -51,7 +51,8 @@ class Tabulate(object):
             xg,yg=src.xy2xy(xd+self.DX,yd+self.DY,device)
             
             # drizzle these corners
-            x,y,l,v=beamconf.drizzle(xg,yg,wav,pixfrac=pixfrac)
+            x,y,l,v=beamconf.drizzle(xg,yg,wav,pixfrac=pixfrac,
+                                     band=self.filtname)
             
             if len(x)!=0:
                 # define the pixel coordinate
@@ -120,8 +121,7 @@ class Tabulate(object):
         xg,yg=src.xy2xy(xd,yd,device)
 
         # disperse those pixels
-        x,y,l,v=beamconf.drizzle(xg,yg,wav,pixfrac=pixfrac)
-
+        x,y,l,v=beamconf.drizzle(xg,yg,wav,pixfrac=pixfrac,band=self.filtname)
 
         # record as an OMT
         omt=h5table.OMT(src.name,beamconf.beam)
@@ -198,9 +198,6 @@ class Tabulate(object):
                 wav=np.arange(device.defaults['lamb0'],
                               device.defaults['lamb1']+dwav,dwav)
 
-
-
-                
                 # add some stuff ot the table
                 #devtab.add_attribute('nsource',np.uint32(len(sources)))
                 #devtab.add_attribute('wav0',np.float32(wav[0]))
@@ -225,11 +222,14 @@ class Tabulate(object):
                 # get the detector pixel area
                 #devpix_area=device.pixelarea
 
-               
+                
                 # process each source
                 for src in sources:
                     #if src.name not in sources_done:  #
 
+
+
+                    
                     # make the table
                     #tab=self.make_odt(src,wav,beamconf,device)
                     tabs=tabfunc(src,wav,beamconf,device)
@@ -244,7 +244,9 @@ class Tabulate(object):
                         
         return tabname
 
-    def run(self,grisms,sources,beam):
+    def run(self,grisms,sources,beam):        
+        self.filtname=sources.obscat.detband.name
+                
         # create a pool
         pool=Pool(self.make_table,ncpu=self.ncpu,desc="Making tables")
 

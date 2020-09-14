@@ -19,6 +19,9 @@ class SourceCollection(dict):
         # load the observation catalog
         self.obscat=DirectImages(obscat,detindex=detindex)
         
+        #print(self.obscat.detband.name)
+
+        
         # save the segfile
         self.segfile=segfile
 
