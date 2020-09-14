@@ -14,7 +14,9 @@ class GrismFile(object):
         self.images={}
         self.detector=detector
         self.grism=grism
-        
+        self.targname=''
+
+
         
     def __len__(self):
         return len(self.images)
@@ -81,6 +83,8 @@ class SimulatedFile(GrismFile):
                                      'identifier for detector used to acquire data')
         detector.header['FILTER']=(obsconf['grism'],
                                    'element selected from filter wheel')
+        detector.header['TARGNAME']=(self.targname,"proposer's target name")
+        
         #blocking=obsconf['blocking']
         #if blocking is None:
         #    blocking=' '
@@ -126,6 +130,7 @@ class SimulatedImage(GrismImage):
         hdr=device.siaf.make_header(*crvals,orientat,refsiaf=refsiaf)
         GrismImage.__init__(self,hdr,device,grism)
 
+        
     def mkhdr(self,dtype,imgtype=None):
         hdr=super().mkhdr(dtype)
         if imgtype in self.exten:
@@ -167,6 +172,10 @@ class ObservedFile(GrismFile):
 
         #initialize the grism file        
         GrismFile.__init__(self,detector,grism)
+
+        # record a few things:
+        self.targname=phdr.get('TARGNAME',None)
+
 
         # load each device in the detector        
         for device in detector:

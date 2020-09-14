@@ -123,4 +123,9 @@ class GrismCollection(object):
 
         # return as a tuple
         #return lamb0,lamb1,dlamb
-            
+
+
+    
+    def get_targname(self):
+        targname=[grism.targname for grism in self]
+        return targname
