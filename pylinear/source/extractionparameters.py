@@ -30,8 +30,6 @@ class ExtractionParameters(object):
         l0=self.lamb0
         l1=self.lamb1+self.dlamb
         wave=np.arange(l0,l1,self.dlamb,dtype=self.FLOAT)
-        #if indices is not None:
-        #    wave=wave[g]
         return wave
 
     @validate
