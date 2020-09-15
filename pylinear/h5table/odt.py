@@ -160,7 +160,7 @@ class ODT(H5TableBase,dict):
                 
                 # get the wavelengths
                 wu=self.wav[lamu]
-
+                
                 # return the DDT            
                 ddt=DDT(self.segid,xu,yu,wu,vu)
             else:
