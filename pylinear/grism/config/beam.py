@@ -266,8 +266,8 @@ class Beam(object):
 
         # implement the wedge offset
         if band is not None and band in self.wedge:
-            xg-=self.wedge[band][0]
-            yg-=self.wedge[band][1]
+            xg+=self.wedge[band][0]
+            yg+=self.wedge[band][1]
             
         return xg,yg
 
