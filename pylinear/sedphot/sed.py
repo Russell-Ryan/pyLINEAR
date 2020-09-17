@@ -1,17 +1,35 @@
 import numpy as np
 import scipy.constants as sc
 import os
+from astropy.io import fits
 #from ..utilities.ascii_files import read_ascii_columns
 
 #from astropy import units as u
 
 class SED(object):
     def __init__(self,lamb,flam):
+        #self.fluxunit='erg/s/cm2/A'
         self.lamb=np.array(lamb)
         self.flam=np.array(flam)
         self.wmin=np.amin(self.lamb)
         self.wmax=np.amax(self.lamb)
-        
+
+
+    #def make_fits_table(self):
+    #    # make the FITS table columns
+    #    col1=fits.Column(name='wavelength',format='1D',unit='A',
+    #                     array=self.lamb)
+    #    col2=fits.Column(name='flam',format='1D',unit=self.fluxunit,
+    #                     array=self.flam)
+    #    col3=fits.Column(name='flounc',format='1D',unit=self.fluxunit,
+    #                     array=ferr)
+    #    col4=fits.Column(name='fhiunc',format='1D',unit=self.fluxunit,
+    #                     array=ferr)
+    #    cols=fits.ColDefs([col1,col2,col3,col4])
+    #    
+    #    # package into a fits object
+    #    hdu=fits.BinTableHDU.from_columns(cols)
+    #    return hdu
 
     @classmethod
     def load(cls,filename):

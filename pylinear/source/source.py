@@ -196,6 +196,7 @@ class Source(WCS,ExtractionParameters):
         return len(self.xd)
 
 
+    
     def update_header(self,hdr,group=0):
         after=None
         for after in hdr.keys():
