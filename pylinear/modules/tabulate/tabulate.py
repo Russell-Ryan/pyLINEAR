@@ -5,8 +5,10 @@ from ... import h5table
 from ...utilities import Pool
 
 class Tabulate(object):
-    DX=np.array([0,0,1,1],dtype=np.float)
-    DY=np.array([0,1,1,0],dtype=np.float)
+    DX=np.array([-0.5,-0.5,+0.5,+0.5],dtype=np.float)
+    DY=np.array([-0.5,+0.5,+0.5,-0.5],dtype=np.float)
+    #DX=np.array([0,0,1,1],dtype=np.float)
+    #DY=np.array([0,1,1,0],dtype=np.float)
 
     def __init__(self,ttype,path='tables',nsub=10,remake=True,ncpu=None):
         # set the path for where the tables will be stored
