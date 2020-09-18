@@ -78,7 +78,7 @@ class GaussianKernel(Kernel):
                     dx.extend([+i,-i])
                     dy.extend([+j,+j])
                     value.extend([v,v])
-                elif i!=0 and j!=0:         # flip over the x/y-axes
+                elif i!=0 and j!=0:         # flip over x- & y-axes
                     dx.extend([+i,-i,+i,-i])
                     dy.extend([+j,+j,-j,-j])
                     value.extend([v,v,v,v])
