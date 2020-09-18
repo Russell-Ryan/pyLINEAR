@@ -6,6 +6,7 @@ from ...utilities import Pool
 from . import kernel
 
 class Tabulate(object):
+    # pixel footprint
     DX=np.array([-0.5,-0.5,+0.5,+0.5],dtype=np.float)
     DY=np.array([-0.5,+0.5,+0.5,-0.5],dtype=np.float)
     #DX=np.array([0,0,1,1],dtype=np.float)
@@ -87,7 +88,7 @@ class Tabulate(object):
                     # ```GaussianKernel``` of the appropriate size
                     # (say something that is ~3x the expected sigma, here
                     #  I call that factor ```nsigma```.).
-                    nsigma=3.5
+                    nsigma=5.0
                     size=int(np.ceil(sigma*nsigma))
                     if size %2 == 0:
                         size+=1
