@@ -38,7 +38,7 @@ class Tabulate(object):
 
     def make_pdts(self,src,wav,beamconf,device,pixfrac=1.0,sigma=None):
         dwav=wav[1]-wav[0]    # compute bandwidth
-        print(sigma)
+
         # make a table to write to
         #odt=h5table.ODT(src.name,beamconf.beam,wav)
 
@@ -87,10 +87,13 @@ class Tabulate(object):
                     # ```GaussianKernel``` of the appropriate size
                     # (say something that is ~3x the expected sigma, here
                     #  I call that factor ```nsigma```.).
-                    nsigma=3.5                    
+                    nsigma=3.5
                     size=int(np.ceil(sigma*nsigma))
-                    kern = kernel.GaussianKernel(sigma,size)
-                    pdt.convolve(kern,device)
+                    if size %2 == 0:
+                        size+=1
+                    if size>1:
+                        kern = kernel.GaussianKernel(sigma,size)
+                        pdt.convolve(kern,device)
 
                 
                 # create a dummy kernel              
