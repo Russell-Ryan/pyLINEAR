@@ -64,10 +64,7 @@ class ResidualFile(object):
             # so we will just put the sci image here as:
             # Residual = SCI - MODEL
             res=sci.copy()
-
             msk=np.bitwise_and(dqa,device.bitmask)!=0
-            
-            #res[dqa>0]=np.nan
             res[msk]=np.nan
             reshdr=scihdr
             reshdr['EXTNAME']='RESID'
