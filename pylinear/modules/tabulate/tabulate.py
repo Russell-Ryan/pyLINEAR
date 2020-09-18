@@ -3,6 +3,7 @@ import numpy as np
 
 from ... import h5table
 from ...utilities import Pool
+from . import kernel
 
 class Tabulate(object):
     DX=np.array([-0.5,-0.5,+0.5,+0.5],dtype=np.float)
@@ -35,9 +36,9 @@ class Tabulate(object):
         self.ncpu=ncpu
 
 
-    def make_pdts(self,src,wav,beamconf,device,pixfrac=1.0):
+    def make_pdts(self,src,wav,beamconf,device,pixfrac=1.0,sigma=None):
         dwav=wav[1]-wav[0]    # compute bandwidth
-
+        print(sigma)
         # make a table to write to
         #odt=h5table.ODT(src.name,beamconf.beam,wav)
 
@@ -71,7 +72,6 @@ class Tabulate(object):
                 pdt=h5table.PDT(pix,x,y,l,v*pixrat*dwav)
               
 
-                sigma=None
                 # maybe apply a convolution kernel
                 if isinstance(sigma,(float,int)):
                     # ok... so this should implement a basic Gaussian
@@ -88,9 +88,9 @@ class Tabulate(object):
                     # (say something that is ~3x the expected sigma, here
                     #  I call that factor ```nsigma```.).
                     nsigma=3.5                    
-                    size=np.ceil(sigma*nsigma)
+                    size=int(np.ceil(sigma*nsigma))
                     kern = kernel.GaussianKernel(sigma,size)
-                    pdt.convolve(kern,device.shape)
+                    pdt.convolve(kern,device)
 
                 
                 # create a dummy kernel              
@@ -144,7 +144,7 @@ class Tabulate(object):
         return [omt]
 
     
-    def make_table(self,grism,sources,beam):
+    def make_table(self,grism,sources,beam,**kwargs):
         pixfrac=1.0    # DO NOT CHANGE THIS VALUE
         dataset=grism.dataset
 
@@ -234,7 +234,7 @@ class Tabulate(object):
                     
                     # make the table
                     #tab=self.make_odt(src,wav,beamconf,device)
-                    tabs=tabfunc(src,wav,beamconf,device)
+                    tabs=tabfunc(src,wav,beamconf,device,**kwargs)
                     for tab in tabs:
                         h5.write_in_file(tab)
                         
@@ -246,14 +246,14 @@ class Tabulate(object):
                         
         return tabname
 
-    def run(self,grisms,sources,beam):        
+    def run(self,grisms,sources,beam,**kwargs):
         self.filtname=sources.obscat.detband.name
                 
         # create a pool
         pool=Pool(self.make_table,ncpu=self.ncpu,desc="Making tables")
 
         # run the pool
-        tabnames=pool(grisms.values(),sources,beam)
+        tabnames=pool(grisms.values(),sources,beam,**kwargs)
 
         # for debugging
         #tabnames=[self.make_table(grism,sources,beam) for grism in grisms]

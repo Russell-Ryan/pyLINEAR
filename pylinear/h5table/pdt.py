@@ -3,7 +3,7 @@ import numpy as np
 
 from .h5tablebase import H5TableBase
 from . import columns
-
+from ..utilities import indices
 
 
 class PDT(H5TableBase):
@@ -27,6 +27,13 @@ class PDT(H5TableBase):
         if len(args)==4:
             self.extend(*args)
 
+
+    def clear(self):
+        self.x.clear()
+        self.y.clear()
+        self.lam.clear()
+        self.val.clear()
+            
     def __iter__(self):
         yield from zip(self.x,self.y,self.lam,self.val)
     
@@ -109,7 +116,7 @@ class PDT(H5TableBase):
             vv=v*kernel.value
             
             # only get pixels that are within the image
-            g=np.where((xx >= 0) & (xx < device.naxis1) and
+            g=np.where((xx >= 0) & (xx < device.naxis1) & 
                        (yy >= 0) & (yy < device.naxis2))[0]
             
             # only keep the good ones
