@@ -10,9 +10,6 @@ def formatter(func):
     def wrapper(*args,**kwargs):
         a,b=func(*args,**kwargs)
         if isinstance(a,np.ndarray) and a.ndim==0:
-            #and (a.ndim==0 or len(a)==1):
-            #a=np.asscalar(a)
-            #b=np.asscalar(b)
             a=a.item()
             b=b.item()
         return a,b
@@ -42,7 +39,7 @@ class WCS(astropyWCS):
 
 
         self.shape=(hdr['NAXIS2'],hdr['NAXIS1'])
-        
+        self.npixel=self.shape[0]*self.shape[1]
 
         
         # check some things
