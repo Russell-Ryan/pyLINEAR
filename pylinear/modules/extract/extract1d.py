@@ -6,12 +6,14 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 from ... import info
 from ...config import Config
+from ...utilities import gzip
 from .. import header_utils
 from .residuals import Residuals
 from .extract import Extract
 from .groupcollection import GroupCollection
 
-def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,ncpu=0,
+def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,
+              ncpu=0,gzip_residuals=True,
               group=True,grpfile=None,
               inverter='lsqr',mskbeams=None,
               usehdf5=False,matrix_path='matrices'):
@@ -151,7 +153,8 @@ def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,ncpu=0,
 
         # finalize the residuals
         residuals.apply_uncertainty()
-        residuals.gzip_files()
+        if gzip_residuals:
+            residuals.gzip_files()
 
             
         # put all the sources back in
