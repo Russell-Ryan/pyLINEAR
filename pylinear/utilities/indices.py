@@ -46,19 +46,17 @@ def two2one(x,y,dim):
 def unique_pairs(x,y):
 
     mx=np.amax(x)+1
-    shape=(mx.astype(x.dtype),)
+    shape=(mx.astype(np.int),)
 
-    xy=two2one(x,y,shape)
+    xy=two2one(x.astype(np.int),y.astype(np.int),shape)
 
-    xx,yy=one2two(xy,shape) 
+    #xx,yy=one2two(xy,shape) 
     
-    xyq=unique(xy)
-
+    xyq=unique(xy) 
 
     xq,yq=one2two(xyq,shape)
-    
-
-    return xq,yq
+        
+    return xq.astype(x.dtype),yq.astype(y.dtype)
 
 
 if __name__=='__main__':
