@@ -7,7 +7,16 @@ from astropy.io import fits
 #from astropy import units as u
 
 class SED(object):
-    def __init__(self,lamb,flam):
+    def __init__(self,*args):
+        if len(args)==2:
+            self.assign(*args)
+        else:
+            pass
+
+    def assign(self,lamb,flam):
+        assert len(lamb)==len(flam),'mismatched sizes'
+        
+        #self.lambunit='A'
         #self.fluxunit='erg/s/cm2/A'
         self.lamb=np.array(lamb)
         self.flam=np.array(flam)
