@@ -37,7 +37,8 @@ class Tabulate(object):
         self.ncpu=ncpu
 
 
-    def make_pdts(self,src,wav,beamconf,device,pixfrac=1.0,sigma=None):
+    def make_pdts(self,src,wav,beamconf,device,pixfrac=1.0,
+                  sigma=None,nsigma=15.):
         dwav=wav[1]-wav[0]    # compute bandwidth
 
         # make a table to write to
@@ -88,7 +89,6 @@ class Tabulate(object):
                     # ```GaussianKernel``` of the appropriate size
                     # (say something that is ~3x the expected sigma, here
                     #  I call that factor ```nsigma```.).
-                    nsigma=5.0
                     size=int(np.ceil(sigma*nsigma))
                     if size %2 == 0:
                         size+=1
