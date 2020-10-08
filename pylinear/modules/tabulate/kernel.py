@@ -21,12 +21,12 @@ class Kernel(object):
         if size % 2 == 0:
             print('[warn]Forcing kernel should be an odd number.')
             size+=1
-            
+
         self.size=size
         self.dx=None
         self.dy=None
         self.value=None
-
+        self.shape=(self.size,self.size)
 
         
     def __iter__(self):
@@ -95,7 +95,7 @@ class GaussianKernel(Kernel):
         self.dx=np.array(dx,dtype=np.int)
         self.dy=np.array(dy,dtype=np.int)
         self.value=np.array(value,dtype=np.float)
-        
+
 
         # force normalization
         self.value/=np.sum(self.value)
@@ -107,7 +107,10 @@ class GaussianKernel(Kernel):
 
         
 if __name__=='__main__':
-    kern=GaussianKernel(1.0,5)
+    sigma=0.5
+    nsigma=15.
     
+    size=int(np.ceil(sigma*nsigma))
+    kern=GaussianKernel(sigma,size)
     for x,y,v in kern:
         print(x,y,v)
