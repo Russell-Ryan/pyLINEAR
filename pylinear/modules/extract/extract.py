@@ -77,7 +77,7 @@ class Extract(object):
                 g2=self.matrix.lam[g1]
                 waves=source.wavelengths()
                 targ[g1]=source.sed.interpolate(waves[g2])/FLUXSCALE
-
+                                
         return targ
 
 
