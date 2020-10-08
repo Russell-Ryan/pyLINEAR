@@ -35,7 +35,7 @@ class GrismCollection(object):
 
     def __iter__(self):
         yield from self.files.values()
-
+            
     def items(self):
         return self.files.items()
             
