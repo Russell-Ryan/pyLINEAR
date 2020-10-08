@@ -3,9 +3,7 @@ from astropy.io import fits
 import os
 
 from ..wcs import WCS
-#from .siaf import SIAF
 from .config import Beam
-#from .instruments import load_detector
 
 class GrismFile(object):
     TYPE=''
@@ -30,6 +28,12 @@ class GrismFile(object):
     def __getitem__(self,k):
         return self.images[k]
 
+
+    def primary_header(self):
+        hdr = fits.getheader(self.filename,0)
+        return hdr
+
+    
     @property
     def filename(self):
         return self.dataset+self.SUFFIX
