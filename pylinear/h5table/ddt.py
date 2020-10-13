@@ -94,8 +94,15 @@ class DDT(H5TableBase):
 
             self.clear()
             self.extend(x,y,wav,val)
-
-
+    def bounding_box(self):
+        xu=np.unique(self.x.to_numpy())
+        x0,x1=np.amin(xu),np.amax(xu)
+        
+        yu=np.unique(self.y.to_numpy())
+        y0,y1=np.amin(yu),np.amax(yu)
+        
+        return x0,x1,y0,y1
+            
 
     def write_h5(self,h5,**kwargs):
         hd=self.write_data(h5,self.name,self.x,self.y,self.wav,
