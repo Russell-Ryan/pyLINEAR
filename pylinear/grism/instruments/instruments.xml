@@ -33,7 +33,7 @@ Last updated Aug 6, 2020 by RER
 	<header keyword='CSMID' comment="Channel Select Mechanism ID">IR</header>
 	<device name='IR' bitmask='15807'>
 	  <grism grism='G102' path='WFC3IR' lamb0='7500.' lamb1='12500.' dlamb='25.'>g102.conf</grism>
-	  <grism grism='G141' path='WFC3IR' lamb0='11500.' lamb1='16990.' dlamb='45.'>g141.conf</grism>
+	  <grism grism='G141' path='WFC3IR' lamb0='10500.' lamb1='17520.' dlamb='45.'>g141.conf</grism>
 	  <extension type='science' name='SCI' ver='1' dtype="float64">1</extension>
 	  <extension type='uncertainty' name='ERR' ver='1' dtype="float32">2</extension>
 	  <extension type='dataquality' name='DQ' ver='1' dtype="int16">3</extension>
