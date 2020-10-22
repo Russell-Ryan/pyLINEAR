@@ -168,9 +168,9 @@ Last updated Aug 6, 2020 by RER
 	  <grism grism="GR150R" blocking="F150W" path='NIRISS'>NIRISS_F150W_GR150R.conf</grism>
 	  <grism grism="GR150R" blocking="F158M" path='NIRISS'>NIRISS_F158M_GR150R.conf</grism>
 	  <grism grism="GR150R" blocking="F200W" path='NIRISS'>NIRISS_F200W_GR150R.conf</grism>
-	  <extension type='science' name='SCI' ver='2' dtype="float64">4</extension>
-	  <extension type='uncertainty' name='ERR' ver='2' dtype="float32">5</extension>
-	  <extension type='dataquality' name='DQ' ver='2' dtype="int16">6</extension>
+	  <extension type='science' name='SCI' ver='1' dtype="float64">1</extension>
+	  <extension type='uncertainty' name='ERR' ver='1' dtype="float64">2</extension>
+	  <extension type='dataquality' name='DQ' ver='1' dtype="int16">3</extension>
 	  <siaf v2="-291.219" v3="-698.181" v3y="0.56987018" xscl="0.06539297" yscl="0.06588855" naxis1="2048" naxis2="2048" crpix1="1024" crpix2="1024">
 	  </siaf>
 	</device>
