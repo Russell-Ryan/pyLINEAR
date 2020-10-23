@@ -28,7 +28,7 @@ class Simulate(object):
 
             # put the OBSTYPE in for all grism exposures as "SPECTROSCOPIC"
             last=header_utils.get_last_keyword(phdr)
-            phdr.set('OBSTYPE',value='SPECTROSCOPIC',last=last,
+            phdr.set('OBSTYPE',value='SPECTROSCOPIC',after=last,
                      comment='observation type - imaging or spectroscopic')
 
             # add the software log
