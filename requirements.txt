@@ -1,6 +1,6 @@
 numpy>1.16
 scipy
-astropy
+astropy>=4.1
 emcee
 h5py
 pysiaf
