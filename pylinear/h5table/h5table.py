@@ -59,7 +59,7 @@ class H5Table(H5TableBase):
                 pdt*=wht
                 tab.extend(pdt)
         elif ttype=='omt':
-            tab=OMT(source.segid,beam,self.h5table)        
+            tab=OMT.load(source.segid,beam,self.h5table)
         else:
             pass
 

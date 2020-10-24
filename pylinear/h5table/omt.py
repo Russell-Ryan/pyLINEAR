@@ -37,10 +37,11 @@ class OMT(H5TableBase):
         
     @classmethod
     def load(cls,segid,beam,h5):
-        #hf=h5[str(segid)+'/omt']
-
-        data=cls.load_data(h5,str(beam))
-        omt=cls(segid,beam,data['x'],data['y'])
+        omt=cls(segid,beam)
+        data=cls.load_data(h5,str(segid))
+        if len(data)!=0:
+            omt.extend(data['x'],data['y'])
+            
         return omt
 
 

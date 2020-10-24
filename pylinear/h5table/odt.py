@@ -1,6 +1,5 @@
 
 import numpy as np
-#import h5py
 #from shapely.geometry import Polygon
 #from scipy.spatial import ConvexHull
 
