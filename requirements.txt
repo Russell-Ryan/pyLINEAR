@@ -1,6 +1,7 @@
 numpy>1.16
 scipy
 astropy>=4.1
+scikit-image
 emcee
 h5py
 pysiaf
