@@ -2,7 +2,6 @@ import os
 from astropy.io import fits
 import numpy as np
 import polyclip
-from timeit import default_timer
 from .flatfield import UnityFlatField,ImageFlatField
 
 
@@ -85,12 +84,6 @@ class Parametric(object):
 
     def invert(self,xy,f):
         ''' invert the polynomial at some position (x,y) and function value '''
-
-        #if self.inverse_function is None:
-        #    print("ERROR!")
-        #    print(self.polys)
-
-            
 
         coefs=[poly.evaluate(xy) for poly in self.polys]
         t=self.inverse_function(f,coefs)
@@ -272,8 +265,8 @@ class Beam(object):
         return xg,yg
 
     def drizzle(self,xd,yd,wav,ignore='average',pixfrac=1.,band=None):
-        assert (np.abs(pixfrac-1.)<=1e-3),'pixfrac must be 1'
-
+        assert np.isclose(pixfrac,1.,atol=1e-3),'pixfrac must be 1.0'
+        
         # apply the ignoring procedure
         if hasattr(self,'xr') and hasattr(self,'yr'):
             ignore=ignore.lower()
@@ -316,20 +309,7 @@ class Beam(object):
         else:
             lam=[]
 
-                
-        #tab=[]
-        #xx,yy,ll,aa=[],[],[],[]
-        #if len(x)!=0:
-        #    for l,w in enumerate(wav):
-        #       j0,j1=indices[l],indices[l+1]
-        #        
-        #        if j1>j0:
-        #            xx.extend(x[j0:j1])
-        #            yy.extend(y[j0:j1])
-        #            ll.extend([l]*(j1-j0))
-        #            aa.extend(area[j0:j1])
-        #return x,y,lam,area
-
+               
         return x,y,lam,area
 
 
