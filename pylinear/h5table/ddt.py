@@ -4,11 +4,12 @@ from shapely.geometry import Polygon
 from .h5tablebase import H5TableBase
 from . import columns
 
-
 class DDT(H5TableBase):
-    def __init__(self,segid,*args):
+    MASK=False
+    def __init__(self,segid,beam,*args):
         self.segid=segid
-      
+        self.beam=beam
+        
         self.x=columns.X()
         self.y=columns.Y()
         self.wav=columns.WAV()
@@ -107,7 +108,6 @@ class DDT(H5TableBase):
     def write_h5(self,h5,**kwargs):
         hd=self.write_data(h5,self.name,self.x,self.y,self.wav,
                            self.val,**kwargs)
-
 
 
     @classmethod

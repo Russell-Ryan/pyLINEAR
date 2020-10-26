@@ -1,22 +1,24 @@
 import numpy as np
-#import h5py
 from scipy.spatial import ConvexHull
 
 from .h5tablebase import H5TableBase
-#from .ovt import OVT
 from . import columns
 
+
 class OMT(H5TableBase):
+    MASK=True
     def __init__(self,segid,beam,*args):
         self.segid=segid
         self.beam=beam
         self.x=columns.X()
         self.y=columns.Y()
+        
         if len(args)==2:
             self.extend(*args)
 
     def __len__(self):
         return len(self.x)
+    
             
     @property
     def name(self):

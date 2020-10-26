@@ -161,13 +161,13 @@ class ODT(H5TableBase,dict):
                 wu=self.wav[lamu]
                 
                 # return the DDT            
-                ddt=DDT(self.segid,xu,yu,wu,vu)
+                ddt=DDT(self.segid,self.beam,xu,yu,wu,vu)
             else:
                 # a null table
-                ddt=DDT(self.segid)
+                ddt=DDT(self.segid,self.beam)
         else:
             # a null table
-            ddt=DDT(self.segid)
+            ddt=DDT(self.segid,self.beam)
 
             
         return ddt

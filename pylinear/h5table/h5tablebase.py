@@ -1,5 +1,6 @@
 import h5py
 import numpy as np
+from skimage import measure
 
 
 from ..constants import COMPARGS
@@ -7,12 +8,61 @@ from ..constants import COMPARGS
 class H5TableBase(object):
     def __init__(self):
         pass
+        
             
     def __str__(self):
         return '{} for {}'.format(self.table_type,self.name)
 
     def not_found(self):
         pass
+
+
+    def region(self,edit=False,move=False,rotate=False,fixed=True,width=2,
+               family='helvetica',size=12,bold=True,roman=True):
+
+                
+        
+        mask='-' if hasattr(self,"MASK") and self.MASK else ''
+        color={'0':'white','+1':'#1f77b4','+2':'#ff7f0e','+3':'#2ca02c',
+              '+4':'#d62728','+5':'#9467bd','+6':'#8c564b','+7':'#e377c2',
+              '+8':'#7f7f7f','+9':'#bcbd22','+10':'#17becf','-1':'#aec7e8',
+              '-2':'#ffbb78','-3':'#98df8a','-4':'#ff9896','-5':'#c5b0d5',
+              '-6':'#c49c94','-7':'#f7b6d2','-8':'#c7c7c7','-9':'#dbdb8d',
+              '-10':'#9edae5'}.get(self.beam,'green')
+
+        
+        if family not in ('helvetica','times','courier'):
+            family='helvetica'
+        font='{family} {size}'.format(family=family,size=int(size))
+        if bold:
+            font+=' bold'
+        if not roman:
+            font+=' italic'
+
+        x,y=self.x.to_numpy(),self.y.to_numpy()
+        # get a bounding box
+        x0,x1=np.amin(x)-1,np.amax(x)+1
+        y0,y1=np.amin(y)-1,np.amax(y)+1
+
+        # make a binary image
+        shape=(y1-y0+1,x1-x0+1)
+        img=np.zeros(shape,dtype=float)        
+        img[y-y0,x-x0]=1
+
+        # contour the image
+        contours = measure.find_contours(img,level=0.5)
+
+        # reset the contours
+        cy=contours[0][:,0]+y0
+        cx=contours[0][:,1]+x0
+        
+        coord=','.join('{},{}'.format(*xy) for xy in zip(cx,cy))
+            
+
+        region='{mask}polygon({coord}) # color={color} text={{{text}}} edit={edit} move={move} rotate={rotate} width={width} fixed={fixed} font="{font}"'.format(coord=coord,mask=mask,color=color,edit=int(edit),move=int(move),rotate=int(rotate),width=int(width),fixed=int(fixed),font=font,text=self.segid)
+        return region
+
+
     
     @property
     def table_type(self):
