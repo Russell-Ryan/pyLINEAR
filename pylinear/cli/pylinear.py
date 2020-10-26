@@ -101,11 +101,6 @@ def extract():
     # step 2b. get the default extraction settings and set to the sources
     default_extract=grisms.get_default_extraction()
     sources.update_extraction_parameters(**default_extract)
-
-    # update this for Dan's galaxy
-    sources.update_extraction_parameters(dlamb=50.)
-    sources.update_extraction_parameters(dlamb=500.,segids=550)
-
     
     
     # step 3a.  compute the pixel tables
@@ -215,6 +210,8 @@ def tabulate():
     # step 2.  load grism images for simulation
     grisms=pylinear.grism.GrismCollection(conf['wcslst'],observed=False)
 
+
+    print(conf['beams'])
     # step 3a.  compute the pixel tables
     tabulate=pylinear.modules.Tabulate('pdt',remake=conf['remake'],
                                        path=conf['path'],nsub=conf['nsub'],
@@ -246,9 +243,11 @@ def main():
     # could adjust log settings with:
     #print(pylinear.log)
     
+
+    conf=pylinear.Config()
     
     # print the config
-    print(pylinear.Config())
+    print(conf)
     for k,v in args.items():
         if k == 'extract' and v:
             extract()
