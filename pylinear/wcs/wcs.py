@@ -62,7 +62,7 @@ class WCS(astropyWCS):
         dx=np.array(x)-(self.wcs.crpix[0]-1.)
         dy=np.array(y)-(self.wcs.crpix[1]-1.)
         if np.isscalar(x):
-            n=1
+            n=0
         else:
             n=len(x)
 
@@ -93,6 +93,7 @@ class WCS(astropyWCS):
                     dbdy+=(v*j*dx**i*dy**(j-1))
 
         jacobian = scale*np.abs(dadx * dbdy - dady * dbdx)
+        
         if n==1:
             jacobian=jacobian[0]
         
