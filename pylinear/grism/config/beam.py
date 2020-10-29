@@ -191,7 +191,7 @@ class Beam(object):
                             sensfile=os.path.join(path,val[0])
                             self.sensitivity=Sensitivity(sensfile)
 
-                        if key.startswith('WEDGE_'):
+                        if key.startswith('WEDGE'):
                             filt=key.split('_')[1]
                             val=tuple(self.fix_type(v) for v in val if valid(v))
                             self.wedge[filt]=val
@@ -259,8 +259,9 @@ class Beam(object):
 
         # implement the wedge offset
         if band is not None and band in self.wedge:
-            xg+=self.wedge[band][0]
-            yg+=self.wedge[band][1]
+            # NOR HAS THIS A NEGATIVE SIGN
+            xg-=self.wedge[band][0]
+            yg-=self.wedge[band][1]
             
         return xg,yg
 
