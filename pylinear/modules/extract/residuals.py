@@ -9,8 +9,8 @@ class ResidualFile(object):
     def __init__(self,flt):
         # save the filename
         self.dataset=flt.dataset
-
-
+        self.fltfile=flt.filename
+        
         # save the methods to load images
         self.loaders={}
 
@@ -79,14 +79,22 @@ class ResidualFile(object):
             for i,(devname,loaders) in enumerate(self.loaders.items()):
                 modext=3*i+2                    
                 resext=3*i+3
+                modext=('MODEL',i+1)
+                resext=('RESID',i+1)
                 #modext='MODEL'
                 #resext='RESID'
                 
                 unc,unchdr=loaders['uncertainty']()
+
+
+                import pdb
+                pdb.set_trace()
+
+                
                 hdul[modext].data*=unc
                 hdul[resext].data-=hdul[modext].data
             hdul.writeto(self.filename,overwrite=True)
-        
+            hdul.flush()
         
     def __str__(self):
         return "residual file for: {}".format(self.dataset)
@@ -111,6 +119,7 @@ class ResidualFile(object):
                     # compute the extensions
                     #sciext=3*i+1    # not really used
                     modext=3*i+2
+                    modext=('MODEL',i+1)
                     #resext=3*i+3
 
                     # update the model (but recall!!! This is needs to be
@@ -118,10 +127,10 @@ class ResidualFile(object):
                     # done in a separate method to avoid reading an
                     # uncertainty image at each iteration.
                     hdul[modext].data[devmod['y'],devmod['x']]+=devmod['v']
-                
 
             hdul.writeto(self.filename,overwrite=True)
 
+            
 class Residuals(object):
     def __init__(self,grisms):
         self.residuals={grism.dataset: ResidualFile(grism) for grism in grisms}
