@@ -30,6 +30,23 @@ class ODT(H5TableBase,dict):
         for pdt in self:
             pdt.threshold(v)
 
+    def flatten(self,arrays=True):
+        x,y,w,v=[],[],[],[]
+        for pdt in self:
+            x.extend(pdt.x)
+            y.extend(pdt.y)
+            w.extend(self.wav[pdt.lam])
+            v.extend(pdt.val)
+        if arrays:
+            x=np.array(x)
+            y=np.array(y)
+            w=np.array(w)
+            v=np.array(v)
+        
+        
+
+            
+        return x,y,w,v
             
 
         
@@ -161,13 +178,13 @@ class ODT(H5TableBase,dict):
                 wu=self.wav[lamu]
                 
                 # return the DDT            
-                ddt=DDT(self.segid,self.beam,xu,yu,wu,vu)
+                ddt=DDT(self.segid,xu,yu,wu,vu)
             else:
                 # a null table
-                ddt=DDT(self.segid,self.beam)
+                ddt=DDT(self.segid)
         else:
             # a null table
-            ddt=DDT(self.segid,self.beam)
+            ddt=DDT(self.segid)
 
             
         return ddt

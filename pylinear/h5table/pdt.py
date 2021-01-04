@@ -1,5 +1,6 @@
 import numpy as np
 
+from astropy.convolution import Gaussian2DKernel,convolve
 
 from .h5tablebase import H5TableBase
 from . import columns
@@ -100,9 +101,62 @@ class PDT(H5TableBase):
         return pdt
 
 
+    def convolve2(self,kernel,device):
+        lam=self.lam.to_numpy()
+        border=10
+        
+        newx,newy=[],[]
+        newlam,newval=[],[]
+        
+        for l in np.unique(lam):
+            g=np.where(lam==l)
+            x=self.x.to_numpy(g=g)
+            y=self.y.to_numpy(g=g)
+            v=self.val.to_numpy(g=g)
+
+            x0,x1=np.amin(x),np.amax(x)
+            y0,y1=np.amin(y),np.amax(y)
+            dx,dy=x1-x0+1,y1-y0+1
+            
+            
+            img=np.zeros((dy+2*border,dx+2*border),dtype=float)
+            img[y-y0+border,x-x0+border]=v
+            new=convolve(img,kernel)
+
+            mn=np.amin(v)
+
+            
+            #gy,gx=np.where(new>=0.05*mn)
+                  
+            #gv=new[gy,gx]
+            #gy+=(y0-border)
+            #gx+=(x0-border)
+            gl=np.full_like(x,l,dtype=int)
+
+            newv=new[y-y0+border,x-x0+border]
+            newv=(newv/np.sum(newv))*np.sum(v)
+            newx.extend(x)
+            newy.extend(y)
+            newval.extend(newv)
+            newlam.extend(gl)
+            
+            
+            #vmax=np.amax(v)
+            #import matplotlib.pyplot as plt
+            #fig,(a1,a2)=plt.subplots(1,2)
+            #a1.imshow(img,origin='lower',vmin=0,vmax=vmax)
+            #a2.imshow(new,origin='lower',vmin=0,vmax=vmax)
+            #plt.show()
+            
+        # clear
+        self.clear()
+        if len(newx)>0:
+            self.extend(newx,newy,newlam,newval)
+            
+        
+    
 
     def convolve(self,kernel,device):
-
 
         dim=(device.npixel,1)      # the 1 here is just a dummy variable
         

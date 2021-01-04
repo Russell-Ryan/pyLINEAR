@@ -18,9 +18,9 @@ class H5TableBase(object):
 
 
     def region(self,edit=False,move=False,rotate=False,fixed=True,width=2,
-               family='helvetica',size=12,bold=True,roman=True):
+               family='helvetica',size=12,bold=True,roman=True,beam='0'):
 
-                
+        beam=self.beam if hasattr(self,'beam') else beam
         
         mask='-' if hasattr(self,"MASK") and self.MASK else ''
         color={'0':'white','+1':'#1f77b4','+2':'#ff7f0e','+3':'#2ca02c',
@@ -28,7 +28,7 @@ class H5TableBase(object):
               '+8':'#7f7f7f','+9':'#bcbd22','+10':'#17becf','-1':'#aec7e8',
               '-2':'#ffbb78','-3':'#98df8a','-4':'#ff9896','-5':'#c5b0d5',
               '-6':'#c49c94','-7':'#f7b6d2','-8':'#c7c7c7','-9':'#dbdb8d',
-              '-10':'#9edae5'}.get(self.beam,'green')
+              '-10':'#9edae5'}.get(beam,'green')
 
         
         if family not in ('helvetica','times','courier'):

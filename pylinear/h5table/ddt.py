@@ -1,14 +1,15 @@
 import numpy as np
 from shapely.geometry import Polygon
+from astropy.convolution import convolve
 
 from .h5tablebase import H5TableBase
 from . import columns
 
 class DDT(H5TableBase):
     MASK=False
-    def __init__(self,segid,beam,*args):
+    def __init__(self,segid,*args):
         self.segid=segid
-        self.beam=beam
+        #self.beam=beam
         
         self.x=columns.X()
         self.y=columns.Y()
@@ -109,6 +110,69 @@ class DDT(H5TableBase):
         hd=self.write_data(h5,self.name,self.x,self.y,self.wav,
                            self.val,**kwargs)
 
+    
+        
+    def convolve(self,kernel,border=10):
+        wav=self.wav.to_numpy()
+
+        newx,newy=[],[]
+        neww,newv=[],[]
+        for w in np.unique(wav):
+            
+            # get the table elements
+            g=np.where(wav==w)
+            x=self.x.to_numpy(g=g)
+            y=self.y.to_numpy(g=g)
+            val=self.val.to_numpy(g=g)
+
+            # get a bounding box
+            x0,x1=np.amin(x),np.amax(x)
+            y0,y1=np.amin(y),np.amax(y)
+
+            # fill an image
+            shape=(y1-y0+2*border,x1-x0+2*border)
+            img=np.zeros(shape,dtype=float)
+            for xx,yy,vv in zip(x,y,val):
+                img[yy-y0+border,xx-x0+border]+=vv
+
+            # apply the convolution
+            norm1=np.sum(img)
+            new=convolve(img,kernel)
+            norm2=np.sum(new)
+
+            
+            # get the new data
+            gy,gx=np.where(new!=0)
+            gv=new[gy,gx]
+            gy+=(y0-border)
+            gx+=(x0-border)
+            gw=np.full_like(gx,w)
+
+            # extend dummy arrays
+            newx.extend(gx)
+            newy.extend(gy)
+            neww.extend(gw)
+            newv.extend(gv)
+            
+
+            
+
+            
+            #vmax=np.amax(img)
+            #import matplotlib.pyplot as plt
+            #fig,(a1,a2)=plt.subplots(1,2)
+            #a1.imshow(img,origin='lower',vmax=vmax)
+            #a2.imshow(new,origin='lower',vmax=vmax)
+            #plt.show()
+            
+        # clear the current table, and repopulate it
+        self.clear()
+        self.extend(newx,newy,neww,newv)
+        
+
+
+            
+        
 
     @classmethod
     def load(cls,segid,h5):
