@@ -3,7 +3,7 @@ import numpy as np
 
 from ... import h5table
 from ...utilities import Pool
-from . import kernel
+from .kernel import Kernel
 
 class Tabulate(object):
     # pixel footprint
@@ -37,8 +37,8 @@ class Tabulate(object):
         self.ncpu=ncpu
 
 
-    def make_pdts(self,src,wav,beamconf,device,pixfrac=1.0,
-                  sigma=None,nsigma=15.):
+    def make_pdts(self,src,wav,beamconf,device,pixfrac=1.0,kernel=None):
+        #sigma=None,nsigma=15.):
         dwav=wav[1]-wav[0]    # compute bandwidth
 
         # make a table to write to
@@ -48,6 +48,7 @@ class Tabulate(object):
         # compute ratio of pixel area between the FLT and the source
         pixrat=device.pixelarea/(pixfrac*src.pixelarea)
 
+        
         # process each pixel in the source
         for xd,yd,wd in src:
 
@@ -58,11 +59,10 @@ class Tabulate(object):
             # drizzle these corners
             x,y,l,v=beamconf.drizzle(xg,yg,wav,pixfrac=pixfrac,
                                      band=self.filtname)
-            
+
             if len(x)!=0:
                 # define the pixel coordinate
                 pix=(int(xd-src.ltv[0]),int(yd-src.ltv[1]))
-                
                 # scale the value, which at this time is
                 # only accounting for the relative pixel area
                 # 1. direct image weight (wd),
@@ -71,50 +71,48 @@ class Tabulate(object):
                 #v*=(pixrat*dwav)
                 
                 # create the table
-                pdt=h5table.PDT(pix,x,y,l,v*pixrat*dwav)
-              
+                pdt=h5table.PDT(pix,x,y,l,v*pixrat*dwav*wd)
 
+
+                # apply a convolution kernel if present
+                #if isinstance(kernel,Kernel):
+                if kernel is not None:
+                    #print('before: {}'.format(len(pdt)))
+                    pdt.convolve2(kernel,device)
+                    #print('after: {}\n'.format(len(pdt)))
+                    
                 # maybe apply a convolution kernel
-                if isinstance(sigma,(float,int)):
-                    # ok... so this should implement a basic Gaussian
-                    # kernel that does not vary with wavelength or
-                    # with detector (or detector position).  The next
-                    # step would be to get ```device``` and
-                    # ```beamconf``` to work together
-                    # to build the Kernel.  ```beamconf``` should record
-                    # aspects that change with dispersion order
-                    # and ```device``` should record aspects that
-                    # change with detector (and position).  When they
-                    # work together, they should also return a
-                    # ```GaussianKernel``` of the appropriate size
-                    # (say something that is ~3x the expected sigma, here
-                    #  I call that factor ```nsigma```.).
-                    size=int(np.ceil(sigma*nsigma))
-                    if size %2 == 0:
-                        size+=1
-                    if size>1:
-                        kern = kernel.GaussianKernel(sigma,size)
-                        pdt.convolve(kern,device)
-
-                
-                # create a dummy kernel              
-                #from collections import namedtuple
-                #Kernel=namedtuple('Kernel',['dx','dy','value'])
-                #kernel=Kernel(np.array([-1,-1,-1,0,0,0,1,1,1]),
-                #              np.array([-1,0,1,-1,0,1,-1,0,1]),
-                #              np.array([0.0751136,0.123841,0.0751136,
-                #                        0.1238410,0.204180,0.1238410,
-                #                        0.0751136,0.123841,0.0751136]))
+                #if isinstance(sigma,(float,int)):
+                #    # ok... so this should implement a basic Gaussian
+                #    # kernel that does not vary with wavelength or
+                #    # with detector (or detector position).  The next
+                #    # step would be to get ```device``` and
+                #    # ```beamconf``` to work together
+                #    # to build the Kernel.  ```beamconf``` should record
+                #    # aspects that change with dispersion order
+                #    # and ```device``` should record aspects that
+                #    # change with detector (and position).  When they
+                #    # work together, they should also return a
+                #    # ```GaussianKernel``` of the appropriate size
+                #    # (say something that is ~3x the expected sigma, here
+                #    #  I call that factor ```nsigma```.).
                 #
-                ## apply convolution kernel to PDT
-                #pdt.convolve(kernel,device)
-
-
-
+                #    kerntype='square'
+                #if kerntype=='gaussian':
+                #        size=int(np.ceil(sigma*nsigma))
+                #        if size %2 == 0:
+                #            size+=1
+                #        if size>1:
+                #            kern = kernel.GaussianKernel(sigma,size)
+                #            pdt.convolve(kern,device)
+                #    elif kerntype=='square':
+                #        kern = kernel.SquareKernel(sigma)
+                #        pdt.convolve(kern,device)
+                #    else:
+                #        pass
 
                 
                 # save to the table
-                #pdts.extend(pdt)
                 pdts.append(pdt)
         return pdts
 
@@ -200,7 +198,7 @@ class Tabulate(object):
 
                 # ok, now try using the default values of the extraction
                 # from the XML file.
-                dwav=device.defaults['dlamb']
+                dwav=device.defaults['dlamb']/self.nsub
                 wav=np.arange(device.defaults['lamb0'],
                               device.defaults['lamb1']+dwav,dwav)
 
@@ -232,8 +230,6 @@ class Tabulate(object):
                 # process each source
                 for src in sources:
                     #if src.name not in sources_done:  #
-
-
 
                     
                     # make the table

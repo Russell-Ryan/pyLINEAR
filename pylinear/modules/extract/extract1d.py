@@ -15,8 +15,8 @@ from .groupcollection import GroupCollection
 def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,
               ncpu=0,gzip_residuals=True,
               group=True,grpfile=None,
-              inverter='lsqr',mskbeams=None,
-              usehdf5=False,matrix_path='matrices'):
+              inverter='lsqr',mskbeams=None,              
+              kernel=None,usehdf5=False,matrix_path='matrices'):
               
     
 
@@ -132,12 +132,14 @@ def extract1d(grisms,sources,beams,logdamp,method,fileroot,path,
                 
             # how to load the data
             if usehdf5:              # load the matrix from HDF5
+                if kernel is not None:
+                    print('[warn]Kernel is not used with an HDF5 matrix')
                 extract.open_matrix(matfile,'r')
                 extract.load_matrix_hdf5(sources,group=group)
             else:                    # build a matrix
                 extract.open_matrix(matfile,'w')
                 extract.load_matrix_file(grisms,sources,beams,path,group=group,
-                                         mskbeams=mskbeams)
+                                         mskbeams=mskbeams,kernel=kernel)
             extract.close_matrix()
                 
             # run the extraction method

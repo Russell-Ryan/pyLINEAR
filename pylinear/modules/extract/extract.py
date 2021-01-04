@@ -97,7 +97,7 @@ class Extract(object):
 
             
     def load_matrix_file(self,grisms,sources,beams,path,group=0,
-                         mskbeams=None,target=True):
+                         mskbeams=None,target=True,kernel=None):
 
         self.group=group
         self.sources=sources
@@ -105,7 +105,7 @@ class Extract(object):
         
         # build the matrix into the self
         self.matrix=Matrix(grisms,sources,beams,path=path,mskbeams=mskbeams,
-                           group=group,inverter=self.inverter)
+                           group=group,inverter=self.inverter,kernel=kernel)
         if len(self.matrix)==0:
             print('[alarm]Matrix has no elements. Cannot set damping target.')
             return
@@ -254,6 +254,7 @@ class Extract(object):
             # iteratively call LSQR to maximize the curvature
             res=self._method(logdamp)
 
+            
             # compute model and update residuals
             if residuals is not None:
                 residuals.update_model(self.matrix,res.x)
