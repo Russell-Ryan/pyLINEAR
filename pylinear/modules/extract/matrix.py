@@ -22,7 +22,7 @@ class Matrix(object):
 
     #grisms,sources,extbeams,usehdf5=False,hdf5file='matrix.h5'
     def __init__(self,*args,group=0,inverter='lsqr',mskbeams=None,
-                 path='tables'):
+                 path='tables',kernel=None):
 
         # parse the inputs
         n=len(args)
@@ -30,7 +30,9 @@ class Matrix(object):
             grisms,sources,extbeams=args
         else:
             return
-        
+
+        # save the kernel
+        self.kernel=kernel
         
         # set some defaults        
         self.group=group
@@ -354,11 +356,13 @@ class Matrix(object):
                         
                         # get the wavelength ranges
                         limits=source.limits()
+
                         
                         # compute the indices for the wavelength bins
                         lamind=np.digitize(ddt.wav,limits)-1
                         lamind=lamind.astype(self.INT)
 
+                        
                         # 1d pixel coordinate in grism frame
                         xyg=x+device.naxis1*y
                         
@@ -449,9 +453,12 @@ class Matrix(object):
 
     def load_ddts(self,source,unc,device,h5tab,config,threshold=None):
         ''' make DDTs for detector effects '''
+
+        # get the beams for passing to DDT
+        beams = ','.join(config.keys())
         
         # this is the thing that is the output
-        source_ddt=h5table.DDT(source.segid)
+        source_ddt=h5table.DDT(source.segid,beams)
 
         
         # this is to join the DDTs for all the beams
@@ -467,6 +474,11 @@ class Matrix(object):
             
             # bin the DDT by output wavelength bin
             if len(ddt) != 0:
+
+                # apply a convolution kernel
+                if self.kernel is not None:
+                    ddt.convolve(self.kernel)
+
                 
                 # compute the wavelength bins for the source
                 limits=source.limits()
@@ -481,7 +493,9 @@ class Matrix(object):
                 x=ddt.x.to_numpy()
                 y=ddt.y.to_numpy()
                 wav=ddt.wav.to_numpy()
-                            
+
+
+                
                 # compute a few things to scale the tables
                 # 1. sensitivity curve
                 # 2. flat field
