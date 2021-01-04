@@ -1,6 +1,8 @@
 import numpy as np
 import os
+from astropy.convolution import Gaussian2DKernel,convolve
 #import scipy.ndimage as sn
+
 
 from ..sedphot import SED
 from ..wcs import WCS
@@ -195,6 +197,29 @@ class Source(WCS,ExtractionParameters):
     def __len__(self):
         return len(self.xd)
 
+
+    def gaussian_blur(self,stddev,border=10):
+        kernel = Gaussian2DKernel(x_stddev=stddev)
+        xmax,ymax=np.amax(self.xd),np.amax(self.yd)
+
+        img=np.zeros((ymax+2*border,xmax+2*border),dtype=float)
+        img[self.yd+border,self.xd+border]=self.wht
+        new = convolve(img, kernel)
+
+        #vmax=np.amax(self.wht)
+        #import matplotlib.pyplot as plt
+        #fig,(a1,a2)=plt.subplots(1,2)
+        #a1.imshow(img,origin='lower',vmin=0,vmax=vmax)
+        #a2.imshow(new,origin='lower',vmin=0,vmax=vmax)
+        #plt.show()
+
+        for i,(x,y) in enumerate(zip(self.xd,self.yd)):
+            self.wht[i]=new[y+border,x+border]
+        self.wht/=np.sum(self.wht)
+        
+        
+        
+    
 
     
     def update_header(self,hdr,group=0):
