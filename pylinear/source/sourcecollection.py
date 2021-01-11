@@ -42,7 +42,7 @@ class SourceCollection(dict):
 
             
             # require that the detection/segmentation images are compatible
-            assert (nhdus==nhdui),'Incompatible segmentation/detection images'
+            assert (nhdus==nhdui),'Incompatible segmentation/detection images: {} {}'.format(nhdus,nhdui)
 
             # load based on the extensions
             mef=nhdus>1
