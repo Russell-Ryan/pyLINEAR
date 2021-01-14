@@ -92,6 +92,8 @@ class Source(WCS,ExtractionParameters):
         # compute brightnesses
         self.total=np.sum(img[g])
 
+        
+
         # check the flux
         if self.total>0:
             self.mag=-2.5*np.log10(self.total)+zero
