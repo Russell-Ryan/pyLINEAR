@@ -2,7 +2,7 @@ import numpy as np
 import scipy.constants as sc
 import os
 from ..utilities.ascii_files import read_ascii_columns
-
+import matplotlib.pyplot as plt
 
 class Bandpass(object):
     
@@ -67,7 +67,9 @@ class Bandpass(object):
     #    jacob=(sc.c/self.photplam)*(1e10/self.photplam)
     #    return jacob
     #
-    
+    def plot(self):
+        plt.plot(self.lamb,self.tran)
+        plt.show()
 
     
     def aveflux(self,sed,magnitude=False,flam=False):
@@ -75,8 +77,8 @@ class Bandpass(object):
 
         if (sed.wmin > self.wmin) or (sed.wmax < self.wmax):
             print("[warn]Extrapolation warning.")
-            #print('SED RANGE: {} {}'.format(sed.wmin,sed.wmax))
-            #print('BAND range: {} {}'.format(self.wmin,self.wmax))
+            print('SED RANGE: {} {}'.format(sed.wmin,sed.wmax))
+            print('BAND range: {} {}'.format(self.wmin,self.wmax))
                   
             
         fnu=np.interp(self.lamb,sed.lamb,sed.fnu(),left=0.,right=0.)
@@ -92,5 +94,6 @@ class Bandpass(object):
         return ave
         
 if __name__=='__main__':
-    x=Bandpass.load('hst_acs_f814w')
+    x=pylinear.sedphot.Bandpass.load('hst_wfc3_f140w')
+    x.plot()
     print(x)
