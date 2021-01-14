@@ -50,6 +50,7 @@ class ResidualFile(object):
             dqa,dqaunc=device.load_dataquality()
             
             # make the science (by just copying over the data)
+            scihdr['EXTVER']=extver
             hdul.append(fits.ImageHDU(sci,header=scihdr))
             dtype=np.dtype(sci.dtype.name)
 
@@ -57,6 +58,7 @@ class ResidualFile(object):
             mod=np.zeros_like(sci)
             modhdr=scihdr
             modhdr['EXTNAME']='MODEL'
+            modhdr['EXTVER']=extver
             hdul.append(fits.ImageHDU(mod,header=modhdr))
 
 
@@ -68,6 +70,7 @@ class ResidualFile(object):
             res[msk]=np.nan
             reshdr=scihdr
             reshdr['EXTNAME']='RESID'
+            reshdr['EXTVER']=extver
             hdul.append(fits.ImageHDU(res,header=reshdr))
 
         # write the file to disk
@@ -77,18 +80,15 @@ class ResidualFile(object):
     def apply_uncertainty(self):
         with fits.open(self.filename,mode='update') as hdul:
             for i,(devname,loaders) in enumerate(self.loaders.items()):
-                modext=3*i+2                    
-                resext=3*i+3
-                modext=('MODEL',i+1)
-                resext=('RESID',i+1)
+                #modext=3*i+2                    
+                #resext=3*i+3
+                extver=i+1
+                modext=('MODEL',extver)
+                resext=('RESID',extver)
                 #modext='MODEL'
                 #resext='RESID'
                 
                 unc,unchdr=loaders['uncertainty']()
-
-
-                import pdb
-                pdb.set_trace()
 
                 
                 hdul[modext].data*=unc
